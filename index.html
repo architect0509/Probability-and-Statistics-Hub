@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Probability-and-Statistics-Hub</title>
+<title>대학교 확통허브</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = { darkMode: 'class' }
@@ -69,6 +69,11 @@
   .dark .ios-switch { background: #34c759; }
   .dark .ios-switch::after { transform: translateX(20px); }
 
+  .ios-switch.sm { width: 38px; height: 22px; }
+  .ios-switch.sm::after { width: 18px; height: 18px; top: 2px; left: 2px; box-shadow: 0 2px 5px rgba(0,0,0,.25); }
+  .dark .ios-switch.sm::after { transform: translateX(16px); }
+  .fs-btn { width: 30px; height: 30px; border-radius: 999px; background: var(--soft-bg); color: var(--text-sub); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform .15s ease; }
+  .fs-btn:active { transform: scale(.9); }
   .acc { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s ease, opacity .3s ease; opacity: 0; }
   .acc.open { grid-template-rows: 1fr; opacity: 1; }
   .acc > .acc-inner { overflow: hidden; min-height: 0; }
@@ -146,11 +151,59 @@
   }
   @media (hover: none) { .chip:hover, .fav-btn:hover { transform: none; } }
 
+  /* ===== 개념 사전: 챕터별 은은한 카드 색상 ===== */
+  .cc-ch4 { --cc: 10,132,255; --cct: 10,111,216; }
+  .cc-ch5 { --cc: 175,82,222; --cct: 142,58,184; }
+  .cc-ch6 { --cc: 52,199,89;  --cct: 31,143,61; }
+  .dark .cc-ch4 { --cct: 100,181,255; }
+  .dark .cc-ch5 { --cct: 210,140,255; }
+  .dark .cc-ch6 { --cct: 76,217,100; }
+  .glass.cc-ch4, .glass.cc-ch5, .glass.cc-ch6 {
+    background: linear-gradient(150deg, rgba(var(--cc), .17), rgba(var(--cc), .05) 75%), var(--glass-bg);
+    border-color: rgba(var(--cc), .30);
+  }
+  .ch-badge { background: rgba(var(--cc), .20); color: rgb(var(--cct)); }
+  .rel-link { color: rgb(var(--cct)); }
+  .cc-toggle { cursor: pointer; }
+  #return-pill { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(84px + env(safe-area-inset-bottom)); z-index: 45; }
+  #return-pill button { padding: 11px 20px; border-radius: 999px; font-size: 13px; font-weight: 800; color: #fff; background: linear-gradient(135deg,#af52de,#5e5ce6); box-shadow: 0 8px 24px rgba(175,82,222,.45); max-width: 92vw; transition: transform .15s ease; }
+  #return-pill button:active { transform: scale(.95); }
+
+  :root { --modal-bg: #ffffff; }
+  .dark { --modal-bg: #1e1e2c; }
+  .cm-panel { background: linear-gradient(150deg, rgba(var(--cc), .20), rgba(var(--cc), .05) 70%), var(--modal-bg); border: 1px solid rgba(var(--cc), .38); box-shadow: 0 24px 70px rgba(0,0,0,.35); max-height: 86vh; max-height: 86dvh; overflow-y: auto; overscroll-behavior: contain; }
+  .pop-in { animation: popIn .28s cubic-bezier(.2,1.2,.4,1) both; }
+  @keyframes popIn { from { opacity: 0; transform: translateY(14px) scale(.95); } to { opacity: 1; transform: none; } }
+  .cc-card { transition: transform .15s ease, box-shadow .2s; }
+  .cc-card:hover { transform: translateY(-2px); }
+  .cc-card:active { transform: scale(.98); }
+  @media (hover: none) { .cc-card:hover { transform: none; } }
+
   .fade-in { animation: fadeUp .45s ease both; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   .flash { box-shadow: 0 0 0 3px #0a84ff, var(--glass-shadow) !important; }
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-thumb { background: rgba(120,120,128,.35); border-radius: 8px; }
+
+  /* ===== 챕터명 / 용어 툴팁 / 홈 글귀 ===== */
+  .ico { width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.17em; flex-shrink: 0; }
+  .fav-btn .ico { width: 17px; height: 17px; vertical-align: middle; }
+  #theme-icon .ico { width: 16px; height: 16px; }
+  #return-pill .ico { vertical-align: -0.2em; }
+  .chev .ico { width: 1em; height: 1em; }
+  .ch-name { font-size: 12px; font-weight: 700; color: var(--text-sub); line-height: 1.3; }
+  [class*="cc-ch"] .ch-name { color: rgb(var(--cct)); }
+  .gloss { cursor: help; text-decoration: underline dotted; text-decoration-color: #ff9f0a; text-decoration-thickness: 2px; text-underline-offset: 3px; background: rgba(255,159,10,.12); border-radius: 4px; padding: 0 1px; -webkit-tap-highlight-color: transparent; outline: none; }
+  .gloss:hover, .gloss:focus-visible, .gloss.on { background: rgba(255,159,10,.28); }
+  @media (hover: none) { .gloss { cursor: pointer; } }
+  #gloss-tip { position: fixed; z-index: 90; left: 0; top: 0; max-width: min(270px, calc(100vw - 16px)); padding: 10px 13px; border-radius: 14px; background: rgba(28,28,36,.97); color: #f5f5f7; font-size: 12.5px; line-height: 1.6; box-shadow: 0 12px 34px rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.12); pointer-events: none; opacity: 0; visibility: hidden; transition: opacity .15s ease; word-break: keep-all; }
+  #gloss-tip.show { opacity: 1; visibility: visible; }
+  #gloss-tip b { display: block; color: #ffb340; font-size: 12px; margin-bottom: 2px; }
+  .quote-mark { color: #af52de; font-weight: 800; font-size: 1.25em; line-height: 0; vertical-align: -.12em; margin: 0 .12em; }
+  .quote-link { font-weight: 800; color: #5e5ce6; border-bottom: 2px solid rgba(94,92,230,.5); padding: 0 2px; border-radius: 4px 4px 0 0; cursor: pointer; transition: background .2s; text-align: inherit; }
+  .dark .quote-link { color: #a5a4ff; border-bottom-color: rgba(165,164,255,.55); }
+  .quote-link:hover { background: rgba(94,92,230,.14); }
+  .quote-link:active { background: rgba(94,92,230,.26); }
 </style>
 </head>
 <body>
@@ -169,17 +222,24 @@
     </div>
     <div class="contents">
       <div class="segment max-w-full overflow-x-auto order-3 w-full sm:w-auto sm:order-2 sm:ml-auto">
-        <button onclick="switchTab('home')" id="nav-home" class="seg-btn active">🏠 홈</button>
-        <button onclick="switchTab('study')" id="nav-study" class="seg-btn">📚 문제풀이</button>
-        <button onclick="switchTab('concepts')" id="nav-concepts" class="seg-btn">📖 개념 사전</button>
-        <button onclick="switchTab('formulas')" id="nav-formulas" class="seg-btn">📐 공식 사전</button>
-        <button onclick="switchTab('favs')" id="nav-favs" class="seg-btn">⭐ 즐겨찾기 <span id="fav-count" class="opacity-70"></span></button>
-        <button onclick="switchTab('test')" id="nav-test" class="seg-btn">📝 모의 테스트</button>
+        <button onclick="switchTab('home')" id="nav-home" class="seg-btn active"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> 홈</button>
+        <button onclick="switchTab('study')" id="nav-study" class="seg-btn"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg> 문제풀이</button>
+        <button onclick="switchTab('concepts')" id="nav-concepts" class="seg-btn"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 개념 사전</button>
+        <button onclick="formulaReturn=null; switchTab('formulas')" id="nav-formulas" class="seg-btn"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 7V5a1 1 0 0 0-1-1H6.5a.5.5 0 0 0-.4.8l4.5 6a2 2 0 0 1 0 2.4l-4.5 6a.5.5 0 0 0 .4.8H17a1 1 0 0 0 1-1v-2"/></svg> 공식 사전</button>
+        <button onclick="switchTab('favs')" id="nav-favs" class="seg-btn"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 즐겨찾기 <span id="fav-count" class="opacity-70"></span></button>
+        <button onclick="switchTab('test')" id="nav-test" class="seg-btn"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg> 모의 테스트</button>
+        <button onclick="switchTab('flow')" id="nav-flow" class="seg-btn"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg> 흐름잡기</button>
       </div>
-      <button onclick="toggleDarkMode()" class="flex items-center gap-2 order-2 sm:order-3" aria-label="다크모드 전환">
-        <span id="theme-icon" class="text-lg">🌙</span>
-        <span class="ios-switch"></span>
-      </button>
+      <div class="flex items-center gap-2 order-2 sm:order-3">
+        <button onclick="toggleDarkMode()" class="flex items-center gap-1.5" aria-label="다크모드 전환">
+          <span id="theme-icon" class="text-sm inline-flex"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span>
+          <span class="ios-switch sm"></span>
+        </button>
+        <button onclick="toggleFullscreen()" id="fs-btn" class="fs-btn" aria-label="전체화면 전환" title="전체화면 / 축소">
+          <svg id="fs-enter" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          <svg id="fs-exit" class="hidden" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+        </button>
+      </div>
     </div>
   </div>
 </header>
@@ -192,7 +252,7 @@
       <div class="absolute -left-10 -top-10 w-48 h-48 rounded-full blur-3xl" style="background:rgba(94,92,230,.25)"></div>
       <div class="absolute -right-10 -bottom-10 w-48 h-48 rounded-full blur-3xl" style="background:rgba(50,212,196,.22)"></div>
       <h2 class="home-title relative text-[26px] sm:text-5xl font-extrabold tracking-tight leading-tight">
-        <a href="https://github.com/architect0509/Probability-and-Statistics-Hub" target="_blank" rel="noopener noreferrer">Probability-<wbr>and-<wbr>Statistics-<wbr>Hub</a>
+        <a href="https://github.com/architect0509/Probability-and-Statistics-Hub" target="_blank" rel="noopener noreferrer">대학교 확통허브</a>
       </h2>
       <p class="relative mt-3 text-sm sm:text-base font-semibold sub">수원대학교 컴퓨터공학부 확률과 통계</p>
       <div id="home-stats" class="relative mt-5 flex justify-center gap-2 flex-wrap"></div>
@@ -200,27 +260,35 @@
 
     <div class="space-y-3">
       <div class="flex flex-wrap items-center justify-between gap-2 px-1">
-        <h3 class="text-lg font-extrabold">📖 오늘의 개념 5</h3>
+        <h3 class="text-lg font-extrabold"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 오늘의 개념 5</h3>
         <div class="flex gap-2 flex-wrap">
-          <button onclick="renderHome()" class="chip">🔄 다시 뽑기</button>
-          <button onclick="switchTab('concepts')" class="chip">개념 사전 전체 →</button>
+          <button onclick="renderHome()" class="chip"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> 다시 뽑기</button>
+          <button onclick="switchTab('concepts')" class="chip">개념 사전 전체 <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
         </div>
       </div>
       <div id="home-concepts" class="hscroll"></div>
     </div>
 
+    <div id="home-quote-box" class="glass rounded-3xl px-5 sm:px-10 py-7 sm:py-9 text-center relative overflow-hidden">
+      <div class="absolute -left-12 -bottom-12 w-40 h-40 rounded-full blur-3xl" style="background:rgba(175,82,222,.18)"></div>
+      <div class="absolute -right-12 -top-12 w-40 h-40 rounded-full blur-3xl" style="background:rgba(10,132,255,.18)"></div>
+      <div class="relative text-[11px] font-extrabold sub tracking-wider mb-3 flex items-center justify-center gap-1.5"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/></svg> 오늘의 개념 한 줄</div>
+      <blockquote id="home-quote" class="relative max-w-3xl mx-auto text-[17px] sm:text-[23px] font-bold leading-[1.75] tracking-tight"></blockquote>
+      <p class="relative mt-4 text-[11.5px] sub">색깔 있는 두 개념을 누르면 개념 사전으로 이동해요</p>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
       <div class="space-y-3">
         <div class="flex items-center justify-between px-1">
-          <h3 class="text-lg font-extrabold">📐 공식 모아보기</h3>
-          <button onclick="switchTab('formulas')" class="chip">공식 사전 →</button>
+          <h3 class="text-lg font-extrabold"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 7V5a1 1 0 0 0-1-1H6.5a.5.5 0 0 0-.4.8l4.5 6a2 2 0 0 1 0 2.4l-4.5 6a.5.5 0 0 0 .4.8H17a1 1 0 0 0 1-1v-2"/></svg> 공식 모아보기</h3>
+          <button onclick="switchTab('formulas')" class="chip">공식 사전 <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
         </div>
         <div id="home-formulas" class="space-y-3"></div>
       </div>
       <div class="space-y-3">
         <div class="flex items-center justify-between px-1">
-          <h3 class="text-lg font-extrabold">📚 문제풀이 맛보기</h3>
-          <button onclick="switchTab('study')" class="chip">문제풀이 →</button>
+          <h3 class="text-lg font-extrabold"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg> 문제풀이 맛보기</h3>
+          <button onclick="switchTab('study')" class="chip">문제풀이 <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
         </div>
         <div id="home-problems" class="space-y-3"></div>
       </div>
@@ -246,7 +314,7 @@
         <p class="text-sm font-semibold" id="formula-banner-title"></p>
       </div>
       <div class="flex gap-2">
-        <button onclick="returnToFormula()" class="chip !bg-blue-500 !text-white">📐 공식 사전으로</button>
+        <button onclick="returnToFormula()" class="chip !bg-blue-500 !text-white"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 7V5a1 1 0 0 0-1-1H6.5a.5.5 0 0 0-.4.8l4.5 6a2 2 0 0 1 0 2.4l-4.5 6a.5.5 0 0 0 .4.8H17a1 1 0 0 0 1-1v-2"/></svg> 공식 사전으로</button>
         <button onclick="clearFormulaFilter()" class="chip">필터 해제</button>
       </div>
     </div>
@@ -258,7 +326,7 @@
   <section id="tab-concepts" class="hidden space-y-5">
     <div class="rounded-3xl p-5 sm:p-6 text-white shadow-xl relative overflow-hidden" style="background: linear-gradient(135deg,#ff9f0a 0%,#ff6b9d 55%,#af52de 100%)">
       <div class="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/20 blur-2xl"></div>
-      <h2 class="text-2xl font-extrabold mb-1 relative">📖 개념 사전</h2>
+      <h2 class="text-2xl font-extrabold mb-1 relative"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 개념 사전</h2>
       <p class="text-white/90 text-sm relative">분산, 표본평균, 표준오차 같은 핵심 용어를 쉬운 말로 정리했어요. 검색하거나 챕터별로 골라 보세요.</p>
     </div>
     <div class="glass rounded-3xl p-3.5 flex flex-wrap gap-3 items-center justify-between">
@@ -278,7 +346,7 @@
   <section id="tab-formulas" class="hidden space-y-5">
     <div class="rounded-3xl p-5 sm:p-6 text-white shadow-xl relative overflow-hidden" style="background: linear-gradient(135deg,#5e5ce6 0%,#0a84ff 55%,#64d2ff 100%)">
       <div class="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/20 blur-2xl"></div>
-      <h2 class="text-2xl font-extrabold mb-1 relative">📐 공식 사전</h2>
+      <h2 class="text-2xl font-extrabold mb-1 relative"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 7V5a1 1 0 0 0-1-1H6.5a.5.5 0 0 0-.4.8l4.5 6a2 2 0 0 1 0 2.4l-4.5 6a.5.5 0 0 0 .4.8H17a1 1 0 0 0 1-1v-2"/></svg> 공식 사전</h2>
       <p class="text-white/85 text-sm relative">핵심 공식을 정리했습니다. <b>쉬운 예시</b>를 펼쳐 숫자로 확인하고, 하단 버튼으로 해당 공식이 쓰인 문제로 바로 이동하세요.</p>
     </div>
     <div id="formula-hub-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start"></div>
@@ -288,8 +356,8 @@
   <section id="tab-favs" class="hidden space-y-5">
     <div class="rounded-3xl p-5 sm:p-6 text-white shadow-xl relative overflow-hidden" style="background: linear-gradient(135deg,#ff9f0a 0%,#ffd60a 100%)">
       <div class="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/25 blur-2xl"></div>
-      <h2 class="text-2xl font-extrabold mb-1 relative">⭐ 즐겨찾기</h2>
-      <p class="text-white/95 text-sm relative">문제·개념·공식 카드의 ☆ 버튼으로 담은 항목을 한곳에서 몰아보고, 필요 없는 건 삭제하세요. 브라우저에 저장됩니다.</p>
+      <h2 class="text-2xl font-extrabold mb-1 relative"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 즐겨찾기</h2>
+      <p class="text-white/95 text-sm relative">문제·개념·공식 카드의 <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 버튼으로 담은 항목을 한곳에서 몰아보고, 필요 없는 건 삭제하세요. 브라우저에 저장됩니다.</p>
     </div>
     <div class="glass rounded-3xl p-3.5 flex flex-wrap gap-3 items-center justify-between">
       <div class="chip-row flex items-center gap-2 flex-wrap">
@@ -298,7 +366,7 @@
         <button onclick="setFavFilter('concept')" class="fav-filter chip" data-t="concept">개념</button>
         <button onclick="setFavFilter('formula')" class="fav-filter chip" data-t="formula">공식</button>
       </div>
-      <button onclick="clearFavs()" class="chip tint-red">🗑 전체 삭제</button>
+      <button onclick="clearFavs()" class="chip tint-red"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg> 전체 삭제</button>
     </div>
     <div id="fav-list" class="space-y-7"></div>
   </section>
@@ -306,7 +374,7 @@
   <!-- 3. 모의 테스트 -->
   <section id="tab-test" class="hidden space-y-5">
     <div id="test-setup" class="glass rounded-3xl p-5 sm:p-8 text-center max-w-xl mx-auto space-y-6">
-      <h2 class="text-2xl font-bold">📝 동적 랜덤 모의 테스트</h2>
+      <h2 class="text-2xl font-bold"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg> 동적 랜덤 모의 테스트</h2>
       <p class="sub text-sm leading-relaxed">원본 문제의 수치가 매회 <b>무작위로 변형</b>되어 출제됩니다.<br>정답은 실제 계산값이며, 4지선다형으로 풀어 보세요.</p>
       <div class="space-y-2">
         <div class="text-xs font-bold sub">출제 범위 (중복 선택 가능)</div>
@@ -326,6 +394,10 @@
     <div id="test-running" class="hidden max-w-3xl mx-auto"></div>
     <div id="test-result" class="hidden max-w-3xl mx-auto space-y-5"></div>
   </section>
+  <!-- 4. 흐름잡기 퀴즈 -->
+  <section id="tab-flow" class="hidden space-y-5">
+    <div id="flow-root" class="max-w-3xl mx-auto"></div>
+  </section>
 </main>
 
 <!-- Thaniya Project 크레딧 카드 (오른쪽 아래) -->
@@ -339,16 +411,23 @@
       <div class="text-[12px]" style="color:#a1a1a8">더 많은 프로젝트가 궁금하면?</div>
     </div>
   </div>
-  <a href="https://thaniya.co.kr/" target="_blank" rel="noopener noreferrer" class="mt-4 flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-extrabold text-[15px] transition active:scale-95" style="background:linear-gradient(180deg,#fde047,#facc15); color:#1c1c1e; box-shadow:0 4px 16px rgba(250,204,21,.35)">공식 사이트 방문하기 →</a>
+  <a href="https://thaniya.co.kr/" target="_blank" rel="noopener noreferrer" class="mt-4 flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-extrabold text-[15px] transition active:scale-95" style="background:linear-gradient(180deg,#fde047,#facc15); color:#1c1c1e; box-shadow:0 4px 16px rgba(250,204,21,.35)">공식 사이트 방문하기 <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
   <button onclick="closeThaniya(true)" class="mt-3 block w-full text-center text-[12px]" style="color:#a1a1a8">오늘은 그만 보기</button>
 </div>
 
+<div id="concept-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(0,0,0,.45); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);" onclick="if(event.target===this)closeConceptModal()">
+  <div id="concept-modal-panel" class="cm-panel rounded-3xl w-full max-w-lg p-5 sm:p-6 space-y-4"></div>
+</div>
+
+<div id="return-pill" class="hidden"><button id="return-pill-btn" onclick="returnToConcept()"></button></div>
+
 <div id="toast"></div>
+<div id="gloss-tip" role="tooltip"></div>
 
 <div id="hint-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(0,0,0,.4); backdrop-filter: blur(8px);">
   <div class="glass rounded-3xl max-w-lg w-full p-6 space-y-4 fade-in">
     <div class="flex justify-between items-center">
-      <h3 class="text-lg font-bold" id="hint-title">💡 힌트 (필요 공식)</h3>
+      <h3 class="text-lg font-bold" id="hint-title"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg> 힌트 (필요 공식)</h3>
       <button onclick="closeHintModal()" class="w-8 h-8 rounded-full soft font-bold sub">&times;</button>
     </div>
     <div id="hint-modal-content" class="p-4 soft rounded-2xl formula-box text-center"></div>
@@ -357,6 +436,12 @@
 </div>
 
 <script>
+  // ----- UI 아이콘 (인라인 SVG, lucide 스타일) -----
+  const ICON_PATHS = {"home": "<path d=\"m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/><polyline points=\"9 22 9 12 15 12 15 22\"/>", "book-open": "<path d=\"M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z\"/><path d=\"M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z\"/>", "pen-line": "<path d=\"M12 20h9\"/><path d=\"M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z\"/>", "sigma": "<path d=\"M18 7V5a1 1 0 0 0-1-1H6.5a.5.5 0 0 0-.4.8l4.5 6a2 2 0 0 1 0 2.4l-4.5 6a.5.5 0 0 0 .4.8H17a1 1 0 0 0 1-1v-2\"/>", "star": "<polygon points=\"12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2\"/>", "clipboard-check": "<rect width=\"8\" height=\"4\" x=\"8\" y=\"2\" rx=\"1\" ry=\"1\"/><path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\"/><path d=\"m9 14 2 2 4-4\"/>", "compass": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><polygon points=\"16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76\"/>", "moon": "<path d=\"M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z\"/>", "sun": "<circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2\"/><path d=\"M12 20v2\"/><path d=\"m4.93 4.93 1.41 1.41\"/><path d=\"m17.66 17.66 1.41 1.41\"/><path d=\"M2 12h2\"/><path d=\"M20 12h2\"/><path d=\"m6.34 17.66-1.41 1.41\"/><path d=\"m19.07 4.93-1.41 1.41\"/>", "refresh-cw": "<path d=\"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8\"/><path d=\"M21 3v5h-5\"/><path d=\"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16\"/><path d=\"M8 16H3v5\"/>", "quote": "<path d=\"M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z\"/><path d=\"M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z\"/>", "lightbulb": "<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\"/><path d=\"M9 18h6\"/><path d=\"M10 22h4\"/>", "arrow-right": "<path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/>", "arrow-left": "<path d=\"m12 19-7-7 7-7\"/><path d=\"M19 12H5\"/>", "trash-2": "<path d=\"M3 6h18\"/><path d=\"M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6\"/><path d=\"M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2\"/><line x1=\"10\" x2=\"10\" y1=\"11\" y2=\"17\"/><line x1=\"14\" x2=\"14\" y1=\"11\" y2=\"17\"/>", "link": "<path d=\"M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71\"/><path d=\"M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71\"/>", "paperclip": "<path d=\"m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48\"/>", "sparkles": "<path d=\"m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z\"/>", "code": "<polyline points=\"16 18 22 12 16 6\"/><polyline points=\"8 6 2 12 8 18\"/>", "coins": "<circle cx=\"8\" cy=\"8\" r=\"6\"/><path d=\"M18.09 10.37A6 6 0 1 1 10.34 18\"/><path d=\"M7 6h1v4\"/><path d=\"m16.71 13.88.7.71-2.82 2.82\"/>", "trophy": "<path d=\"M6 9H4.5a2.5 2.5 0 0 1 0-5H6\"/><path d=\"M18 9h1.5a2.5 2.5 0 0 0 0-5H18\"/><path d=\"M4 22h16\"/><path d=\"M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22\"/><path d=\"M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22\"/><path d=\"M18 2H6v7a6 6 0 0 0 12 0V2Z\"/>", "circle-check": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m9 12 2 2 4-4\"/>", "circle-x": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m15 9-6 6\"/><path d=\"m9 9 6 6\"/>", "chevron-down": "<path d=\"m6 9 6 6 6-6\"/>"};
+  function ic(name, cls = '', fill = false) {
+    return `<svg class="ico ${cls}" viewBox="0 0 24 24" fill="${fill ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON_PATHS[name] || ''}</svg>`;
+  }
+  function favIcon(on) { return ic('star', '', on); }
   // =========================================================================
   // 공식 사전 데이터
   // =========================================================================
@@ -442,7 +527,7 @@
             <div>$E(X^2) = 0^2(0.25)+1^2(0.5)+2^2(0.25) = 1.5$</div>
             <div>$V(X) = E(X^2)-[E(X)]^2 = 1.5 - 1^2 = \mathbf{0.5}$</div>
           </div>
-          <p class="text-xs sub">💡 동전 2번이면 앞면이 평균 1번 나온다는 직관과 일치합니다. (이항분포 $np = 2\times0.5 = 1$, $np(1-p)=0.5$)</p>
+          <p class="text-xs sub">${ic('lightbulb')} 동전 2번이면 앞면이 평균 1번 나온다는 직관과 일치합니다. (이항분포 $np = 2\times0.5 = 1$, $np(1-p)=0.5$)</p>
         </div>`
     }
   };
@@ -458,7 +543,7 @@
           <div class="text-xs font-extrabold text-blue-600 dark:text-blue-300">${s.h}</div>
           <div class="soft rounded-2xl p-4 space-y-2 text-center text-sm">${s.lines.map(l => `<div>${l}</div>`).join('')}</div>
         </div>`).join('') +
-      (note ? `<p class="text-xs sub">💡 ${note}</p>` : '');
+      (note ? `<p class="text-xs sub">${ic('lightbulb')} ${note}</p>` : '');
   }
 
   Object.assign(EXAMPLES_DATA, {
@@ -508,7 +593,7 @@
         [
           { h: "① 밀도함수 높이", lines: [
             String.raw`$f(x) = \frac{1}{10-0} = 0.1 \quad (0 \le x \le 10)$`,
-            String.raw`전체 넓이 = 밑변 10 × 높이 0.1 = 1 ✔`
+            String.raw`전체 넓이 = 밑변 10 × 높이 0.1 = 1 (확인)`
           ]},
           { h: "② 확률 = 직사각형 넓이", lines: [
             String.raw`$P(X \ge 7)$ = (10−7) × 0.1 = $\mathbf{0.3}$`,
@@ -1010,6 +1095,7 @@
       ],
       throwOnError: false
     });
+    applyGloss(root || document.body);
   }
 
   // =========================================================================
@@ -1109,7 +1195,7 @@
       ex: String.raw`400명 중 220명 지지 $\Rightarrow \hat{p}=0.55$`, formulaId: "sample_prop_dist" },
     { ch: 6, term: "정규근사 조건", en: "Normal Approximation Condition", kw: "np 5 10 근사 조건",
       def: String.raw`이항분포나 표본비율을 정규분포로 근사하려면 $np \ge 5$ (또는 10) 이고 $n(1-p) \ge 5$ (또는 10) 이어야 합니다. <b>성공과 실패가 모두 충분히</b> 나와야 한다는 뜻입니다.`,
-      ex: String.raw`$n=100,\ p=0.8$: $np=80,\ n(1-p)=20$ ✔`, formulaId: "sample_prop_dist" },
+      ex: String.raw`$n=100,\ p=0.8$: $np=80,\ n(1-p)=20$ (둘 다 충족)`, formulaId: "sample_prop_dist" },
     { ch: 6, term: "허용오차와 필요 표본 크기", en: "Margin of Error", kw: "오차한계 신뢰 1.96 n 구하기",
       def: String.raw`허용오차는 $z \times SE$ 입니다. 원하는 오차 한계를 만족하는 최소 표본 크기는 부등식을 $n$에 대해 풀어 구하고, 소수가 나오면 <b>올림</b>합니다.`,
       ex: String.raw`$n \ge \frac{1.96^2\,p(1-p)}{0.05^2} = 368.8 \Rightarrow 369$`, formulaId: "sample_prop_dist" },
@@ -1124,23 +1210,294 @@
     renderConcepts();
   }
 
-  function buildConceptCard(c, extra = '') {
+  // 개념 간 관계: [연결할 개념(사전에 있으면 클릭 이동), 관계 설명]
+  const CONCEPT_RELATIONS = {
+    "확률변수": [
+      ["이산확률변수", "값을 하나씩 셀 수 있는 종류 (개수, 눈의 수 등)"],
+      ["연속확률변수", "구간 안의 모든 실수를 가질 수 있는 종류 (시간, 키 등)"],
+      ["기댓값 (평균)", "확률변수가 장기적으로 어떤 값 근처인지 요약하는 대표값"]
+    ],
+    "이산확률변수": [
+      ["확률질량함수", "각 값이 나올 확률을 알려 주는 함수 (PMF)"],
+      ["연속확률변수", "반대 개념. 한 점의 확률이 0이라 PMF 대신 PDF를 씀"],
+      ["이항분포", "가장 대표적인 이산확률분포"]
+    ],
+    "확률질량함수": [
+      ["누적분포함수", "PMF를 작은 값부터 차례로 더해 쌓으면 CDF"],
+      ["기댓값 (평균)", "PMF로 (값 × 확률)을 모두 더해 계산"],
+      ["확률밀도함수", "연속형의 짝. 합 대신 넓이(적분)로 확률을 구함"]
+    ],
+    "누적분포함수": [
+      ["확률질량함수", "CDF의 증가분이 각 값의 PMF"],
+      ["백분위수 (분위수)", "CDF를 거꾸로 읽으면 분위수 (확률 → 값)"],
+      ["표준정규분포와 Z값", "표준정규분포의 CDF가 표에 나오는 Φ(z)"]
+    ],
+    "기댓값 (평균)": [
+      ["분산", "기댓값을 중심으로 얼마나 퍼지는지 보완하는 짝 지표"],
+      ["선형변환의 평균과 분산", "E(aX+b) = aE(X)+b 로 간단히 계산"],
+      ["이항분포", "이항분포의 기댓값은 np"],
+      ["표본평균", "표본평균의 기댓값이 모평균 μ (불편성)"]
+    ],
+    "분산": [
+      ["표준편차", "분산의 제곱근. 원래 단위로 돌려 해석하기 쉬움"],
+      ["기댓값 (평균)", "Var(X)=E(X²)−[E(X)]² 계산에 기댓값이 쓰임"],
+      ["표준오차", "통계량(표본평균 등)의 표준편차. 통계량의 분산에서 출발"]
+    ],
+    "표준편차": [
+      ["분산", "표준편차를 제곱하면 분산"],
+      ["표준오차", "σ는 데이터 하나의 퍼짐, SE는 통계량의 퍼짐 (혼동 주의)"],
+      ["표준정규분포와 Z값", "Z값의 단위가 곧 표준편차 몇 개인지"]
+    ],
+    "선형변환의 평균과 분산": [
+      ["기댓값 (평균)", "평균은 a·E(X)+b 로 그대로 따라 움직임"],
+      ["분산", "분산은 a² 배가 되고 더하는 상수 b는 영향 없음"],
+      ["표준정규분포와 Z값", "표준화 Z=(X−μ)/σ 도 선형변환의 한 예"]
+    ],
+    "베르누이 시행": [
+      ["이항분포", "베르누이 시행을 n번 반복해 성공 횟수를 세면 이항분포"],
+      ["표본비율", "각 응답이 성공/실패인 시행이라 표본비율의 바탕이 됨"]
+    ],
+    "이항분포": [
+      ["베르누이 시행", "이항분포를 이루는 기본 단위 (n=1 이면 베르누이)"],
+      ["정규근사 조건", "n이 충분히 크면 정규분포로 근사해 계산 가능"],
+      ["표본비율", "성공 횟수 X를 n으로 나눈 것이 표본비율 p̂"],
+      ["기댓값 (평균)", "E(X)=np, Var(X)=np(1−p)"]
+    ],
+    "연속확률변수": [
+      ["확률밀도함수", "연속확률변수의 확률을 넓이로 알려 주는 함수"],
+      ["이산확률변수", "반대 개념. 값을 셀 수 있으면 이산"],
+      ["정규분포", "대표적인 연속확률분포"]
+    ],
+    "확률밀도함수": [
+      ["연속확률변수", "PDF는 연속확률변수를 설명하는 도구"],
+      ["확률질량함수", "이산형의 짝. 높이가 곧 확률이라는 점이 다름"],
+      ["누적분포함수", "밀도를 왼쪽 끝부터 적분하면 CDF"]
+    ],
+    "연속균등분포": [
+      ["확률밀도함수", "PDF가 평평한 직사각형 모양인 가장 단순한 경우"],
+      ["지수분포", "둘 다 연속분포. 균등은 어디나 같은 밀도, 지수는 시간이 갈수록 밀도 감소"],
+      ["정규분포", "균등은 평평, 정규는 가운데가 가장 높은 종 모양"]
+    ],
+    "지수분포": [
+      ["무기억성", "지수분포만이 가지는 특징 (이미 기다린 시간은 무관)"],
+      ["포아송 분포", "포아송 분포가 \"1시간 동안 은행에 고객이 몇 명 오는가?\"를 다룬다면, 지수분포는 \"다음 고객이 올 때까지 몇 분을 기다려야 하는가?\"를 다룹니다. (같은 사건 과정을 '횟수'와 '대기시간' 두 관점에서 본 것)"],
+      ["연속균등분포", "대기시간을 다루는 또 다른 연속분포이지만 모양이 전혀 다름"]
+    ],
+    "무기억성": [
+      ["지수분포", "무기억성은 지수분포의 핵심 성질"],
+      ["기하분포", "(참고) 이산분포 중에서는 기하분포가 같은 성질을 가짐"]
+    ],
+    "정규분포": [
+      ["표준정규분포와 Z값", "표준화하면 모든 정규분포를 N(0,1) 하나로 계산"],
+      ["중심극한정리", "표본평균이 근사적으로 정규분포를 따르는 이유"],
+      ["정규근사 조건", "이항분포·표본비율을 정규분포로 근사할 수 있는 조건"]
+    ],
+    "표준정규분포와 Z값": [
+      ["정규분포", "Z는 임의의 정규분포를 표준화한 값"],
+      ["정규분포의 대칭성", "음수 z는 대칭을 이용해 표에서 바꿔 읽음"],
+      ["백분위수 (분위수)", "확률에서 z를 찾고 x=μ+zσ 로 되돌리는 역방향 계산"],
+      ["표본평균", "표본평균의 Z는 σ 대신 표준오차로 나눔"]
+    ],
+    "정규분포의 대칭성": [
+      ["표준정규분포와 Z값", "Φ(−z)=1−Φ(z) 로 표의 음수 구간을 해결"],
+      ["정규분포", "평균 μ를 기준으로 좌우대칭이라서 성립"]
+    ],
+    "백분위수 (분위수)": [
+      ["표준정규분포와 Z값", "표준정규분포에서 z를 먼저 찾음"],
+      ["누적분포함수", "CDF를 거꾸로 읽는 문제 (확률 → 값)"],
+      ["허용오차와 필요 표본 크기", "1.96 같은 z값도 분위수에서 나옴"]
+    ],
+    "모집단과 표본": [
+      ["모수와 통계량", "모집단의 값은 모수, 표본의 값은 통계량"],
+      ["임의추출", "표본이 모집단을 잘 대표하도록 뽑는 방법"],
+      ["표본분포", "표본을 뽑을 때마다 통계량이 달라져서 생기는 분포"]
+    ],
+    "모수와 통계량": [
+      ["모집단과 표본", "모수는 모집단, 통계량은 표본에 대응"],
+      ["표본분포", "통계량은 표본마다 달라져서 고유한 분포를 가짐"],
+      ["불편추정량", "통계량이 모수를 치우침 없이 추정하는지의 기준"]
+    ],
+    "임의추출": [
+      ["표본분포", "임의추출이어야 표본분포 공식이 성립"],
+      ["모집단과 표본", "모집단 원소가 같은 확률로 뽑히도록 하는 방식"]
+    ],
+    "표본분포": [
+      ["표본평균", "대표적인 예: 표본평균의 분포"],
+      ["표본비율", "또 다른 예: 표본비율의 분포"],
+      ["표준오차", "표본분포의 표준편차가 표준오차"],
+      ["중심극한정리", "표본평균의 표본분포가 정규분포에 가까워진다는 정리"]
+    ],
+    "표본평균": [
+      ["표준오차", "표본평균의 표준편차 σ/√n"],
+      ["중심극한정리", "n이 크면 모집단 모양과 상관없이 근사적으로 정규분포"],
+      ["불편추정량", "E(X̄)=μ 이므로 모평균의 불편추정량"],
+      ["기댓값 (평균)", "표본평균의 기댓값은 모평균과 같음"]
+    ],
+    "표준오차": [
+      ["표본평균", "SE = σ/√n"],
+      ["표본비율", "SE = √(p(1−p)/n)"],
+      ["표본 크기와 정밀도", "n이 커질수록 SE가 줄어듦 (√n 에 반비례)"],
+      ["표준편차", "표준편차 σ와는 다른 개념이라 구분 필요"]
+    ],
+    "표본 크기와 정밀도": [
+      ["표준오차", "정밀도는 표준오차가 작을수록 높음"],
+      ["허용오차와 필요 표본 크기", "원하는 정밀도를 얻기 위한 n을 구하는 문제로 확장"]
+    ],
+    "중심극한정리": [
+      ["정규분포", "표본평균의 분포가 가까워지는 목표 분포"],
+      ["표본평균", "CLT가 적용되는 대표 통계량"],
+      ["정규근사 조건", "표본비율·이항분포에서 CLT를 쓸 수 있는 구체적 조건"]
+    ],
+    "표본비율": [
+      ["베르누이 시행", "각 관측이 성공/실패라서 비율로 요약됨"],
+      ["이항분포", "성공 횟수가 이항분포이고 p̂ = X/n"],
+      ["정규근사 조건", "np, n(1−p)가 충분히 커야 정규분포로 근사"],
+      ["표준오차", "SE = √(p(1−p)/n)"]
+    ],
+    "정규근사 조건": [
+      ["표본비율", "표본비율의 정규근사 가능 여부를 확인"],
+      ["이항분포", "이항분포를 정규분포로 근사할 때 확인"],
+      ["중심극한정리", "근사가 성립하는 이론적 배경"]
+    ],
+    "허용오차와 필요 표본 크기": [
+      ["표준오차", "허용오차 = z × SE"],
+      ["표본 크기와 정밀도", "오차를 줄이려면 n을 늘려야 한다는 원리 활용"],
+      ["백분위수 (분위수)", "신뢰수준에 해당하는 z값(예: 1.96)을 사용"],
+      ["표본비율", "비율 문제에서는 p(1−p)를 넣어 n을 계산"]
+    ],
+    "불편추정량": [
+      ["표본평균", "모평균의 불편추정량"],
+      ["표본비율", "모비율의 불편추정량"],
+      ["모수와 통계량", "통계량이 모수를 얼마나 잘 맞히는지 평가하는 기준"]
+    ]
+  };
+
+  function conceptIndexByTerm(term) { return CONCEPTS_DATA.findIndex(x => x.term === term); }
+
+  // 목록·홈·즐겨찾기에 보이는 간단한 개념 카드 (누르면 상세 카드창이 열림)
+  function buildConceptCard(c, extra = '', prefix = '') {
+    const idx = CONCEPTS_DATA.indexOf(c);
+    const relCount = (CONCEPT_RELATIONS[c.term] || []).length;
     return `
-      <div class="glass rounded-3xl p-4 sm:p-5 space-y-3 fade-in ${extra}">
+      <div id="${prefix}cc-${idx}" role="button" tabindex="0" onclick="onConceptCardClick(event, ${idx})" onkeydown="if(event.key==='Enter')openConceptModal(${idx})"
+           class="glass cc-ch${c.ch} cc-card rounded-3xl p-4 sm:p-5 space-y-2.5 fade-in transition-shadow cursor-pointer ${extra}">
         <div class="flex items-center justify-between gap-2">
-          <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tint-blue">Chapter ${c.ch}</span>
-          <div class="flex items-center gap-2">
-            ${c.formulaId ? `<button onclick="jumpToFormula('${c.formulaId}')" class="chip !text-[11px] flex items-center gap-1"><span>📐 관련 공식</span></button>` : ''}
-            ${favBtn('concept', c.term)}
-          </div>
+          <span class="flex items-center gap-2 min-w-0 flex-wrap"><span class="px-2.5 py-1 rounded-full text-[11px] font-bold ch-badge">Chapter ${c.ch}</span>${chName(c.ch)}</span>
+          ${favBtn('concept', c.term)}
         </div>
         <div>
           <h3 class="font-bold text-lg leading-tight">${c.term}</h3>
           <div class="text-[11px] sub font-semibold mt-0.5">${c.en}</div>
         </div>
-        <p class="text-sm leading-relaxed">${c.def}</p>
-        ${c.ex ? `<div class="soft rounded-2xl p-3 text-[13px] leading-relaxed"><span class="font-extrabold tint-green bg-transparent">예시</span> ${c.ex}</div>` : ''}
+        <div class="flex items-center justify-between text-[11.5px] font-bold rel-link pt-0.5">
+          <span>자세히 보기${relCount ? ` · 관계 ${relCount}` : ''}</span><span>›</span>
+        </div>
       </div>`;
+  }
+
+  function onConceptCardClick(e, idx) {
+    if (e.target.closest('.fav-btn')) return; // 즐겨찾기 버튼은 팝업을 열지 않음
+    openConceptModal(idx);
+  }
+
+  // ---- 개념 카드창 (모달) ----
+  let modalConceptIdx = null;
+  function openConceptModal(idx) {
+    const c = CONCEPTS_DATA[idx];
+    if (!c) return;
+    modalConceptIdx = idx;
+    const rels = CONCEPT_RELATIONS[c.term] || [];
+    const relHtml = rels.map(([t, txt]) => {
+      const ti = conceptIndexByTerm(t);
+      return ti >= 0
+        ? `<button onclick="openConceptModal(${ti})" class="w-full text-left text-[13.5px] leading-relaxed block"><span class="font-extrabold rel-link">${ic('arrow-right')} ${t}</span> <span class="sub">${txt}</span></button>`
+        : `<div class="text-[13.5px] leading-relaxed"><span class="font-extrabold rel-link">${ic('paperclip')} ${t}</span> <span class="sub">${txt}</span></div>`;
+    }).join('');
+
+    const panel = document.getElementById('concept-modal-panel');
+    panel.className = `cm-panel cc-ch${c.ch} rounded-3xl w-full max-w-lg p-5 sm:p-6 space-y-4`;
+    panel.innerHTML = `
+      <div class="flex items-center justify-between gap-2">
+        <span class="flex items-center gap-2 min-w-0 flex-wrap"><span class="px-3 py-1 rounded-full text-[11px] font-bold ch-badge">Chapter ${c.ch}</span>${chName(c.ch)}</span>
+        <div class="flex items-center gap-2">
+          ${favBtn('concept', c.term)}
+          <button onclick="closeConceptModal()" aria-label="닫기" class="fav-btn !text-xl">&times;</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-2xl font-extrabold leading-tight">${c.term}</h3>
+        <div class="text-xs sub font-semibold mt-1">${c.en}</div>
+      </div>
+      <div class="space-y-1.5">
+        <div class="text-xs font-extrabold rel-link">${ic('book-open')} 설명</div>
+        <p class="text-[15px] leading-relaxed">${c.def}</p>
+      </div>
+      ${c.ex ? `<div class="soft rounded-2xl p-3.5 text-sm leading-relaxed"><span class="font-extrabold tint-green bg-transparent">예시</span> ${c.ex}</div>` : ''}
+      ${CONCEPT_EASY[c.term] ? `
+        <div class="space-y-2">
+          <button onclick="toggleEasy()" class="w-full py-3 rounded-2xl text-sm font-extrabold transition active:scale-95 tint-amber flex items-center justify-center gap-2"><span>${ic('sparkles')} 쉽게 풀어서 이해하기</span><span id="easy-chev" class="chev">${ic('chevron-down')}</span></button>
+          <div id="cm-easy" class="acc"><div class="acc-inner"><div class="soft rounded-2xl p-4 mt-1 text-[14.5px] leading-[1.8]">${CONCEPT_EASY[c.term]}</div></div></div>
+        </div>` : ''}
+      ${rels.length ? `
+        <div class="space-y-1.5">
+          <div class="text-xs font-extrabold rel-link">${ic('link')} 관련 개념과의 관계</div>
+          <div class="soft rounded-2xl p-3.5 space-y-3">${relHtml}</div>
+        </div>` : ''}
+      <div class="flex gap-2 pt-1">
+        ${c.formulaId ? `<button onclick="jumpToFormulaFromModal()" class="flex-1 py-3 rounded-2xl text-white text-sm font-bold shadow-md transition active:scale-95" style="background:linear-gradient(135deg,rgb(var(--cc)),#5e5ce6)">${ic('sigma')} 관련 공식 보기</button>` : ''}
+        <button onclick="closeConceptModal()" class="${c.formulaId ? '' : 'flex-1 '}px-5 py-3 rounded-2xl soft text-sm font-bold">닫기</button>
+      </div>`;
+
+    const m = document.getElementById('concept-modal');
+    m.classList.remove('hidden'); m.classList.add('flex');
+    panel.classList.remove('pop-in'); void panel.offsetWidth; panel.classList.add('pop-in');
+    panel.scrollTop = 0;
+    document.documentElement.style.overflow = 'hidden';
+    renderMath(panel);
+  }
+  function closeConceptModal() {
+    const m = document.getElementById('concept-modal');
+    m.classList.add('hidden'); m.classList.remove('flex');
+    document.documentElement.style.overflow = '';
+    modalConceptIdx = null;
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && modalConceptIdx !== null) closeConceptModal();
+  });
+
+  // ---- 공식 사전 ↔ 개념 카드창 왕복 ----
+  let formulaReturn = null;
+  function jumpToFormula(formulaId, ret) {
+    lastFormulaId = formulaId;
+    formulaReturn = ret || null;
+    switchTab('formulas');
+    setTimeout(() => flashCard(`formula-card-${formulaId}`), 120);
+  }
+  function jumpToFormulaFromModal() {
+    const idx = modalConceptIdx;
+    if (idx === null) return;
+    const c = CONCEPTS_DATA[idx];
+    const from = currentTab;
+    closeConceptModal();
+    jumpToFormula(c.formulaId, { idx, tab: from });
+  }
+  function updateReturnPill() {
+    const pill = document.getElementById('return-pill');
+    if (!pill) return;
+    if (currentTab === 'formulas' && formulaReturn) {
+      const c = CONCEPTS_DATA[formulaReturn.idx];
+      document.getElementById('return-pill-btn').innerHTML = `${ic('arrow-left')} '${c.term}' 개념으로 돌아가기`;
+      pill.classList.remove('hidden');
+    } else {
+      pill.classList.add('hidden');
+    }
+  }
+  function returnToConcept() {
+    const r = formulaReturn;
+    if (!r) return;
+    formulaReturn = null;
+    switchTab(r.tab);
+    setTimeout(() => openConceptModal(r.idx), 150);
   }
 
   function renderConcepts() {
@@ -1162,6 +1519,7 @@
     box.innerHTML = list.length ? list.map(c => buildConceptCard(c)).join('')
       : `<div class="glass rounded-3xl p-8 text-center sub text-sm md:col-span-2">검색 결과가 없습니다.</div>`;
     renderMath(box);
+    lucide.createIcons();
   }
 
   // =========================================================================
@@ -1177,12 +1535,12 @@
   function escAttr(s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
   function favBtn(type, id) {
     const on = isFav(type, id);
-    return `<button class="fav-btn ${on ? 'on' : ''}" data-type="${type}" data-id="${escAttr(id)}" onclick="toggleFav('${type}', this.dataset.id)" aria-label="즐겨찾기" title="즐겨찾기"><span>${on ? '★' : '☆'}</span></button>`;
+    return `<button class="fav-btn ${on ? 'on' : ''}" data-type="${type}" data-id="${escAttr(id)}" onclick="toggleFav('${type}', this.dataset.id)" aria-label="즐겨찾기" title="즐겨찾기"><span>${favIcon(on)}</span></button>`;
   }
   let toastTimer = null;
   function toast(msg) {
     const t = document.getElementById('toast');
-    t.textContent = msg; t.classList.add('show');
+    t.innerHTML = msg; t.classList.add('show');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
   }
@@ -1190,14 +1548,14 @@
     document.querySelectorAll('.fav-btn').forEach(b => {
       const on = isFav(b.dataset.type, b.dataset.id);
       b.classList.toggle('on', on);
-      b.firstChild.textContent = on ? '★' : '☆';
+      b.firstChild.innerHTML = favIcon(on);
     });
     document.getElementById('fav-count').textContent = favs.length ? `(${favs.length})` : '';
   }
   function toggleFav(type, id) {
     const i = favs.findIndex(f => f.type === type && f.id === id);
     if (i >= 0) { favs.splice(i, 1); toast('즐겨찾기에서 삭제했어요'); }
-    else { favs.unshift({ type, id }); toast('⭐ 즐겨찾기에 담았어요'); }
+    else { favs.unshift({ type, id }); toast(`${ic('star','',true)} 즐겨찾기에 담았어요`); }
     saveFavs(); syncFavUI();
     if (currentTab === 'favs') renderFavs();
   }
@@ -1229,13 +1587,13 @@
     box.innerHTML = '';
     const shown = items.filter(i => favFilter === 'all' || i.type === favFilter);
     if (!shown.length) {
-      box.innerHTML = `<div class="glass rounded-3xl p-10 text-center sub text-sm leading-relaxed">아직 담은 항목이 없어요.<br>문제·개념·공식 카드의 <b>☆</b> 버튼을 눌러 담아 보세요.</div>`;
+      box.innerHTML = `<div class="glass rounded-3xl p-10 text-center sub text-sm leading-relaxed">아직 담은 항목이 없어요.<br>문제·개념·공식 카드의 <b>${ic('star')}</b> 버튼을 눌러 담아 보세요.</div>`;
       return;
     }
     const groups = [
-      ['problem', '📚 문제', 'space-y-5'],
-      ['concept', '📖 개념', 'grid grid-cols-1 md:grid-cols-2 gap-4 items-start'],
-      ['formula', '📐 공식', 'grid grid-cols-1 md:grid-cols-2 gap-4 items-start']
+      ['problem', `${ic('pen-line')} 문제`, 'space-y-5'],
+      ['concept', `${ic('book-open')} 개념`, 'grid grid-cols-1 md:grid-cols-2 gap-4 items-start'],
+      ['formula', `${ic('sigma')} 공식`, 'grid grid-cols-1 md:grid-cols-2 gap-4 items-start']
     ];
     groups.forEach(([type, label, gridCls]) => {
       const list = shown.filter(i => i.type === type);
@@ -1249,11 +1607,11 @@
         const wrap = document.createElement('div');
         wrap.className = 'space-y-2';
         if (type === 'problem') wrap.appendChild(buildProblemCard(it.data, 'fav-'));
-        else if (type === 'concept') wrap.insertAdjacentHTML('beforeend', buildConceptCard(it.data));
+        else if (type === 'concept') wrap.insertAdjacentHTML('beforeend', buildConceptCard(it.data, '', 'fav-'));
         else wrap.appendChild(buildFormulaCard(it.data, 'fav-'));
         const del = document.createElement('button');
         del.className = 'chip tint-red ml-auto flex items-center gap-1';
-        del.textContent = '🗑 삭제';
+        del.innerHTML = `${ic('trash-2')} 삭제`;
         del.onclick = () => toggleFav(it.type, it.id);
         wrap.appendChild(del);
         grid.appendChild(wrap);
@@ -1271,22 +1629,22 @@
   function pickRandom(arr, n) { return shuffle(arr).slice(0, n); }
   function renderHome() {
     document.getElementById('home-stats').innerHTML = [
-      `📚 문제 ${PROBLEMS_DATA.length}`, `📖 개념 ${CONCEPTS_DATA.length}`, `📐 공식 ${Object.keys(FORMULAS_DATA).length}`
+      `${ic('pen-line')} 문제 ${PROBLEMS_DATA.length}`, `${ic('book-open')} 개념 ${CONCEPTS_DATA.length}`, `${ic('sigma')} 공식 ${Object.keys(FORMULAS_DATA).length}`
     ].map(t => `<span class="chip">${t}</span>`).join('');
 
     const cbox = document.getElementById('home-concepts');
-    cbox.innerHTML = pickRandom(CONCEPTS_DATA, 5).map(c => buildConceptCard(c, 'w-[290px] sm:w-[320px]')).join('');
+    cbox.innerHTML = pickRandom(CONCEPTS_DATA, 5).map(c => buildConceptCard(c, 'w-[290px] sm:w-[320px]', 'home-')).join('');
 
     const fbox = document.getElementById('home-formulas');
     fbox.innerHTML = pickRandom(Object.values(FORMULAS_DATA), 4).map(f => `
       <div class="glass rounded-3xl p-4 space-y-2 fade-in">
         <div class="flex items-center justify-between gap-2">
-          <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tint-blue">Chapter ${f.chapter}</span>
+          <span class="flex items-center gap-2 min-w-0 flex-wrap"><span class="px-2.5 py-1 rounded-full text-[11px] font-bold tint-blue">Chapter ${f.chapter}</span>${chName(f.chapter)}</span>
           ${favBtn('formula', f.id)}
         </div>
         <h4 class="font-bold text-sm">${f.title}</h4>
         <div class="p-3 soft rounded-2xl formula-box text-center overflow-x-auto">$$${f.latex}$$</div>
-        <button onclick="jumpToFormula('${f.id}')" class="chip !text-[11.5px]">📐 공식 사전에서 보기</button>
+        <button onclick="jumpToFormula('${f.id}')" class="chip !text-[11.5px]">${ic('sigma')} 공식 사전에서 보기</button>
       </div>`).join('');
 
     const pbox = document.getElementById('home-problems');
@@ -1300,9 +1658,10 @@
           ${favBtn('problem', p.uid)}
         </div>
         <div class="soft rounded-2xl p-3 text-[13px] leading-relaxed line-clamp-3">${p.text}</div>
-        <button onclick="jumpToProblem('${p.uid}')" class="chip !text-[11.5px]">💡 풀이 보러 가기</button>
+        <button onclick="jumpToProblem('${p.uid}')" class="chip !text-[11.5px]">${ic('lightbulb')} 풀이 보러 가기</button>
       </div>`).join('');
 
+    renderQuote();
     renderMath(document.getElementById('tab-home'));
     lucide.createIcons();
   }
@@ -1330,13 +1689,14 @@
 
   function toggleDarkMode() {
     const isDark = document.documentElement.classList.toggle('dark');
-    document.getElementById('theme-icon').textContent = isDark ? '🌙' : '☀️';
+    document.getElementById('theme-icon').innerHTML = ic(isDark ? 'moon' : 'sun');
   }
 
-  const TABS = ['home', 'study', 'concepts', 'formulas', 'favs', 'test'];
+  const TABS = ['home', 'study', 'concepts', 'formulas', 'favs', 'test', 'flow'];
   let currentTab = 'home';
   function switchTab(tabName) {
     currentTab = tabName;
+    if (tabName !== 'formulas' && tabName !== 'study') formulaReturn = null;
     TABS.forEach(t => {
       document.getElementById(`tab-${t}`).classList.add('hidden');
       document.getElementById(`nav-${t}`).classList.remove('active');
@@ -1351,6 +1711,8 @@
     if (tabName === 'concepts') renderConcepts();
     if (tabName === 'formulas') renderFormulas();
     if (tabName === 'favs') renderFavs();
+    if (tabName === 'flow') renderFlow();
+    updateReturnPill();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -1405,9 +1767,9 @@
         <div class="soft rounded-2xl p-4 text-base leading-relaxed font-medium">${p.text}</div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <button onclick="toggleAccordion('${u}-formula')" class="pill-btn tint-amber"><span>📐 적용 공식</span><i data-lucide="chevron-down" id="icon-${u}-formula" class="chev w-4 h-4"></i></button>
-          <button onclick="toggleAccordion('${u}-solution')" class="pill-btn tint-green"><span>💡 단계별 상세 풀이</span><i data-lucide="chevron-down" id="icon-${u}-solution" class="chev w-4 h-4"></i></button>
-          <button onclick="toggleAccordion('${u}-code')" class="pill-btn tint-blue"><span>🐍 Python SciPy 코드</span><i data-lucide="chevron-down" id="icon-${u}-code" class="chev w-4 h-4"></i></button>
+          <button onclick="toggleAccordion('${u}-formula')" class="pill-btn tint-amber"><span>${ic('sigma')} 적용 공식</span><i data-lucide="chevron-down" id="icon-${u}-formula" class="chev w-4 h-4"></i></button>
+          <button onclick="toggleAccordion('${u}-solution')" class="pill-btn tint-green"><span>${ic('lightbulb')} 단계별 상세 풀이</span><i data-lucide="chevron-down" id="icon-${u}-solution" class="chev w-4 h-4"></i></button>
+          <button onclick="toggleAccordion('${u}-code')" class="pill-btn tint-blue"><span>${ic('code')} Python SciPy 코드</span><i data-lucide="chevron-down" id="icon-${u}-code" class="chev w-4 h-4"></i></button>
         </div>
 
         <div id="${u}-formula" class="acc"><div class="acc-inner">
@@ -1469,8 +1831,8 @@
     card.className = "glass rounded-3xl p-4 sm:p-5 space-y-4 fade-in transition-shadow";
     card.innerHTML = `
         <div class="space-y-2">
-          <div class="flex items-center justify-between gap-2">
-            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tint-blue">Chapter ${f.chapter}</span>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="flex items-center gap-2 min-w-0 flex-wrap"><span class="px-2.5 py-1 rounded-full text-[11px] font-bold tint-blue">Chapter ${f.chapter}</span>${chName(f.chapter)}</span>
             <div class="flex items-center gap-2">
               <span class="text-[11px] sub">${count ? `${count}개 문제 적용` : '개념 공식'}</span>
               ${favBtn('formula', f.id)}
@@ -1483,7 +1845,7 @@
 
         ${ex ? `
           <button onclick="toggleAccordion('${prefix}ex-${f.id}')" class="pill-btn tint-green w-full">
-            <span>🪙 쉬운 예시 · ${ex.title}</span>
+            <span>${ic('coins')} 쉬운 예시 · ${ex.title}</span>
             <i data-lucide="chevron-down" id="icon-${prefix}ex-${f.id}" class="chev w-4 h-4"></i>
           </button>
           <div id="${prefix}ex-${f.id}" class="acc"><div class="acc-inner">
@@ -1519,11 +1881,6 @@
     const id = formulaFilter || lastFormulaId;
     switchTab('formulas');
     if (id) setTimeout(() => flashCard(`formula-card-${id}`), 120);
-  }
-  function jumpToFormula(formulaId) {
-    lastFormulaId = formulaId;
-    switchTab('formulas');
-    setTimeout(() => flashCard(`formula-card-${formulaId}`), 120);
   }
 
   // =========================================================================
@@ -1617,7 +1974,7 @@
         <div class="flex justify-between items-center">
           <span class="text-xs font-bold px-3 py-1 rounded-full tint-blue">문제 ${currentTestIdx + 1} / ${testQuestions.length}</span>
           <div class="flex gap-2">
-            <button onclick="openHint('${q.base.formulaId}')" class="pill-btn tint-amber !py-1.5">💡 힌트</button>
+            <button onclick="openHint('${q.base.formulaId}')" class="pill-btn tint-amber !py-1.5">${ic('lightbulb')} 힌트</button>
             <button onclick="quitTest()" class="pill-btn soft sub !py-1.5">중단</button>
           </div>
         </div>
@@ -1653,7 +2010,7 @@
   function openHint(formulaId) {
     const f = FORMULAS_DATA[formulaId];
     if (!f) return;
-    document.getElementById('hint-title').textContent = '💡 힌트 (필요 공식)';
+    document.getElementById('hint-title').innerHTML = ic('lightbulb') + ' 힌트 (필요 공식)';
     document.getElementById('hint-modal-content').innerHTML = `
       <div class="text-xs font-bold mb-1 tint-amber bg-transparent">${f.title}</div>
       <div class="text-lg overflow-x-auto">$$${f.latex}$$</div>
@@ -1678,7 +2035,7 @@
 
     rc.innerHTML = `
       <div class="glass rounded-3xl p-5 sm:p-8 text-center space-y-4 fade-in">
-        <h2 class="text-2xl font-black">🎉 테스트 완료!</h2>
+        <h2 class="text-2xl font-black">${ic('trophy')} 테스트 완료!</h2>
         <div class="text-5xl font-black" style="color:#0a84ff">${percent}점</div>
         <p class="sub text-sm">${testQuestions.length}문제 중 ${correct}문제 정답</p>
         <button onclick="resetTest()" class="px-6 py-3 rounded-2xl text-white font-bold shadow" style="background:#007aff">새 문제로 다시 풀기</button>
@@ -1691,14 +2048,14 @@
         <div class="glass rounded-3xl p-5 space-y-3 fade-in" style="${ok ? 'border-color: rgba(52,199,89,.5)' : 'border-color: rgba(255,69,58,.5)'}">
           <div class="flex items-center justify-between">
             <span class="font-bold text-sm">문제 ${q.n}</span>
-            <span class="px-3 py-1 rounded-full text-xs font-bold ${ok ? 'tint-green' : 'tint-red'}">${ok ? '정답 ⭕' : '오답 ❌'}</span>
+            <span class="px-3 py-1 rounded-full text-xs font-bold ${ok ? 'tint-green' : 'tint-red'}">${ok ? `정답 ${ic('circle-check')}` : `오답 ${ic('circle-x')}`}</span>
           </div>
           <div class="text-sm leading-relaxed">${q.text}</div>
           <div class="flex flex-wrap gap-4 text-xs font-semibold soft rounded-2xl p-3">
             <span class="${ok ? 'tint-green' : 'tint-red'} bg-transparent">선택한 답: ${ua !== undefined ? fmt(q.choices[ua].v) : '미응답'}</span>
             <span class="tint-green bg-transparent">실제 정답: ${fmt(q.ans)}</span>
           </div>
-          <button onclick="toggleAccordion('rs-${i}')" class="pill-btn tint-green w-full"><span>💡 풀이 참고 (원본 문제 기준)</span><i data-lucide="chevron-down" id="icon-rs-${i}" class="chev w-4 h-4"></i></button>
+          <button onclick="toggleAccordion('rs-${i}')" class="pill-btn tint-green w-full"><span>${ic('lightbulb')} 풀이 참고 (원본 문제 기준)</span><i data-lucide="chevron-down" id="icon-rs-${i}" class="chev w-4 h-4"></i></button>
           <div id="rs-${i}" class="acc"><div class="acc-inner">
             <div class="soft rounded-2xl p-4 mt-1 space-y-2 text-xs leading-relaxed">
               <p class="sub">※ 풀이는 원본 문제의 수치로 작성되어 있습니다. 변형된 수치로 같은 방식으로 계산해 보세요.</p>
@@ -1710,6 +2067,391 @@
     `;
     renderMath(rc);
     lucide.createIcons();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+
+  // =========================================================================
+  // 개념 사전: 어린 학생용 쉬운 설명
+  // =========================================================================
+  const CONCEPT_EASY = {
+    "확률변수": String.raw`실험 결과를 <b>숫자 이름표</b>로 바꿔 주는 규칙이에요. 동전을 두 번 던지면 '앞앞, 앞뒤, 뒤앞, 뒤뒤'가 나오는데, "앞면이 몇 번 나왔지?"라고 숫자로 바꿔 부르면 계산하기 훨씬 쉬워져요. 그 숫자가 바로 확률변수 $X$예요.`,
+    "이산확률변수": String.raw`손가락으로 <b>하나, 둘, 셋… 셀 수 있는</b> 값만 가지는 변수예요. 주사위 눈이나 맞힌 문제 수처럼 1.5개 같은 중간 값은 없어요. 계단처럼 딱딱 끊어진 숫자라고 생각하면 돼요.`,
+    "확률질량함수": String.raw`각 숫자가 나올 확률을 적어 둔 <b>확률 성적표</b>예요. 주사위라면 1~6 칸에 각각 $\frac16$이 적혀 있죠. 모든 칸의 확률을 다 더하면 항상 1(=100%)이 돼야 해요.`,
+    "누적분포함수": String.raw`"여기까지 다 합치면 얼마?"를 알려 주는 <b>누적 점수판</b>이에요. 키 순서로 줄을 섰을 때 "나보다 작거나 같은 친구가 몇 명이지?" 세는 것과 같아요. 그래서 '~ 이하'일 확률을 구할 때 써요.`,
+    "기댓값 (평균)": String.raw`같은 게임을 아주 많이 했을 때 <b>한 번에 평균적으로 얻는 값</b>이에요. (값 × 그 값이 나올 확률)을 전부 더해서 구해요. 주사위를 계속 던져 평균을 내 보면 3.5 근처로 모이는 것처럼요.`,
+    "분산": String.raw`숫자들이 평균에서 <b>얼마나 흩어져 있는지</b> 재는 '들쭉날쭉 지수'예요. 다들 평균 근처면 작고, 멀리 흩어져 있으면 커요. 같은 평균 70점이어도, 모두 70점인 반과 0점·100점이 섞인 반은 분산이 아주 달라요.`,
+    "표준편차": String.raw`분산에 <b>루트(√)</b>를 씌운 값이에요. 분산은 단위가 제곱이라 어색한데, 루트를 씌우면 원래 단위(점, 개, cm)로 돌아와요. "평균에서 보통 이만큼 떨어져 있구나"라고 읽으면 돼요.`,
+    "선형변환의 평균과 분산": String.raw`모든 값에 똑같은 규칙 $aX+b$를 적용하면 평균과 분산이 어떻게 변하는지예요. 시험 점수에 모두 5점을 더해 주면 <b>평균만 5 올라가고</b> 흩어진 정도는 그대로예요. 모두 2배로 키우면 평균은 2배, 분산은 2²=4배가 돼요. (더하는 수 $b$는 분산에 영향이 없어요.)`,
+    "베르누이 시행": String.raw`결과가 딱 <b>두 가지(성공/실패)</b>뿐인 한 번의 도전이에요. 동전 던지기, 슛 한 번 넣기 성공 여부처럼요. 성공할 확률을 $p$라 부르고, 이 도전을 여러 번 모으면 이항분포가 돼요.`,
+    "이항분포": String.raw`같은 도전을 $n$번 하고 <b>"성공이 몇 번일까?"</b>를 세는 분포예요. 성공률 0.5인 친구가 슛을 10번 던지면 몇 개 넣을지 확률을 알려 줘요. 평균은 $np$, 분산은 $np(1-p)$로 쉽게 구해요.`,
+    "연속확률변수": String.raw`1.5, 1.52, 1.5273…처럼 <b>소수점 아래로 끝없이 쪼갤 수 있는</b> 값이에요. 키, 몸무게, 기다린 시간이 그래요. 그래서 "딱 이 값"일 확률은 0이고, "이 구간 안"일 확률만 따져요.`,
+    "확률밀도함수": String.raw`연속 변수의 확률을 <b>그래프 아래 넓이</b>로 알려 주는 곡선이에요. 곡선의 높이가 확률은 아니고, 구간의 넓이가 그 구간의 확률이에요. 곡선 아래 전체 넓이는 항상 1이에요.`,
+    "연속균등분포": String.raw`구간 안 어디서나 나올 가능성이 <b>똑같은</b> 분포예요. 0~10분 사이 어느 순간에나 똑같이 버스가 올 수 있는 상황이죠. 그래프가 평평한 직사각형이라 확률은 (내가 보는 구간 길이) ÷ (전체 길이)로 구해요.`,
+    "지수분포": String.raw`다음 일이 일어날 때까지 <b>기다리는 시간</b>의 분포예요. 콜센터에 다음 전화가 올 때까지 걸리는 시간처럼요. 짧게 기다릴 확률이 크고, 오래 기다릴 확률은 점점 작아지는 내리막 곡선이에요.`,
+    "무기억성": String.raw`<b>지금까지 얼마나 기다렸는지는 앞으로와 상관없다</b>는 성질이에요. 이미 5분을 기다렸어도, 지금 막 도착한 사람과 "앞으로 더 기다릴 확률"이 똑같아요. 동전이 앞면만 계속 나왔어도 다음 번 확률은 여전히 반반인 것과 비슷해요.`,
+    "정규분포": String.raw`가운데가 가장 높고 양쪽으로 부드럽게 낮아지는 <b>종 모양</b> 분포예요. 반 친구들의 키처럼 보통 값이 제일 많고, 아주 크거나 작은 친구는 드물어요. 평균(중심 위치)과 표준편차(퍼진 정도) 두 숫자만 알면 모양이 정해져요.`,
+    "표준정규분포와 Z값": String.raw`단위가 다른 정규분포를 <b>공통 자</b>로 바꿔 재는 방법이에요. $Z=\frac{\text{값}-\text{평균}}{\text{표준편차}}$는 "평균에서 표준편차로 몇 칸 떨어졌나"를 뜻해요. $Z=2$면 평균보다 2칸 위라서 꽤 높은 편이에요. 이 $Z$로 표에서 확률을 찾아요.`,
+    "정규분포의 대칭성": String.raw`종 모양이 가운데를 기준으로 <b>좌우가 거울처럼 똑같다</b>는 뜻이에요. 그래서 평균보다 큰 쪽이 50%, 작은 쪽이 50%이고, $Z=1$ 이상일 확률과 $Z=-1$ 이하일 확률도 같아요. 한쪽을 알면 반대쪽은 거울로 구하면 돼요.`,
+    "백분위수 (분위수)": String.raw`"<b>아래에서부터 몇 %까지 왔나</b>"를 알려 주는 위치예요. 90백분위수는 100명 중 아래에서 90번째쯤, 즉 상위 10%의 문턱이에요. 확률을 거꾸로 해서 "이 확률이 되는 값이 뭐지?"를 찾는 거예요.`,
+    "모집단과 표본": String.raw`<b>모집단</b>은 알고 싶은 전체, <b>표본</b>은 그중에서 실제로 조사한 일부예요. 전국 대학생 모두의 수면 시간은 다 못 물어보니 몇백 명만 물어보죠. 국 맛을 보려고 한 숟가락만 떠먹어 보는 것과 같아요.`,
+    "모수와 통계량": String.raw`<b>모수</b>는 전체에 대한 '진짜 값', <b>통계량</b>은 표본으로 계산한 '추측용 값'이에요. 전체의 진짜 평균 $\mu$는 모수, 표본에서 계산한 평균 $\bar{x}$는 통계량이에요. 통계량은 뽑을 때마다 조금씩 달라지지만, 모수는 하나로 정해져 있어요.`,
+    "임의추출": String.raw`누가 뽑힐지 <b>공평하게</b> 뽑는 방법이에요. 제비뽑기처럼 모두에게 같은 기회를 주는 거예요. 친한 친구들만 골라서 물어보면 결과가 한쪽으로 치우쳐 버려요.`,
+    "표본분포": String.raw`표본으로 계산한 값(예: 평균)을 <b>여러 번 모았을 때 그 값들이 퍼지는 모양</b>이에요. 한 반에서 10명씩 뽑아 평균을 100번 내면 매번 조금씩 다른 평균이 나오는데, 그 평균들의 분포가 표본분포예요. "통계량의 분포"라고 기억하세요.`,
+    "표본평균": String.raw`표본의 값들을 <b>모두 더해서 개수로 나눈</b> 평균이에요. 전체의 평균을 모를 때 대신 쓰는 추측값이에요. 뽑을 때마다 조금씩 달라지지만, 평균적으로는 진짜 평균 근처에 있어요.`,
+    "표준오차": String.raw`표본평균이 뽑을 때마다 <b>얼마나 흔들리는지</b> 재는 값이에요. 표준편차를 $\sqrt{n}$으로 나눈 $\frac{\sigma}{\sqrt{n}}$으로 계산해요. 값이 작을수록 표본평균이 진짜 평균에 가까울 가능성이 커요.`,
+    "표본 크기와 정밀도": String.raw`표본을 <b>많이 뽑을수록 추측이 정확해진다</b>는 뜻이에요. 다만 $\sqrt{n}$으로 나누기 때문에, 정확도를 2배로 올리려면 표본이 4배나 필요해요. 한 숟가락보다 열 숟가락 먹어 보면 국 맛을 더 잘 알지만, 갈수록 효과가 줄어드는 것과 같아요.`,
+    "중심극한정리": String.raw`원래 모양이 어떻든, 표본을 충분히 크게(보통 30 이상) 뽑으면 <b>표본평균의 분포는 종 모양(정규분포)에 가까워진다</b>는 마법 같은 정리예요. 울퉁불퉁한 모집단이어도 평균들만 모으면 예쁜 종 모양이 돼요. 덕분에 정규분포 표로 계산할 수 있어요.`,
+    "표본비율": String.raw`표본 중에서 어떤 특징을 가진 사람이 차지하는 <b>비율</b>이에요. 100명 중 40명이 안경을 썼다면 $\hat{p}=0.4$예요. 전체의 진짜 비율 $p$를 추측할 때 써요. 비율은 (1과 0의 평균)이라서 중심극한정리가 똑같이 적용돼요.`,
+    "정규근사 조건": String.raw`표본비율을 종 모양으로 <b>근사해도 안전한지</b> 확인하는 기준이에요. 보통 $np$와 $n(1-p)$가 둘 다 5 이상(교재에 따라 10 이상)이어야 해요. 성공이나 실패 한쪽이 너무 적으면 그래프가 한쪽으로 쏠려서 종 모양이 안 되기 때문이에요.`,
+    "허용오차와 필요 표본 크기": String.raw`<b>허용오차</b>는 "이 정도 틀리는 건 괜찮아"라고 정해 둔 범위예요. 허용오차를 더 작게 하고 싶으면 더 많은 사람을 조사해야 해요. 그래서 허용오차를 먼저 정하고 "몇 명을 조사해야 하지?"를 거꾸로 계산해요.`,
+    "불편추정량": String.raw`여러 번 추정했을 때 <b>평균적으로는 진짜 값을 정확히 맞히는</b> 추정 방법이에요. 어떤 때는 높고 어떤 때는 낮아도 한쪽으로 치우치지 않아요. 화살이 흩어져도 중심이 과녁 한가운데인 것과 같아요. 표본평균은 모평균의 불편추정량이에요.`
+  };
+  function toggleEasy() {
+    const el = document.getElementById('cm-easy');
+    if (!el) return;
+    const open = el.classList.toggle('open');
+    const ch = document.getElementById('easy-chev');
+    if (ch) ch.classList.toggle('rot', open);
+    if (open) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 380);
+  }
+
+
+  // =========================================================================
+  // 챕터명 / 용어 툴팁 / 홈 글귀
+  // =========================================================================
+  const CH_NAMES = { 4: '확률변수와 확률분포', 5: '여러가지 확률분포', 6: '표본분포' };
+  function chName(ch) { return CH_NAMES[ch] ? `<span class="ch-name">${CH_NAMES[ch]}</span>` : ''; }
+
+  // 생소한 용어 → 쉬운 뜻 (글 속에서 점선 밑줄로 표시, 마우스 올리기/터치로 확인)
+  const GLOSSARY = {
+      "불편추정량": "여러 번 추정했을 때 평균이 모수와 같아지는, 한쪽으로 치우치지 않는 추정량이에요.",
+      "추정량": "모수를 알아맞히려고 표본으로 만든 계산 방법(공식)이에요.",
+      "추정": "표본을 바탕으로 모르는 모수의 값을 짐작하는 일이에요.",
+      "모수": "모집단 전체의 ‘진짜 값’이에요 (예: 모평균 μ, 모비율 p). 하나로 정해져 있지만 보통 값을 모르기 때문에 표본으로 추측해요.",
+      "통계량": "표본으로 계산한 값이에요 (예: 표본평균, 표본비율). 표본을 뽑을 때마다 값이 달라져요.",
+      "모평균": "모집단 전체의 평균 μ 예요.",
+      "모비율": "모집단 전체에서 어떤 특징을 가진 사람의 비율 p 예요.",
+      "모표준편차": "모집단 전체의 표준편차 σ 예요.",
+      "모집단": "알고 싶은 대상 전체예요.",
+      "허용오차": "‘이 정도 틀리는 건 괜찮다’고 미리 정해 둔 오차의 범위예요.",
+      "표준화": "(값 − 평균) ÷ 표준편차로 바꿔 Z값으로 만드는 일이에요. 단위가 달라도 같은 자로 비교할 수 있어요.",
+      "정규근사": "이항분포나 표본비율을 계산하기 쉬운 정규분포로 대신 계산하는 것이에요.",
+      "근사": "정확한 값은 아니지만 아주 가까운 값으로 대신 계산하는 것이에요.",
+      "임의추출": "누구나 같은 확률로 뽑히도록 공평하게 표본을 뽑는 방법이에요.",
+      "신뢰수준": "추정 방법이 맞을 가능성의 정도예요 (예: 95%). 95%일 때 z값은 1.96이에요.",
+      "치우침": "추정이 평균적으로 한쪽(항상 높게 또는 낮게)으로 쏠리는 것이에요. ‘편향’이라고도 해요.",
+      "편향": "추정이 평균적으로 한쪽으로 쏠리는 것이에요. ‘치우침’과 같은 말이에요.",
+      "적분": "곡선 아래의 넓이를 구하는 계산이에요.",
+      "백분위수": "아래에서부터 몇 %까지 왔는지를 나타내는 위치예요. 90백분위수는 아래에서 90% 지점이에요.",
+      "분위수": "아래에서부터 일정한 비율(확률)에 해당하는 값의 위치예요.",
+      "기댓값": "같은 실험을 아주 많이 반복했을 때 장기적으로 나오는 평균값이에요.",
+      "시행": "결과가 우연에 따라 정해지는 실험이나 도전 한 번을 말해요.",
+      "무기억성": "지금까지 얼마나 기다렸는지가 앞으로의 확률에 영향을 주지 않는 성질이에요.",
+      "정밀도": "추정이 얼마나 촘촘하게 정확한지를 말해요. 표준오차가 작을수록 높아요.",
+      "독립": "한쪽의 결과가 다른 쪽의 결과에 영향을 주지 않는 관계예요.",
+      "선형변환": "모든 값에 aX + b 같은 일차식 규칙을 똑같이 적용하는 변환이에요."
+  };
+  const GLOSS_RE = new RegExp(Object.keys(GLOSSARY).sort((a, b) => b.length - a.length).join('|'), 'g');
+  const GLOSS_SKIP = 'script,style,textarea,input,button,a,h1,h2,h3,h4,.katex,.gloss,.ch-badge,.ch-name,.quote-link,.no-gloss,#gloss-tip';
+  const GLOSS_SCOPE = '.glass,.cm-panel,[data-gscope]';
+
+  // 같은 카드 안에서는 처음 나오는 용어에만 표시해 화면이 지저분해지지 않게 함
+  function applyGloss(root) {
+    if (!root || !root.nodeType) return;
+    const seen = new Map();
+    const setOf = el => {
+      const sc = (el.closest && el.closest(GLOSS_SCOPE)) || root;
+      if (!seen.has(sc)) seen.set(sc, new Set());
+      return seen.get(sc);
+    };
+    root.querySelectorAll('.gloss').forEach(g => setOf(g).add(g.dataset.g));
+
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(n) {
+        if (!n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        const p = n.parentElement;
+        if (!p || p.closest(GLOSS_SKIP)) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach(node => {
+      const text = node.nodeValue;
+      const used = setOf(node.parentElement);
+      let last = 0, m, frag = null;
+      GLOSS_RE.lastIndex = 0;
+      while ((m = GLOSS_RE.exec(text))) {
+        if (used.has(m[0])) continue;
+        used.add(m[0]);
+        frag = frag || document.createDocumentFragment();
+        frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+        const sp = document.createElement('span');
+        sp.className = 'gloss';
+        sp.tabIndex = 0;
+        sp.dataset.g = m[0];
+        sp.textContent = m[0];
+        frag.appendChild(sp);
+        last = m.index + m[0].length;
+      }
+      if (frag) {
+        frag.appendChild(document.createTextNode(text.slice(last)));
+        node.parentNode.replaceChild(frag, node);
+      }
+    });
+  }
+
+  let glossTarget = null;
+  function showGloss(el) {
+    const meaning = GLOSSARY[el.dataset.g];
+    const tip = document.getElementById('gloss-tip');
+    if (!meaning || !tip) return;
+    if (glossTarget) glossTarget.classList.remove('on');
+    glossTarget = el;
+    el.classList.add('on');
+    tip.innerHTML = `<b>${el.dataset.g}</b>${meaning}`;
+    tip.classList.add('show');
+    const r = el.getBoundingClientRect();
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    const vw = document.documentElement.clientWidth;
+    const left = Math.max(8, Math.min(r.left + r.width / 2 - tw / 2, vw - tw - 8));
+    let top = r.bottom + 8;
+    if (top + th > window.innerHeight - 8) top = r.top - th - 8;
+    tip.style.left = left + 'px';
+    tip.style.top = Math.max(8, top) + 'px';
+  }
+  function hideGloss() {
+    const tip = document.getElementById('gloss-tip');
+    if (tip) tip.classList.remove('show');
+    if (glossTarget) glossTarget.classList.remove('on');
+    glossTarget = null;
+  }
+  const canHover = () => window.matchMedia && window.matchMedia('(hover: hover)').matches;
+  document.addEventListener('mouseover', e => {
+    if (!canHover()) return;
+    const el = e.target.closest && e.target.closest('.gloss');
+    if (el) showGloss(el);
+  });
+  document.addEventListener('mouseout', e => {
+    if (!canHover()) return;
+    const el = e.target.closest && e.target.closest('.gloss');
+    if (el && !(e.relatedTarget && el.contains(e.relatedTarget))) hideGloss();
+  });
+  document.addEventListener('click', e => {
+    const el = e.target.closest && e.target.closest('.gloss');
+    if (!el) { hideGloss(); return; }
+    if (glossTarget === el && document.getElementById('gloss-tip').classList.contains('show') && !canHover()) hideGloss();
+    else showGloss(el);
+  });
+  document.addEventListener('focusin', e => { const el = e.target.closest && e.target.closest('.gloss'); if (el && el.matches(':focus-visible')) showGloss(el); });
+  document.addEventListener('focusout', e => { if (e.target.closest && e.target.closest('.gloss')) hideGloss(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') hideGloss(); });
+  window.addEventListener('scroll', hideGloss, true);
+  window.addEventListener('resize', hideGloss);
+
+  // 홈: 개념 관계 글귀 (무작위 1개, 굵은 두 개념은 클릭하면 개념 사전으로 이동)
+  // 표기: [[개념사전 용어]] 또는 [[개념사전 용어|화면에 보일 말]]
+  const CONCEPT_QUOTES = [
+      "[[표본평균]]의 기댓값은 모평균과 같아서, 표본평균은 모평균의 [[불편추정량]]이다.",
+      "[[표본분포]]의 표준편차가 곧 [[표준오차]]다.",
+      "[[베르누이 시행]]을 n번 반복해 성공 횟수를 세면 [[이항분포]]가 된다.",
+      "[[확률질량함수]]를 작은 값부터 차례로 더해 쌓으면 [[누적분포함수]]가 된다.",
+      "[[확률밀도함수]]는 높이가 아니라 넓이가 확률이다. 이 점이 [[확률질량함수]]와 다르다.",
+      "[[분산]]에 제곱근을 씌우면 [[표준편차]]가 되어 원래 단위로 돌아온다.",
+      "[[표준편차]]는 데이터 하나의 퍼짐이고, [[표준오차]]는 통계량의 퍼짐이다.",
+      "[[지수분포]]의 핵심 성질은 [[무기억성]]이다. 이미 기다린 시간은 앞으로의 대기와 무관하다.",
+      "[[중심극한정리]] 덕분에 모집단이 어떤 모양이어도 [[표본평균]]의 분포는 정규분포에 가까워진다.",
+      "[[정규분포]]는 [[표준정규분포와 Z값|표준화]]하면 N(0, 1) 하나로 계산할 수 있다.",
+      "[[정규분포의 대칭성]] 덕분에 음수 [[표준정규분포와 Z값|z값]]도 표에서 바꿔 읽을 수 있다.",
+      "[[모수와 통계량|모수]]는 [[모집단과 표본|모집단]]의 값이고, 통계량은 표본의 값이다.",
+      "[[임의추출]]로 뽑아야 [[표본분포]]의 공식이 성립한다.",
+      "[[표본비율]]의 바탕에는 성공 아니면 실패인 [[베르누이 시행]]이 있다.",
+      "n이 충분히 크면 [[이항분포]]는 [[정규근사 조건|정규분포로 근사]]할 수 있다.",
+      "정밀도를 두 배로 올리려면 [[표본 크기와 정밀도|표본 크기]]는 네 배가 필요하다. [[표준오차]]가 √n에 반비례하기 때문이다.",
+      "[[허용오차와 필요 표본 크기|허용오차]]는 z × [[표준오차]]로 구한다.",
+      "[[백분위수 (분위수)|분위수]]는 [[누적분포함수]]를 거꾸로 읽은 값이다.",
+      "[[기댓값 (평균)|기댓값]]이 중심을 알려 준다면, 얼마나 퍼졌는지는 [[분산]]이 알려 준다.",
+      "[[선형변환의 평균과 분산|선형변환]]을 해도 [[분산]]은 더해 준 상수의 영향을 받지 않는다.",
+      "[[연속확률변수]]의 확률은 한 점이 아니라 구간의 [[확률밀도함수|넓이]]로 구한다.",
+      "[[이산확률변수]]는 [[확률질량함수]]로, 연속확률변수는 밀도함수로 설명한다.",
+      "[[연속균등분포]]는 어디나 평평하고, [[정규분포]]는 가운데가 가장 높은 종 모양이다.",
+      "[[표본평균]]의 [[표준오차]]는 σ/√n이다.",
+      "[[표본비율]]의 [[표준오차]]는 √(p(1−p)/n)이다.",
+      "[[모수와 통계량|통계량]]이 모수를 치우침 없이 맞히는지 따지는 기준이 [[불편추정량]]이다.",
+      "[[확률변수]]는 실험 결과에 숫자를 대응시키는 규칙이고, [[이산확률변수|이산형]]은 그 값을 셀 수 있다.",
+      "[[표본분포]]는 ‘통계량의 분포’이고, 대표적인 예가 [[표본평균]]의 분포다.",
+      "[[표준정규분포와 Z값|Z값]]은 평균에서 [[표준편차]]로 몇 칸 떨어졌는지를 뜻한다.",
+      "[[정규근사 조건]]은 np와 n(1−p)가 충분히 클 때 [[표본비율]]에서 확인한다.",
+      "[[기댓값 (평균)|기댓값]]은 [[이항분포]]에서 np로 간단히 구해진다.",
+      "[[모집단과 표본|표본]]을 뽑을 때마다 통계량이 달라지기 때문에 [[표본분포]]가 생긴다."
+  ];
+  let lastQuoteIdx = -1;
+  function renderQuote() {
+    const box = document.getElementById('home-quote');
+    if (!box) return;
+    let i;
+    do { i = Math.floor(Math.random() * CONCEPT_QUOTES.length); }
+    while (CONCEPT_QUOTES.length > 1 && i === lastQuoteIdx);
+    lastQuoteIdx = i;
+    const html = CONCEPT_QUOTES[i].replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_, term, disp) => {
+      const idx = conceptIndexByTerm(term);
+      const label = disp || term;
+      return idx < 0 ? label
+        : `<button type="button" class="quote-link" onclick="goConcept(${idx})" aria-label="${escAttr(term)} 개념으로 이동">${label}</button>`;
+    });
+    box.innerHTML = `<span class="quote-mark">“</span>${html}<span class="quote-mark">”</span>`;
+  }
+  function goConcept(idx) {
+    conceptChapter = 'all';
+    const sInput = document.getElementById('concept-search');
+    if (sInput) sInput.value = '';
+    switchTab('concepts');
+    openConceptModal(idx);                                   // 개념 카드창을 바로 띄움
+    setTimeout(() => flashCard(`cc-${idx}`), 250);           // 창을 닫으면 해당 카드가 강조되어 보이도록 뒤에서 이동
+  }
+
+  // =========================================================================
+  // 전체화면
+  // =========================================================================
+  function isFullscreen() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  function toggleFullscreen() {
+    const d = document, el = d.documentElement;
+    try {
+      const fn = isFullscreen() ? (d.exitFullscreen || d.webkitExitFullscreen)
+                                : (el.requestFullscreen || el.webkitRequestFullscreen);
+      if (!fn) { toast('이 브라우저는 전체화면을 지원하지 않아요'); return; }
+      const r = fn.call(isFullscreen() ? d : el);
+      if (r && r.catch) r.catch(() => toast('전체화면을 사용할 수 없어요'));
+    } catch (e) { toast('전체화면을 사용할 수 없어요'); }
+  }
+  function syncFsIcon() {
+    const on = isFullscreen();
+    document.getElementById('fs-enter').classList.toggle('hidden', on);
+    document.getElementById('fs-exit').classList.toggle('hidden', !on);
+  }
+  document.addEventListener('fullscreenchange', syncFsIcon);
+  document.addEventListener('webkitfullscreenchange', syncFsIcon);
+
+  // =========================================================================
+  // 흐름잡기 퀴즈 (문제 → 사용 공식 8지선다)
+  // =========================================================================
+  const flowChapters = new Set([4, 5, 6]);
+  let flowQs = [], flowIdx = 0, flowScore = 0, flowPicked = null, flowWrong = [];
+  const FLOW_MARKS = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧'];
+  function flowPool() { return PROBLEMS_DATA.filter(p => flowChapters.has(p.chapter)); }
+  function toggleFlowChapter(ch) {
+    if (flowChapters.has(ch)) { if (flowChapters.size === 1) return; flowChapters.delete(ch); } else flowChapters.add(ch);
+    renderFlow();
+  }
+  function renderFlow() {
+    const box = document.getElementById('flow-root');
+    const n = flowPool().length;
+    const chBtn = (ch, label) => `<button onclick="toggleFlowChapter(${ch})" class="chip !px-4 !py-2 ${flowChapters.has(ch) ? 'active' : ''}">${label}</button>`;
+    box.innerHTML = `
+      <div class="glass rounded-3xl p-5 sm:p-8 text-center space-y-6 fade-in">
+        <h2 class="text-2xl font-bold">${ic('compass')} 흐름잡기 퀴즈</h2>
+        <p class="sub text-sm leading-relaxed">계산하기 전에 <b>"이 문제엔 어떤 공식을 쓰지?"</b>부터 잡는 연습이에요.<br>문제를 보고 사용되는 공식을 <b>8개 중에서</b> 고르세요.</p>
+        <div class="space-y-2">
+          <div class="text-xs font-bold sub">출제 범위</div>
+          <div class="flex justify-center gap-2 flex-wrap">${chBtn(4, 'Ch 4 · 이산확률분포')}${chBtn(5, 'Ch 5 · 연속확률분포')}${chBtn(6, 'Ch 6 · 표본분포')}</div>
+        </div>
+        <div class="flex justify-center gap-3 flex-wrap">
+          <button onclick="startFlow(5)" class="chip !px-6 !py-3 !text-base">5문제</button>
+          <button onclick="startFlow(10)" class="chip !px-6 !py-3 !text-base">10문제</button>
+          <button onclick="startFlow(0)" class="chip active !px-6 !py-3 !text-base">전체 ${n}문제</button>
+        </div>
+      </div>`;
+  }
+  function startFlow(count) {
+    const pool = flowPool();
+    if (!count || count > pool.length) count = pool.length;
+    flowQs = shuffle(pool).slice(0, count).map(base => ({
+      base, text: base.genRandom().text, order: shuffle(Object.keys(FORMULAS_DATA))
+    }));
+    flowIdx = 0; flowScore = 0; flowPicked = null; flowWrong = [];
+    renderFlowQuestion();
+  }
+  function renderFlowQuestion() {
+    const box = document.getElementById('flow-root');
+    const q = flowQs[flowIdx];
+    const answered = flowPicked !== null;
+    const ok = answered && flowPicked === q.base.formulaId;
+    const f = FORMULAS_DATA[q.base.formulaId];
+    const last = flowIdx === flowQs.length - 1;
+    const progress = ((flowIdx + (answered ? 1 : 0)) / flowQs.length) * 100;
+    box.innerHTML = `
+      <div class="glass rounded-3xl p-4 sm:p-8 space-y-4 sm:space-y-5 fade-in">
+        <div class="h-1.5 rounded-full soft overflow-hidden"><div class="h-full rounded-full" style="width:${progress}%; background:linear-gradient(90deg,#5e5ce6,#32d4c4); transition: width .4s"></div></div>
+        <div class="flex justify-between items-center gap-2">
+          <span class="text-xs font-bold px-3 py-1 rounded-full tint-blue">문제 ${flowIdx + 1} / ${flowQs.length} · 정답 ${flowScore}</span>
+          <button onclick="if(confirm('퀴즈를 중단할까요?'))renderFlow()" class="pill-btn soft sub !py-1.5">중단</button>
+        </div>
+        <div class="text-base sm:text-lg font-bold leading-relaxed">${q.text}</div>
+        <div class="text-xs font-bold sub">이 문제를 풀 때 쓰는 공식은?</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+          ${q.order.map((id, i) => {
+            const fm = FORMULAS_DATA[id];
+            let cls = 'soft';
+            if (answered) {
+              if (id === q.base.formulaId) cls = 'tint-green ring-2 ring-green-500';
+              else if (id === flowPicked) cls = 'tint-red ring-2 ring-red-500';
+              else cls = 'soft opacity-50';
+            }
+            return `<button ${answered ? 'disabled' : ''} onclick="flowPick('${id}')" class="${cls} w-full text-left rounded-2xl p-3 transition-all active:scale-[.98]">
+              <div class="text-[12px] font-extrabold mb-1">${FLOW_MARKS[i]} ${fm.title}</div>
+              <div class="text-[12.5px] overflow-x-auto">$${fm.latex}$</div>
+            </button>`;
+          }).join('')}
+        </div>
+        ${answered ? `
+        <div id="flow-fb" class="soft rounded-2xl p-4 space-y-2 text-sm leading-relaxed fade-in">
+          <div class="font-extrabold ${ok ? 'tint-green' : 'tint-red'} bg-transparent">${ok ? `${ic('circle-check')} 정답!` : `${ic('circle-x')} 아쉬워요.`} 이 문제의 공식은 「${f.title}」</div>
+          <div>${f.desc}</div>
+          <div class="text-xs sub pt-1">이 문제에 실제로 적용된 식</div>
+          <div class="overflow-x-auto text-center">$$${q.base.appliedFormula}$$</div>
+        </div>
+        <div class="flex justify-end">
+          <button onclick="nextFlow()" class="px-6 py-2.5 rounded-2xl text-white text-sm font-bold shadow" style="background:${last ? '#34c759' : '#007aff'}">${last ? '결과 보기' : '다음 문제'}</button>
+        </div>` : ''}
+      </div>`;
+    renderMath(box);
+    if (answered) setTimeout(() => { const fb = document.getElementById('flow-fb'); if (fb) fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 60);
+  }
+  function flowPick(id) {
+    if (flowPicked !== null) return;
+    flowPicked = id;
+    const q = flowQs[flowIdx];
+    if (id === q.base.formulaId) flowScore++; else flowWrong.push({ q, picked: id });
+    renderFlowQuestion();
+  }
+  function nextFlow() {
+    if (flowIdx < flowQs.length - 1) { flowIdx++; flowPicked = null; renderFlowQuestion(); }
+    else renderFlowResult();
+  }
+  function renderFlowResult() {
+    const box = document.getElementById('flow-root');
+    const pct = Math.round(flowScore / flowQs.length * 100);
+    box.innerHTML = `
+      <div class="glass rounded-3xl p-5 sm:p-8 text-center space-y-4 fade-in">
+        <h2 class="text-2xl font-black">${ic('compass')} 흐름잡기 완료!</h2>
+        <div class="text-5xl font-black" style="color:#0a84ff">${pct}점</div>
+        <p class="sub text-sm">${flowQs.length}문제 중 ${flowScore}문제 정답</p>
+        <div class="flex justify-center gap-2 flex-wrap">
+          <button onclick="startFlow(${flowQs.length})" class="px-6 py-3 rounded-2xl text-white font-bold shadow" style="background:#007aff">다시 풀기</button>
+          <button onclick="renderFlow()" class="px-6 py-3 rounded-2xl soft font-bold">설정으로</button>
+        </div>
+      </div>
+      ${flowWrong.length ? `<h3 class="text-lg font-bold pt-3 px-1">헷갈렸던 문제</h3>` + flowWrong.map(w => `
+        <div class="glass rounded-3xl p-5 mt-3 space-y-2 fade-in" style="border-color: rgba(255,69,58,.5)">
+          <div class="text-sm leading-relaxed">${w.q.text}</div>
+          <div class="text-xs font-semibold soft rounded-2xl p-3 space-y-1">
+            <div class="tint-red bg-transparent">내 선택: ${FORMULAS_DATA[w.picked].title}</div>
+            <div class="tint-green bg-transparent">정답: ${FORMULAS_DATA[w.q.base.formulaId].title}</div>
+          </div>
+        </div>`).join('') : `<p class="text-center sub text-sm pt-3">전부 맞혔어요! 공식 흐름이 완벽해요 ${ic('circle-check')}</p>`}`;
+    renderMath(box);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
