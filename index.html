@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistics Study Hub</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { darkMode: 'class' }
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root {
+    --glass-bg: rgba(255,255,255,.62);
+    --glass-border: rgba(255,255,255,.7);
+    --glass-shadow: 0 8px 32px rgba(31,38,135,.10);
+    --soft-bg: rgba(120,120,128,.12);
+    --text: #1c1c1e;
+    --text-sub: #6e6e73;
+  }
+  .dark {
+    --glass-bg: rgba(44,44,56,.55);
+    --glass-border: rgba(255,255,255,.10);
+    --glass-shadow: 0 8px 32px rgba(0,0,0,.35);
+    --soft-bg: rgba(255,255,255,.08);
+    --text: #f5f5f7;
+    --text-sub: #a1a1a8;
+  }
+  html { -webkit-font-smoothing: antialiased; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", system-ui, sans-serif;
+    color: var(--text);
+    background: #eef1f8;
+    min-height: 100vh;
+  }
+  .dark body { background: #0a0a14; }
+
+  .bg-blobs { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .55; }
+  .blob.b1 { width: 480px; height: 480px; background: #8b9cff; top: -120px; left: -100px; }
+  .blob.b2 { width: 420px; height: 420px; background: #ff9ad5; top: 30%; right: -120px; }
+  .blob.b3 { width: 460px; height: 460px; background: #7fe3d3; bottom: -160px; left: 25%; }
+  .dark .blob { opacity: .32; }
+
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+  }
+  .soft { background: var(--soft-bg); }
+  .sub { color: var(--text-sub); }
+
+  .segment { background: var(--soft-bg); border-radius: 14px; padding: 3px; display: inline-flex; gap: 2px; }
+  .seg-btn { padding: 7px 14px; border-radius: 11px; font-size: 13px; font-weight: 600; color: var(--text-sub); transition: all .25s ease; white-space: nowrap; }
+  .seg-btn.active { background: rgba(255,255,255,.95); color: #1c1c1e; box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+  .dark .seg-btn.active { background: rgba(99,102,241,.85); color: #fff; }
+
+  .chip { padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; background: var(--soft-bg); color: var(--text-sub); transition: all .2s ease; }
+  .chip:hover { transform: scale(1.04); }
+  .chip.active { background: #007aff; color: #fff; box-shadow: 0 4px 14px rgba(0,122,255,.4); }
+
+  .ios-switch { width: 51px; height: 31px; border-radius: 999px; background: rgba(120,120,128,.32); position: relative; transition: background .3s; flex-shrink: 0; }
+  .ios-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 3px 8px rgba(0,0,0,.25); transition: transform .3s cubic-bezier(.3,1.4,.6,1); }
+  .dark .ios-switch { background: #34c759; }
+  .dark .ios-switch::after { transform: translateX(20px); }
+
+  .acc { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s ease, opacity .3s ease; opacity: 0; }
+  .acc.open { grid-template-rows: 1fr; opacity: 1; }
+  .acc > .acc-inner { overflow: hidden; min-height: 0; }
+  .chev { transition: transform .3s ease; }
+  .chev.rot { transform: rotate(180deg); }
+
+  .pill-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: 14px; font-size: 12.5px; font-weight: 700; transition: transform .15s ease, background .2s; }
+  .pill-btn:active { transform: scale(.96); }
+  .tint-amber { background: rgba(255,159,10,.15); color: #c77700; }
+  .dark .tint-amber { color: #ffb340; }
+  .tint-green { background: rgba(52,199,89,.15); color: #1f8f3d; }
+  .dark .tint-green { color: #4cd964; }
+  .tint-blue { background: rgba(10,132,255,.15); color: #0a6fd8; }
+  .dark .tint-blue { color: #64b5ff; }
+  .tint-purple { background: rgba(175,82,222,.15); color: #8e3ab8; }
+  .dark .tint-purple { color: #d28cff; }
+  .tint-red { background: rgba(255,69,58,.15); color: #d1342a; }
+  .dark .tint-red { color: #ff7a72; }
+
+  .katex { font-size: 1.2em !important; }
+  .formula-box .katex { font-size: 1.35em !important; }
+  .katex-display { margin: .4em 0 !important; overflow-x: auto; overflow-y: hidden; }
+
+  .ex-table { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: 14px; overflow: hidden; font-size: 14px; }
+  .ex-table th { background: rgba(0,122,255,.14); font-weight: 700; padding: 8px 6px; }
+  .ex-table td { padding: 8px 6px; text-align: center; background: var(--soft-bg); border-top: 1px solid var(--glass-border); }
+
+  .fade-in { animation: fadeUp .45s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .flash { box-shadow: 0 0 0 3px #0a84ff, var(--glass-shadow) !important; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: rgba(120,120,128,.35); border-radius: 8px; }
+</style>
+</head>
+<body>
+<div class="bg-blobs"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+
+<header class="sticky top-0 z-40 px-3 pt-3">
+  <div class="glass max-w-6xl mx-auto rounded-3xl px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <span class="w-10 h-10 rounded-2xl flex items-center justify-center text-white shadow-lg" style="background: linear-gradient(135deg,#5e5ce6,#0a84ff)">
+        <i data-lucide="calculator" class="w-5 h-5"></i>
+      </span>
+      <div>
+        <h1 class="text-[17px] font-bold tracking-tight leading-tight">확률과 통계 학습 허브</h1>
+        <p class="text-[11px] sub">Chapter 4 · 5 · 6 핵심 20문제 & 공식 사전</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3 flex-wrap">
+      <div class="segment">
+        <button onclick="switchTab('study')" id="nav-study" class="seg-btn active">📚 문제 풀이</button>
+        <button onclick="switchTab('concepts')" id="nav-concepts" class="seg-btn">📖 개념 사전</button>
+        <button onclick="switchTab('formulas')" id="nav-formulas" class="seg-btn">📐 공식 사전</button>
+        <button onclick="switchTab('test')" id="nav-test" class="seg-btn">📝 모의 테스트</button>
+      </div>
+      <button onclick="toggleDarkMode()" class="flex items-center gap-2" aria-label="다크모드 전환">
+        <span id="theme-icon" class="text-lg">🌙</span>
+        <span class="ios-switch"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-6xl w-full mx-auto px-3 sm:px-4 py-5">
+
+  <!-- 1. 문제 풀이 -->
+  <section id="tab-study" class="space-y-5">
+    <div class="glass rounded-3xl p-3.5 flex flex-wrap gap-3 items-center justify-between">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-xs font-bold sub pl-1">챕터</span>
+        <button onclick="filterChapter('all')" class="filter-btn chip active" data-chapter="all">전체 20</button>
+        <button onclick="filterChapter(4)" class="filter-btn chip" data-chapter="4">Ch 4 · 이산확률분포 4</button>
+        <button onclick="filterChapter(5)" class="filter-btn chip" data-chapter="5">Ch 5 · 연속확률분포 8</button>
+        <button onclick="filterChapter(6)" class="filter-btn chip" data-chapter="6">Ch 6 · 표본분포 8</button>
+      </div>
+      <div class="text-[11px] sub flex items-center gap-1"><i data-lucide="info" class="w-3.5 h-3.5"></i>버튼을 눌러 공식·풀이·코드를 펼쳐 보세요</div>
+    </div>
+
+    <div id="formula-banner" class="hidden glass rounded-3xl p-4 flex flex-wrap items-center justify-between gap-3 fade-in">
+      <div>
+        <p class="text-[11px] font-bold tint-blue bg-transparent">공식 사전 연동 중</p>
+        <p class="text-sm font-semibold" id="formula-banner-title"></p>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="returnToFormula()" class="chip !bg-blue-500 !text-white">📐 공식 사전으로</button>
+        <button onclick="clearFormulaFilter()" class="chip">필터 해제</button>
+      </div>
+    </div>
+
+    <div id="problem-list" class="space-y-5"></div>
+  </section>
+
+  <!-- 1.5 개념 사전 -->
+  <section id="tab-concepts" class="hidden space-y-5">
+    <div class="rounded-3xl p-6 text-white shadow-xl relative overflow-hidden" style="background: linear-gradient(135deg,#ff9f0a 0%,#ff6b9d 55%,#af52de 100%)">
+      <div class="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/20 blur-2xl"></div>
+      <h2 class="text-2xl font-extrabold mb-1 relative">📖 개념 사전</h2>
+      <p class="text-white/90 text-sm relative">분산, 표본평균, 표준오차 같은 핵심 용어를 쉬운 말로 정리했어요. 검색하거나 챕터별로 골라 보세요.</p>
+    </div>
+    <div class="glass rounded-3xl p-3.5 flex flex-wrap gap-3 items-center justify-between">
+      <div class="flex items-center gap-2 flex-wrap">
+        <button onclick="filterConceptChapter('all')" class="concept-ch-btn chip active" data-ch="all">전체</button>
+        <button onclick="filterConceptChapter(4)" class="concept-ch-btn chip" data-ch="4">Ch 4 · 이산확률분포</button>
+        <button onclick="filterConceptChapter(5)" class="concept-ch-btn chip" data-ch="5">Ch 5 · 연속확률분포</button>
+        <button onclick="filterConceptChapter(6)" class="concept-ch-btn chip" data-ch="6">Ch 6 · 표본분포</button>
+      </div>
+      <input id="concept-search" type="search" oninput="renderConcepts()" placeholder="용어 검색 (예: 분산, SE, CLT)" class="soft rounded-2xl px-4 py-2.5 text-sm outline-none w-full sm:w-64" style="color:var(--text)">
+    </div>
+    <div id="concept-count" class="text-xs sub px-1"></div>
+    <div id="concept-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start"></div>
+  </section>
+
+  <!-- 2. 공식 사전 -->
+  <section id="tab-formulas" class="hidden space-y-5">
+    <div class="rounded-3xl p-6 text-white shadow-xl relative overflow-hidden" style="background: linear-gradient(135deg,#5e5ce6 0%,#0a84ff 55%,#64d2ff 100%)">
+      <div class="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/20 blur-2xl"></div>
+      <h2 class="text-2xl font-extrabold mb-1 relative">📐 공식 사전</h2>
+      <p class="text-white/85 text-sm relative">핵심 공식을 정리했습니다. <b>쉬운 예시</b>를 펼쳐 숫자로 확인하고, 하단 버튼으로 해당 공식이 쓰인 문제로 바로 이동하세요.</p>
+    </div>
+    <div id="formula-hub-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start"></div>
+  </section>
+
+  <!-- 3. 모의 테스트 -->
+  <section id="tab-test" class="hidden space-y-5">
+    <div id="test-setup" class="glass rounded-3xl p-8 text-center max-w-xl mx-auto space-y-6">
+      <h2 class="text-2xl font-bold">📝 동적 랜덤 모의 테스트</h2>
+      <p class="sub text-sm leading-relaxed">원본 문제의 수치가 매회 <b>무작위로 변형</b>되어 출제됩니다.<br>정답은 실제 계산값이며, 4지선다형으로 풀어 보세요.</p>
+      <div class="space-y-2">
+        <div class="text-xs font-bold sub">출제 범위 (중복 선택 가능)</div>
+        <div class="flex justify-center gap-2 flex-wrap">
+          <button onclick="toggleTestChapter(4)" class="test-ch-btn chip active !px-4 !py-2" data-ch="4">Ch 4 · 이산확률분포</button>
+          <button onclick="toggleTestChapter(5)" class="test-ch-btn chip active !px-4 !py-2" data-ch="5">Ch 5 · 연속확률분포</button>
+          <button onclick="toggleTestChapter(6)" class="test-ch-btn chip active !px-4 !py-2" data-ch="6">Ch 6 · 표본분포</button>
+        </div>
+        <div class="text-[11px] sub" id="test-pool-info"></div>
+      </div>
+      <div class="flex justify-center gap-3 flex-wrap">
+        <button onclick="startTest(5)" class="chip !px-6 !py-3 !text-base">5문제</button>
+        <button onclick="startTest(10)" class="chip !px-6 !py-3 !text-base">10문제</button>
+        <button onclick="startTest(0)" id="test-all-btn" class="chip active !px-6 !py-3 !text-base">전체</button>
+      </div>
+    </div>
+    <div id="test-running" class="hidden max-w-3xl mx-auto"></div>
+    <div id="test-result" class="hidden max-w-3xl mx-auto space-y-5"></div>
+  </section>
+</main>
+
+<!-- Thaniya Project 크레딧 카드 (오른쪽 아래) -->
+<div id="thaniya-card" class="hidden fixed z-40 right-3 bottom-3 sm:right-5 sm:bottom-5 w-[min(320px,calc(100vw-1.5rem))] rounded-3xl p-5 fade-in" style="background:linear-gradient(160deg,#25222c,#17151c); border:1px solid rgba(250,204,21,.35); box-shadow:0 12px 40px rgba(0,0,0,.45); color:#f5f5f7;">
+  <button onclick="closeThaniya(false)" aria-label="닫기" class="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center text-lg" style="background:rgba(255,255,255,.1); color:#cfcfd6">&times;</button>
+  <div class="flex items-center gap-3 pr-8">
+    <img src="./logo.png" alt="Thaniya Project 로고" class="w-14 h-14 rounded-2xl flex-shrink-0" style="box-shadow:0 0 0 1px rgba(250,204,21,.25)">
+    <div>
+      <div class="text-[10px] font-extrabold tracking-[.18em]" style="color:#facc15">DEVELOPED BY</div>
+      <div class="text-lg font-extrabold leading-tight">Thaniya Project</div>
+      <div class="text-[12px]" style="color:#a1a1a8">더 많은 프로젝트가 궁금하면?</div>
+    </div>
+  </div>
+  <a href="https://thaniya.co.kr/" target="_blank" rel="noopener noreferrer" class="mt-4 flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-extrabold text-[15px] transition active:scale-95" style="background:linear-gradient(180deg,#fde047,#facc15); color:#1c1c1e; box-shadow:0 4px 16px rgba(250,204,21,.35)">공식 사이트 방문하기 →</a>
+  <button onclick="closeThaniya(true)" class="mt-3 block w-full text-center text-[12px]" style="color:#a1a1a8">오늘은 그만 보기</button>
+</div>
+
+<div id="hint-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(0,0,0,.4); backdrop-filter: blur(8px);">
+  <div class="glass rounded-3xl max-w-lg w-full p-6 space-y-4 fade-in">
+    <div class="flex justify-between items-center">
+      <h3 class="text-lg font-bold" id="hint-title">💡 힌트 (필요 공식)</h3>
+      <button onclick="closeHintModal()" class="w-8 h-8 rounded-full soft font-bold sub">&times;</button>
+    </div>
+    <div id="hint-modal-content" class="p-4 soft rounded-2xl formula-box text-center"></div>
+    <button onclick="closeHintModal()" class="w-full py-3 rounded-2xl text-white font-bold" style="background:#007aff">확인</button>
+  </div>
+</div>
+
+<script>
+  // =========================================================================
+  // 공식 사전 데이터
+  // =========================================================================
+  const FORMULAS_DATA = {
+    "pmf_mean": {
+      id: "pmf_mean", chapter: 4,
+      title: "이산확률변수의 기대값과 분산",
+      latex: "E(X) = \\sum x \\cdot P(X=x), \\quad V(X) = E(X^2) - [E(X)]^2",
+      desc: "확률질량함수에서 평균과 분산을 구할 때 사용합니다."
+    },
+    "binomial_pmf": {
+      id: "binomial_pmf", chapter: 4,
+      title: "이항분포 확률질량함수 (Binomial PMF)",
+      latex: "P(X = k) = \\binom{n}{k} p^k (1-p)^{n-k}",
+      desc: "성공 확률 $p$인 독립시행을 $n$번 반복할 때 성공 횟수 $X$의 확률"
+    },
+    "binomial_stats": {
+      id: "binomial_stats", chapter: 4,
+      title: "이항분포의 평균 및 분산",
+      latex: "E(X) = np, \\quad Var(X) = np(1-p)",
+      desc: "이항분포 $B(n, p)$를 따르는 확률변수의 기댓값과 분산"
+    },
+    "uniform_dist": {
+      id: "uniform_dist", chapter: 5,
+      title: "연속균등분포 (Continuous Uniform Distribution)",
+      latex: "f(x) = \\frac{1}{b-a}, \\quad a \\le x \\le b",
+      desc: "구간 $[a, b]$에서 일정하게 발생하는 연속확률변수의 확률밀도함수"
+    },
+    "exponential_dist": {
+      id: "exponential_dist", chapter: 5,
+      title: "지수분포 (Exponential Distribution)",
+      latex: "f(x) = \\lambda e^{-\\lambda x}, \\quad P(X \\le x) = 1 - e^{-\\lambda x}",
+      desc: "사건이 독립적으로 일어날 때 다음 사건 발생까지의 대기 시간 분포"
+    },
+    "normal_standardization": {
+      id: "normal_standardization", chapter: 5,
+      title: "정규분포의 표준화 (Standardization)",
+      latex: "Z = \\frac{X - \\mu}{\\sigma} \\sim N(0, 1)",
+      desc: "평균 $\\mu$, 표준편차 $\\sigma$인 정규분포를 표준정규분포 $Z$로 변환"
+    },
+    "sample_mean_dist": {
+      id: "sample_mean_dist", chapter: 6,
+      title: "표본평균의 표본분포 (Distribution of Sample Mean)",
+      latex: "\\bar{X} \\sim N\\left(\\mu, \\frac{\\sigma^2}{n}\\right), \\quad Z = \\frac{\\bar{X} - \\mu}{\\sigma / \\sqrt{n}}",
+      desc: "모집단에서 추출한 크기 $n$의 표본평균 $\\bar{X}$의 분포와 표준화"
+    },
+    "sample_prop_dist": {
+      id: "sample_prop_dist", chapter: 6,
+      title: "표본비율의 표본분포 (Distribution of Sample Proportion)",
+      latex: "\\hat{p} \\sim N\\left(p, \\frac{p(1-p)}{n}\\right), \\quad Z = \\frac{\\hat{p} - p}{\\sqrt{\\frac{p(1-p)}{n}}}",
+      desc: "모비율 $p$인 모집단에서 크기 $n$인 표본비율 $\\hat{p}$의 근사 정규분포"
+    }
+  };
+
+  // 공식별 쉬운 예시 (펼치고 접기)
+  const EXAMPLES_DATA = {
+    pmf_mean: {
+      title: "동전 2번 던지기",
+      html: String.raw`
+        <p class="text-sm leading-relaxed">동전을 2번 던져서 <b>앞면(H)이 나오는 횟수</b>를 확률변수 $X$라고 하면, $X = 0, 1, 2$ 입니다.</p>
+        <div class="space-y-2">
+          <div class="text-xs font-extrabold text-blue-600 dark:text-blue-300">① 확률질량함수 구하기 $P(X=x)$</div>
+          <div class="grid grid-cols-3 gap-2 text-center text-sm">
+            <div class="soft rounded-2xl p-3"><div class="font-bold">$P(X=0)=\frac14=0.25$</div><div class="text-xs sub mt-1">(뒷, 뒷)</div></div>
+            <div class="soft rounded-2xl p-3"><div class="font-bold">$P(X=1)=\frac24=0.5$</div><div class="text-xs sub mt-1">(앞,뒷) 또는 (뒷,앞)</div></div>
+            <div class="soft rounded-2xl p-3"><div class="font-bold">$P(X=2)=\frac14=0.25$</div><div class="text-xs sub mt-1">(앞, 앞)</div></div>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <div class="text-xs font-extrabold text-blue-600 dark:text-blue-300">② 표로 정리하기</div>
+          <table class="ex-table text-center">
+            <tr><th>$x$</th><th>$P(X=x)$</th><th>$x\cdot P(X=x)$</th><th>$x^2\cdot P(X=x)$</th></tr>
+            <tr><td>0</td><td>0.25</td><td>0</td><td>0</td></tr>
+            <tr><td>1</td><td>0.5</td><td>0.5</td><td>0.5</td></tr>
+            <tr><td>2</td><td>0.25</td><td>0.5</td><td>1</td></tr>
+            <tr class="font-bold"><td>합계</td><td>1</td><td>1</td><td>1.5</td></tr>
+          </table>
+        </div>
+        <div class="space-y-2">
+          <div class="text-xs font-extrabold text-blue-600 dark:text-blue-300">③ 기대값과 분산 계산</div>
+          <div class="soft rounded-2xl p-4 space-y-2 text-center">
+            <div>$E(X) = 0(0.25)+1(0.5)+2(0.25) = \mathbf{1}$</div>
+            <div>$E(X^2) = 0^2(0.25)+1^2(0.5)+2^2(0.25) = 1.5$</div>
+            <div>$V(X) = E(X^2)-[E(X)]^2 = 1.5 - 1^2 = \mathbf{0.5}$</div>
+          </div>
+          <p class="text-xs sub">💡 동전 2번이면 앞면이 평균 1번 나온다는 직관과 일치합니다. (이항분포 $np = 2\times0.5 = 1$, $np(1-p)=0.5$)</p>
+        </div>`
+    }
+  };
+
+  // =========================================================================
+  // 문제 데이터 (20문제)
+  // =========================================================================
+  // 나머지 공식들의 쉬운 예시 (mkEx 헬퍼로 같은 형식으로 생성)
+  function mkEx(intro, steps, note) {
+    return `<p class="text-sm leading-relaxed">${intro}</p>` +
+      steps.map(s => `
+        <div class="space-y-2">
+          <div class="text-xs font-extrabold text-blue-600 dark:text-blue-300">${s.h}</div>
+          <div class="soft rounded-2xl p-4 space-y-2 text-center text-sm">${s.lines.map(l => `<div>${l}</div>`).join('')}</div>
+        </div>`).join('') +
+      (note ? `<p class="text-xs sub">💡 ${note}</p>` : '');
+  }
+
+  Object.assign(EXAMPLES_DATA, {
+    binomial_pmf: {
+      title: "동전 3번 중 앞면이 정확히 2번",
+      html: mkEx(
+        String.raw`동전을 3번 던질 때 앞면이 나오는 횟수 $X$는 $B(3, 0.5)$를 따릅니다. $P(X=2)$를 구해 봅시다.`,
+        [
+          { h: "① 경우의 수 직접 세기", lines: [
+            String.raw`앞면 2번인 경우: (앞,앞,뒷) · (앞,뒷,앞) · (뒷,앞,앞) → <b>3가지</b>`,
+            String.raw`이것이 곧 $\binom{3}{2} = 3$ 입니다.`
+          ]},
+          { h: "② 각 경우의 확률", lines: [
+            String.raw`한 경우의 확률 = $0.5 \times 0.5 \times 0.5 = p^2(1-p)^1 = 0.125$`
+          ]},
+          { h: "③ 공식에 대입", lines: [
+            String.raw`$P(X=2) = \binom{3}{2}(0.5)^2(0.5)^1 = 3 \times 0.125 = \mathbf{0.375}$`
+          ]}
+        ],
+        String.raw`이항분포 공식 = (경우의 수) × (한 경우의 확률). 경우의 수가 $\binom{n}{k}$, 한 경우의 확률이 $p^k(1-p)^{n-k}$ 입니다.`
+      )
+    },
+    binomial_stats: {
+      title: "주사위 60번 던지기",
+      html: mkEx(
+        String.raw`주사위를 60번 던져 6의 눈이 나오는 횟수를 $X$라 하면 $X \sim B(60, \tfrac16)$ 입니다.`,
+        [
+          { h: "① 기댓값 $E(X)=np$", lines: [
+            String.raw`$E(X) = 60 \times \frac16 = \mathbf{10}$`,
+            String.raw`60번 중 약 $\frac16$인 10번은 6이 나온다는 직관과 같습니다.`
+          ]},
+          { h: "② 분산 $Var(X)=np(1-p)$", lines: [
+            String.raw`$Var(X) = 60 \times \frac16 \times \frac56 = \frac{25}{3} \approx \mathbf{8.33}$`
+          ]},
+          { h: "③ 표준편차", lines: [
+            String.raw`$\sigma = \sqrt{8.33} \approx \mathbf{2.89}$`,
+            String.raw`보통 6의 횟수는 $10 \pm 2.89$ 정도 범위에서 움직입니다.`
+          ]}
+        ],
+        String.raw`$p$가 $0.5$일 때 분산 $np(1-p)$가 가장 큽니다. 결과가 가장 불확실하기 때문이에요.`
+      )
+    },
+    uniform_dist: {
+      title: "0~10분 사이에 오는 지하철",
+      html: mkEx(
+        String.raw`지하철이 승객 도착 후 0분~10분 사이 어느 때든 똑같이 가능하게 도착한다면 $X \sim U(0, 10)$ 입니다.`,
+        [
+          { h: "① 밀도함수 높이", lines: [
+            String.raw`$f(x) = \frac{1}{10-0} = 0.1 \quad (0 \le x \le 10)$`,
+            String.raw`전체 넓이 = 밑변 10 × 높이 0.1 = 1 ✔`
+          ]},
+          { h: "② 확률 = 직사각형 넓이", lines: [
+            String.raw`$P(X \ge 7)$ = (10−7) × 0.1 = $\mathbf{0.3}$`,
+            String.raw`$P(2 \le X \le 5)$ = (5−2) × 0.1 = $\mathbf{0.3}$`
+          ]},
+          { h: "③ 평균과 분산", lines: [
+            String.raw`$E(X) = \frac{0+10}{2} = \mathbf{5}$`,
+            String.raw`$Var(X) = \frac{(10-0)^2}{12} = \frac{100}{12} \approx \mathbf{8.33}$`
+          ]}
+        ],
+        String.raw`균등분포의 확률은 "구하는 구간 길이 ÷ 전체 구간 길이" 로 바로 구할 수 있습니다.`
+      )
+    },
+    exponential_dist: {
+      title: "평균 2분 걸리는 콜센터 대기",
+      html: mkEx(
+        String.raw`전화 연결까지 평균 대기시간이 2분인 지수분포라면 $\lambda = \frac{1}{\text{평균}} = \frac12 = 0.5$ 입니다.`,
+        [
+          { h: "① 1분 안에 연결될 확률", lines: [
+            String.raw`$P(X \le 1) = 1 - e^{-0.5 \times 1} = 1 - 0.6065 = \mathbf{0.3935}$`
+          ]},
+          { h: "② 4분 넘게 기다릴 확률", lines: [
+            String.raw`$P(X > 4) = e^{-0.5 \times 4} = e^{-2} \approx \mathbf{0.1353}$`,
+            String.raw`($P(X>x) = 1 - P(X \le x) = e^{-\lambda x}$)`
+          ]},
+          { h: "③ 무기억성 확인", lines: [
+            String.raw`이미 3분 기다렸어도, 앞으로 4분 이상 더 기다릴 확률은 처음부터 4분 넘게 기다릴 확률과 같은 $\mathbf{0.1353}$`
+          ]}
+        ],
+        String.raw`평균이 길수록 $\lambda$가 작고, 오래 기다릴 확률 $e^{-\lambda x}$은 커집니다.`
+      )
+    },
+    normal_standardization: {
+      title: "평균 170cm, 표준편차 10cm인 키",
+      html: mkEx(
+        String.raw`어떤 집단의 키가 $X \sim N(170, 10^2)$ 일 때, 표준화로 표준정규분포표를 이용합니다.`,
+        [
+          { h: "① 180cm 이하일 확률", lines: [
+            String.raw`$Z = \frac{180-170}{10} = 1.0$`,
+            String.raw`$P(X \le 180) = \Phi(1.0) = \mathbf{0.8413}$`
+          ]},
+          { h: "② 160cm ~ 190cm 사이일 확률", lines: [
+            String.raw`$Z_1 = \frac{160-170}{10} = -1, \quad Z_2 = \frac{190-170}{10} = 2$`,
+            String.raw`$P(-1 \le Z \le 2) = \Phi(2) - \Phi(-1) = 0.9772 - 0.1587 = \mathbf{0.8185}$`
+          ]}
+        ],
+        String.raw`$Z$는 "평균에서 표준편차 몇 개만큼 떨어졌나"를 뜻합니다. 180cm는 평균보다 표준편차 1개만큼 큰 값이에요.`
+      )
+    },
+    sample_mean_dist: {
+      title: "평균 50, 표준편차 10인 모집단에서 n=25",
+      html: mkEx(
+        String.raw`모집단이 $\mu = 50,\ \sigma = 10$ 일 때, 25개를 뽑아 평균 $\bar{X}$를 구합니다.`,
+        [
+          { h: "① 표본평균의 분포", lines: [
+            String.raw`$E(\bar{X}) = 50, \quad SE = \frac{10}{\sqrt{25}} = \mathbf{2}$`,
+            String.raw`$\bar{X} \sim N(50, 2^2)$`
+          ]},
+          { h: "② 표본평균이 52 이상일 확률", lines: [
+            String.raw`$Z = \frac{52-50}{2} = 1.0$`,
+            String.raw`$P(\bar{X} \ge 52) = 1 - \Phi(1.0) = \mathbf{0.1587}$`
+          ]},
+          { h: "③ 한 명만 뽑았을 때와 비교", lines: [
+            String.raw`$P(X \ge 52) = 1 - \Phi(0.2) = 0.4207$`,
+            String.raw`평균을 내면 52 이상 나오기가 훨씬 어려워집니다 (0.42 → 0.16).`
+          ]}
+        ],
+        String.raw`표본이 클수록 $SE = \sigma/\sqrt{n}$이 작아져 $\bar{X}$는 $\mu$ 근처에 모입니다.`
+      )
+    },
+    sample_prop_dist: {
+      title: "지지율 50%일 때 100명 조사",
+      html: mkEx(
+        String.raw`전체 지지율이 $p = 0.5$ 인데 100명을 조사해 표본지지율 $\hat{p}$를 계산합니다.`,
+        [
+          { h: "① 표본비율의 분포", lines: [
+            String.raw`$E(\hat{p}) = 0.5$`,
+            String.raw`$SE = \sqrt{\frac{0.5 \times 0.5}{100}} = \mathbf{0.05}$`,
+            String.raw`$\hat{p} \approx N(0.5, 0.05^2)$`
+          ]},
+          { h: "② 표본지지율이 60% 이상일 확률", lines: [
+            String.raw`$Z = \frac{0.6-0.5}{0.05} = 2.0$`,
+            String.raw`$P(\hat{p} \ge 0.6) = 1 - \Phi(2.0) = \mathbf{0.0228}$`
+          ]}
+        ],
+        String.raw`정규근사는 $np \ge 5$ 이고 $n(1-p) \ge 5$ 일 때(보통 둘 다 10 이상) 안심하고 쓸 수 있습니다.`
+      )
+    }
+  });
+
+  const PROBLEMS_DATA = [
+    // CHAPTER 4
+    {
+      id: 3, chapter: 4, num: 3,
+      title: "Ch 4-03. 다지선다 시험의 이항확률",
+      formulaId: "binomial_pmf",
+      text: "5개의 4지선다형 문제가 있는 시험에서 무작위로 답을 찍을 때, 정확히 3문제를 맞힐 확률을 구하시오.",
+      genRandom: () => {
+        const n = 5 + Math.floor(Math.random() * 5);
+        const k = 2 + Math.floor(Math.random() * (n - 2));
+        const p = 0.25;
+        const ans = nCr(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
+        return { text: `${n}개의 4지선다형 문제가 있는 시험에서 무작위로 답을 찍을 때, 정확히 ${k}문제를 맞힐 확률을 구하시오.`, ans };
+      },
+      appliedFormula: "P(X = k) = \\binom{n}{k} p^k (1-p)^{n-k} \\quad (n=5, k=3, p=0.25)",
+      solutionSteps: [
+        "1. 4지선다형 한 문제를 맞힐 확률 $p = 1/4 = 0.25$입니다.",
+        "2. 시행 횟수 $n = 5$, 성공 횟수 $k = 3$인 이항분포 $B(5, 0.25)$를 따릅니다.",
+        "3. 확률 계산: $P(X=3) = \\binom{5}{3} (0.25)^3 (0.75)^2 = 10 \\times 0.015625 \\times 0.5625 \\approx 0.0879$"
+      ],
+      pythonCode: "from scipy.stats import binom\nprob = binom.pmf(3, 5, 0.25)\nprint(f'Probability: {prob:.4f}')"
+    },
+    {
+      id: 11, chapter: 4, num: 11,
+      title: "Ch 4-11. 제품 불량률과 이항확률",
+      formulaId: "binomial_pmf",
+      text: "어느 공장의 제품 불량률은 10%이다. 임의로 10개의 제품을 추출할 때, 불량품이 2개 이하일 확률을 구하시오.",
+      genRandom: () => {
+        const n = 8 + Math.floor(Math.random() * 5);
+        const p = 0.1, k = 2;
+        let ans = 0;
+        for (let i = 0; i <= k; i++) ans += nCr(n, i) * Math.pow(p, i) * Math.pow(1 - p, n - i);
+        return { text: `어느 공장의 제품 불량률은 10%이다. 임의로 ${n}개의 제품을 추출할 때, 불량품이 2개 이하일 확률을 구하시오.`, ans };
+      },
+      appliedFormula: "P(X \\le 2) = \\sum_{k=0}^{2} \\binom{10}{k} (0.1)^k (0.9)^{10-k}",
+      solutionSteps: [
+        "1. $X \\sim B(10, 0.1)$ 분포를 따릅니다.",
+        "2. $P(X \\le 2) = P(X=0) + P(X=1) + P(X=2)$",
+        "3. $P(X=0) = (0.9)^{10} \\approx 0.3487$",
+        "4. $P(X=1) = 10 (0.1)^1 (0.9)^9 \\approx 0.3874$",
+        "5. $P(X=2) = 45 (0.1)^2 (0.9)^8 \\approx 0.1937$",
+        "6. 합계: $0.3487 + 0.3874 + 0.1937 = 0.9298$"
+      ],
+      pythonCode: "from scipy.stats import binom\nprob = binom.cdf(2, 10, 0.10)\nprint(f'Probability: {prob:.4f}')"
+    },
+    {
+      id: 18, chapter: 4, num: 18,
+      title: "Ch 4-18. 이항분포의 기댓값과 표준편차",
+      formulaId: "binomial_stats",
+      text: "발사한 미사일의 명중률이 80%이다. 100발의 미사일을 발사할 때 명중하는 미사일 수의 기댓값과 표준편차를 구하시오.",
+      genRandom: () => {
+        const n = 100 + Math.floor(Math.random() * 5) * 20;
+        const p = 0.8;
+        return { text: `발사한 미사일의 명중률이 80%이다. ${n}발의 미사일을 발사할 때 명중하는 미사일 수의 기댓값을 구하시오.`, ans: n * p };
+      },
+      appliedFormula: "E(X) = np, \\quad \\sigma = \\sqrt{np(1-p)}",
+      solutionSteps: [
+        "1. 시행 횟수 $n = 100$, 성공 확률 $p = 0.8$",
+        "2. 기댓값: $E(X) = np = 100 \\times 0.8 = 80$",
+        "3. 분산: $Var(X) = np(1-p) = 100 \\times 0.8 \\times 0.2 = 16$",
+        "4. 표준편차: $\\sigma = \\sqrt{16} = 4$"
+      ],
+      pythonCode: "from scipy.stats import binom\nmean, var = binom.stats(100, 0.8, moments='mv')\nstd = var**0.5\nprint(f'E(X)={mean}, Std(X)={std}')"
+    },
+    {
+      id: 25, chapter: 4, num: 25,
+      title: "Ch 4-25. 이항분포의 선형변환 평균",
+      formulaId: "binomial_stats",
+      text: "동전을 400번 던질 때 앞면이 나오는 횟수를 $X$라 하자. $Y = 2X + 5$의 기댓값 $E(Y)$를 구하시오.",
+      genRandom: () => {
+        const n = 200 + Math.floor(Math.random() * 5) * 100;
+        const ans = 2 * (n * 0.5) + 5;
+        return { text: `동전을 ${n}번 던질 때 앞면이 나오는 횟수를 $X$라 하자. $Y = 2X + 5$의 기댓값 $E(Y)$를 구하시오.`, ans };
+      },
+      appliedFormula: "E(Y) = E(2X + 5) = 2E(X) + 5, \\quad E(X) = np",
+      solutionSteps: [
+        "1. $X \\sim B(400, 0.5)$ 이므로 $E(X) = 400 \\times 0.5 = 200$",
+        "2. 선형변환 성질 $E(aX + b) = aE(X) + b$ 적용",
+        "3. $E(Y) = 2 \\times 200 + 5 = 405$"
+      ],
+      pythonCode: "n, p = 400, 0.5\nex = n * p\ney = 2 * ex + 5\nprint(f'E(Y) = {ey}')"
+    },
+
+    // CHAPTER 5
+    {
+      id: 4, chapter: 5, num: 4,
+      title: "Ch 5-04. 연속균등분포 확률",
+      formulaId: "uniform_dist",
+      text: "버스 도착 시간이 0분에서 15분 사이의 연속균등분포 $U(0, 15)$를 따른다. 승객이 10분 이상 기다릴 확률을 구하시오.",
+      genRandom: () => {
+        const b = 10 + Math.floor(Math.random() * 6) * 5 + 5;
+        const x = 10;
+        return { text: `버스 도착 시간이 0분에서 ${b}분 사이의 연속균등분포 $U(0, ${b})$를 따른다. 승객이 ${x}분 이상 기다릴 확률을 구하시오.`, ans: (b - x) / b };
+      },
+      appliedFormula: "P(X \\ge 10) = \\int_{10}^{15} \\frac{1}{15 - 0} dx = \\frac{15 - 10}{15}",
+      solutionSteps: [
+        "1. 구간 길이: $15 - 0 = 15$",
+        "2. $10$분 이상 구간 길이: $15 - 10 = 5$",
+        "3. 확률 $P(X \\ge 10) = \\frac{5}{15} = \\frac{1}{3} \\approx 0.3333$"
+      ],
+      pythonCode: "from scipy.stats import uniform\nprob = 1 - uniform.cdf(10, loc=0, scale=15)\nprint(f'Probability: {prob:.4f}')"
+    },
+    {
+      id: 5, chapter: 5, num: 5,
+      title: "Ch 5-05. 연속균등분포의 평균과 분산",
+      formulaId: "uniform_dist",
+      text: "확률변수 $X$가 구간 $[2, 10]$에서 균등분포를 따를 때, $X$의 기댓값 $E(X)$와 분산 $Var(X)$를 구하시오.",
+      genRandom: () => {
+        const a = 2;
+        const b = 10 + Math.floor(Math.random() * 5) * 2;
+        return { text: `확률변수 $X$가 구간 $[a, b] = [${a}, ${b}]$에서 균등분포를 따를 때, $X$의 기댓값 $E(X)$를 구하시오.`, ans: (a + b) / 2 };
+      },
+      appliedFormula: "E(X) = \\frac{a+b}{2}, \\quad Var(X) = \\frac{(b-a)^2}{12}",
+      solutionSteps: [
+        "1. $a = 2, b = 10$",
+        "2. 기댓값 $E(X) = \\frac{2 + 10}{2} = 6$",
+        "3. 분산 $Var(X) = \\frac{(10 - 2)^2}{12} = \\frac{64}{12} = \\frac{16}{3} \\approx 5.3333$"
+      ],
+      pythonCode: "from scipy.stats import uniform\nloc, scale = 2, 8 # a=2, b=10 -> scale=10-2\nmean, var = uniform.stats(loc=loc, scale=scale, moments='mv')\nprint(f'E(X)={mean}, Var(X)={var:.4f}')"
+    },
+    {
+      id: 7, chapter: 5, num: 7,
+      title: "Ch 5-07. 지수분포 고객 대기시간",
+      formulaId: "exponential_dist",
+      text: "은행 창구의 고객 처리 시간이 평균 5분인 지수분포를 따른다. 처리 시간이 3분 이내일 확률을 구하시오.",
+      genRandom: () => {
+        const mean = 4 + Math.floor(Math.random() * 4);
+        const x = 3;
+        return { text: `은행 창구의 고객 처리 시간이 평균 ${mean}분인 지수분포를 따른다. 처리 시간이 ${x}분 이내일 확률을 구하시오.`, ans: 1 - Math.exp(-(1 / mean) * x) };
+      },
+      appliedFormula: "P(X \\le x) = 1 - e^{-\\lambda x}, \\quad \\lambda = \\frac{1}{\\text{평균}} = 0.2",
+      solutionSteps: [
+        "1. 모수 $\\lambda = 1/5 = 0.2$",
+        "2. 누적확률공식: $P(X \\le 3) = 1 - e^{-0.2 \\times 3} = 1 - e^{-0.6}$",
+        "3. $e^{-0.6} \\approx 0.5488$ 이므로 $1 - 0.5488 = 0.4512$"
+      ],
+      pythonCode: "from scipy.stats import expon\n# scipy expon scale = 1/lambda = mean\nprob = expon.cdf(3, scale=5)\nprint(f'Probability: {prob:.4f}')"
+    },
+    {
+      id: 11, chapter: 5, num: 11,
+      title: "Ch 5-11. 지수분포의 무기억성",
+      formulaId: "exponential_dist",
+      text: "부품 수명이 평균 100시간인 지수분포를 따른다. 이미 50시간 사용한 부품이 추가로 50시간 이상 더 작동할 확률 $P(X > 100 | X > 50)$을 구하시오.",
+      genRandom: () => {
+        const mean = 100;
+        const extra = 40 + Math.floor(Math.random() * 3) * 10;
+        return { text: `부품 수명이 평균 ${mean}시간인 지수분포를 따른다. 이미 50시간 사용한 부품이 추가로 ${extra}시간 이상 더 작동할 확률 $P(X > ${50 + extra} | X > 50)$을 구하시오.`, ans: Math.exp(-(1 / mean) * extra) };
+      },
+      appliedFormula: "P(X > t + s \\mid X > t) = P(X > s) = e^{-\\lambda s}",
+      solutionSteps: [
+        "1. 지수분포의 **무기억성(Memoryless Property)** 적용",
+        "2. $P(X > 50 + 50 \\mid X > 50) = P(X > 50)$",
+        "3. $\\lambda = 1/100 = 0.01$",
+        "4. $P(X > 50) = e^{-0.01 \\times 50} = e^{-0.5} \\approx 0.6065$"
+      ],
+      pythonCode: "from scipy.stats import expon\nprob = 1 - expon.cdf(50, scale=100)\nprint(f'Probability: {prob:.4f}')"
+    },
+    {
+      id: 13, chapter: 5, num: 13,
+      title: "Ch 5-13. 표준정규분포 확률 계산",
+      formulaId: "normal_standardization",
+      text: "$Z \\sim N(0, 1)$일 때, $P(-1.5 \\le Z \\le 2.0)$의 확률을 구하시오.",
+      genRandom: () => {
+        const z1 = -1.5;
+        const z2 = 1.5 + Math.floor(Math.random() * 3) * 0.25;
+        return { text: `$Z \\sim N(0, 1)$일 때, $P(-1.5 \\le Z \\le ${z2})$의 확률을 구하시오.`, ans: normalCDF(z2) - normalCDF(z1) };
+      },
+      appliedFormula: "P(z_1 \\le Z \\le z_2) = \\Phi(z_2) - \\Phi(z_1)",
+      solutionSteps: [
+        "1. $\\Phi(2.0) = P(Z \\le 2.0) \\approx 0.9772$",
+        "2. $\\Phi(-1.5) = P(Z \\le -1.5) \\approx 0.0668$",
+        "3. 확률차: $0.9772 - 0.0668 = 0.9104$"
+      ],
+      pythonCode: "from scipy.stats import norm\nprob = norm.cdf(2.0) - norm.cdf(-1.5)\nprint(f'Probability: {prob:.4f}')"
+    },
+    {
+      id: 22, chapter: 5, num: 22,
+      title: "Ch 5-22. 일반 정규분포 점수 확률",
+      formulaId: "normal_standardization",
+      text: "시험 성적이 평균 70점, 표준편차 10점인 정규분포 $N(70, 10^2)$를 따를 때, 성적이 85점 이상일 확률을 구하시오.",
+      genRandom: () => {
+        const mu = 70, sigma = 10;
+        const x = 80 + Math.floor(Math.random() * 3) * 5;
+        const z = (x - mu) / sigma;
+        return { text: `시험 성적이 평균 ${mu}점, 표준편차 ${sigma}점인 정규분포 $N(${mu}, ${sigma}^2)$를 따를 때, 성적이 ${x}점 이상일 확률을 구하시오.`, ans: 1 - normalCDF(z) };
+      },
+      appliedFormula: "Z = \\frac{X - \\mu}{\\sigma} = \\frac{85 - 70}{10} = 1.5",
+      solutionSteps: [
+        "1. 표준화: $Z = \\frac{85 - 70}{10} = 1.5$",
+        "2. $P(X \\ge 85) = P(Z \\ge 1.5) = 1 - \\Phi(1.5)$",
+        "3. $\\Phi(1.5) \\approx 0.9332$",
+        "4. $P(Z \\ge 1.5) = 1 - 0.9332 = 0.0668$"
+      ],
+      pythonCode: "from scipy.stats import norm\nprob = 1 - norm.cdf(85, loc=70, scale=10)\nprint(f'Probability: {prob:.4f}')"
+    },
+    {
+      id: 25, chapter: 5, num: 25,
+      title: "Ch 5-25. 정규분포의 상위 백분위수",
+      formulaId: "normal_standardization",
+      text: "지원자의 시험 점수가 $N(500, 50^2)$을 따른다. 상위 5%에 들기 위한 최소 점수 $k$를 구하시오. (단, $P(Z \\le 1.645) = 0.95$)",
+      genRandom: () => {
+        const mu = 500, sigma = 50;
+        return { text: `지원자의 시험 점수가 $N(${mu}, ${sigma}^2)$을 따른다. 상위 5%에 들기 위한 최소 점수 $k$를 구하시오. (단, $P(Z \\le 1.645) = 0.95$)`, ans: mu + 1.645 * sigma };
+      },
+      appliedFormula: "X = \\mu + Z \\cdot \\sigma = 500 + 1.645 \\times 50",
+      solutionSteps: [
+        "1. 상위 5% 조건: $P(X \\ge k) = 0.05 \\implies P(Z \\ge z) = 0.05$",
+        "2. 해당하는 $Z$값: $z = 1.645$",
+        "3. 역표준화: $k = \\mu + z \\cdot \\sigma = 500 + 1.645 \\times 50 = 500 + 82.25 = 582.25$"
+      ],
+      pythonCode: "from scipy.stats import norm\nk = norm.ppf(0.95, loc=500, scale=50)\nprint(f'Cutoff score k: {k:.2f}')"
+    },
+    {
+      id: 27, chapter: 5, num: 27,
+      title: "Ch 5-27. 정규분포 양쪽 영역 확률",
+      formulaId: "normal_standardization",
+      text: "제품 무게가 $N(200, 4^2)$를 따른다. 무게가 192g 미만이거나 208g 초과일 때 불량으로 판정한다. 불량률을 구하시오.",
+      genRandom: () => {
+        const mu = 200, sigma = 4, dev = 8;
+        const z = dev / sigma;
+        return { text: `제품 무게가 $N(${mu}, ${sigma}^2)$를 따른다. 무게가 ${mu - dev}g 미만이거나 ${mu + dev}g 초과일 때 불량으로 판정한다. 불량률을 구하시오.`, ans: 2 * (1 - normalCDF(z)) };
+      },
+      appliedFormula: "P(|X - 200| > 8) = P(|Z| > 2) = 2 \\times P(Z > 2)",
+      solutionSteps: [
+        "1. $192$g의 Z값: $Z_1 = \\frac{192 - 200}{4} = -2.0$",
+        "2. $208$g의 Z값: $Z_2 = \\frac{208 - 200}{4} = 2.0$",
+        "3. 불량률: $P(Z < -2) + P(Z > 2) = 2 \\times (1 - \\Phi(2.0))$",
+        "4. $2 \\times (1 - 0.9772) = 2 \\times 0.0228 = 0.0456\\ (4.56\\%)$"
+      ],
+      pythonCode: "from scipy.stats import norm\nprob = norm.cdf(192, 200, 4) + (1 - norm.cdf(208, 200, 4))\nprint(f'Defect rate: {prob:.4f}')"
+    },
+
+    // CHAPTER 6
+    {
+      id: 4, chapter: 6, num: 4,
+      title: "Ch 6-04. 표본평균의 오차한계 및 표준오차",
+      formulaId: "sample_mean_dist",
+      text: "모표준편차 $\\sigma = 15$인 모집단에서 크기 $n = 36$인 표본을 추출할 때, 표본평균 $\\bar{X}$의 표준오차(SE)를 구하시오.",
+      genRandom: () => {
+        const sigma = 15;
+        const n = 36 + Math.floor(Math.random() * 4) * 28;
+        return { text: `모표준편차 $\\sigma = ${sigma}$인 모집단에서 크기 $n = ${n}$인 표본을 추출할 때, 표본평균 $\\bar{X}$의 표준오차(SE)를 구하시오.`, ans: sigma / Math.sqrt(n) };
+      },
+      appliedFormula: "SE(\\bar{X}) = \\frac{\\sigma}{\\sqrt{n}} = \\frac{15}{\\sqrt{36}}",
+      solutionSteps: [
+        "1. 표본평균의 표준편차(표준오차) 공식: $SE = \\frac{\\sigma}{\\sqrt{n}}$",
+        "2. $\\sqrt{36} = 6$",
+        "3. $SE = \\frac{15}{6} = 2.5$"
+      ],
+      pythonCode: "import math\nsigma, n = 15, 36\nse = sigma / math.sqrt(n)\nprint(f'Standard Error: {se}')"
+    },
+    {
+      id: 5, chapter: 6, num: 5,
+      title: "Ch 6-05. 표본평균의 정규분포 확률",
+      formulaId: "sample_mean_dist",
+      text: "모평균 $\\mu = 100$, 모표준편차 $\\sigma = 20$인 모집단에서 크기 $n = 16$인 표본을 임의추출할 때, 표본평균 $\\bar{X}$가 105 이상일 확률을 구하시오.",
+      genRandom: () => {
+        const mu = 100, sigma = 20, n = 16;
+        const xbar = 105 + Math.floor(Math.random() * 3) * 2.5;
+        const z = (xbar - mu) / (sigma / Math.sqrt(n));
+        return { text: `모평균 $\\mu = ${mu}$, 모표준편차 $\\sigma = ${sigma}$인 모집단에서 크기 $n = ${n}$인 표본을 임의추출할 때, 표본평균 $\\bar{X}$가 ${xbar} 이상일 확률을 구하시오.`, ans: 1 - normalCDF(z) };
+      },
+      appliedFormula: "Z = \\frac{\\bar{X} - \\mu}{\\sigma / \\sqrt{n}} = \\frac{105 - 100}{20 / \\sqrt{16}} = \\frac{5}{5} = 1.0",
+      solutionSteps: [
+        "1. 표준오차 $SE = \\frac{20}{\\sqrt{16}} = \\frac{20}{4} = 5$",
+        "2. 표준화: $Z = \\frac{105 - 100}{5} = 1.0$",
+        "3. $P(\\bar{X} \\ge 105) = P(Z \\ge 1.0) = 1 - \\Phi(1.0) = 1 - 0.8413 = 0.1587$"
+      ],
+      pythonCode: "from scipy.stats import norm\nimport math\nse = 20 / math.sqrt(16)\nprob = 1 - norm.cdf(105, loc=100, scale=se)\nprint(f'Probability: {prob:.4f}')"
+    },
+    {
+      id: 8, chapter: 6, num: 8,
+      title: "Ch 6-08. 표본크기 증가와 오차 감소",
+      formulaId: "sample_mean_dist",
+      text: "표본평균의 표준오차를 절반으로 줄이기 위해 표본의 크기 $n$을 몇 배로 늘려야 하는지 구하시오.",
+      genRandom: () => ({ text: "표본평균의 표준오차를 절반(1/2)으로 줄이기 위해 표본의 크기 $n$을 몇 배로 늘려야 하는지 구하시오.", ans: 4 }),
+      appliedFormula: "SE = \\frac{\\sigma}{\\sqrt{n}} \\implies \\frac{1}{\\sqrt{k \\cdot n}} = \\frac{1}{2} \\frac{1}{\\sqrt{n}} \\implies k = 4",
+      solutionSteps: [
+        "1. 표준오차는 $\\sqrt{n}$에 반비례합니다.",
+        "2. $SE_{new} = \\frac{\\sigma}{\\sqrt{n'}} = \\frac{1}{2} \\frac{\\sigma}{\\sqrt{n}}$",
+        "3. 양변을 제곱하면 $\\frac{1}{n'} = \\frac{1}{4n} \\implies n' = 4n$",
+        "4. 따라서 표본 크기를 **4배**로 늘려야 합니다."
+      ],
+      pythonCode: "# SE_new = SE_old / 2 => sqrt(n_new) = 2 * sqrt(n_old) => n_new = 4 * n_old\nratio = 4\nprint(f'Required sample size ratio: {ratio}x')"
+    },
+    {
+      id: 10, chapter: 6, num: 10,
+      title: "Ch 6-10. 중심극한정리(CLT) 응용",
+      formulaId: "sample_mean_dist",
+      text: "임의의 분포를 따르는 모집단의 평균이 50, 표준편차가 12이다. 크기 $n = 64$인 큰 표본을 추출할 때 표본평균이 47과 53 사이에 있을 확률을 구하시오.",
+      genRandom: () => {
+        const mu = 50, sigma = 12, n = 64;
+        const z = 3 / (sigma / Math.sqrt(n));
+        return { text: `임의의 분포를 따르는 모집단의 평균이 ${mu}, 표준편차가 ${sigma}이다. 크기 $n = ${n}$인 큰 표본을 추출할 때 표본평균이 47과 53 사이에 있을 확률을 구하시오.`, ans: normalCDF(z) - normalCDF(-z) };
+      },
+      appliedFormula: "Z = \\frac{\\bar{X} - 50}{12 / \\sqrt{64}} = \\frac{\\bar{X} - 50}{1.5}",
+      solutionSteps: [
+        "1. 중심극한정리에 의해 $n=64 \\ge 30$이므로 $\\bar{X} \\approx N(50, 1.5^2)$",
+        "2. $47$의 Z값: $Z_1 = \\frac{47 - 50}{1.5} = -2.0$",
+        "3. $53$의 Z값: $Z_2 = \\frac{53 - 50}{1.5} = 2.0$",
+        "4. $P(-2.0 \\le Z \\le 2.0) = \\Phi(2.0) - \\Phi(-2.0) = 0.9772 - 0.0228 = 0.9544$"
+      ],
+      pythonCode: "from scipy.stats import norm\nimport math\nse = 12 / math.sqrt(64)\nprob = norm.cdf(53, 50, se) - norm.cdf(47, 50, se)\nprint(f'Probability: {prob:.4f}')"
+    },
+    {
+      id: 11, chapter: 6, num: 11,
+      title: "Ch 6-11. 표본비율의 기대값과 표준오차",
+      formulaId: "sample_prop_dist",
+      text: "모비율 $p = 0.6$인 모집단에서 크기 $n = 100$인 표본을 추출할 때, 표본비율 $\\hat{p}$의 기댓값과 표준오차(SE)를 구하시오.",
+      genRandom: () => {
+        const p = 0.6, n = 100;
+        return { text: `모비율 $p = ${p}$인 모집단에서 크기 $n = ${n}$인 표본을 추출할 때, 표본비율 $\\hat{p}$의 표준오차(SE)를 구하시오.`, ans: Math.sqrt(p * (1 - p) / n) };
+      },
+      appliedFormula: "E(\\hat{p}) = p = 0.6, \\quad SE(\\hat{p}) = \\sqrt{\\frac{p(1-p)}{n}} = \\sqrt{\\frac{0.6 \\times 0.4}{100}}",
+      solutionSteps: [
+        "1. 기댓값: $E(\\hat{p}) = p = 0.6$",
+        "2. 분산: $Var(\\hat{p}) = \\frac{0.6 \\times 0.4}{100} = \\frac{0.24}{100} = 0.0024$",
+        "3. 표준오차: $SE = \\sqrt{0.0024} \\approx 0.04899$"
+      ],
+      pythonCode: "import math\np, n = 0.6, 100\nse = math.sqrt(p * (1 - p) / n)\nprint(f'E(p_hat)={p}, SE(p_hat)={se:.4f}')"
+    },
+    {
+      id: 14, chapter: 6, num: 14,
+      title: "Ch 6-14. 대통령 지지율 표본비율 확률",
+      formulaId: "sample_prop_dist",
+      text: "대통령 지지율 모비율이 $p = 0.5$이다. $n = 400$명을 임의 조사할 때, 표본지지도 $\\hat{p}$가 0.55 이상일 확률을 구하시오.",
+      genRandom: () => {
+        const p = 0.5, n = 400;
+        const phat = +(0.54 + Math.floor(Math.random() * 3) * 0.01).toFixed(2);
+        const z = (phat - p) / Math.sqrt(p * (1 - p) / n);
+        return { text: `대통령 지지율 모비율이 $p = ${p}$이다. $n = ${n}$명을 임의 조사할 때, 표본지지도 $\\hat{p}$가 ${phat} 이상일 확률을 구하시오.`, ans: 1 - normalCDF(z) };
+      },
+      appliedFormula: "Z = \\frac{\\hat{p} - p}{\\sqrt{\\frac{p(1-p)}{n}}} = \\frac{0.55 - 0.50}{\\sqrt{\\frac{0.25}{400}}} = \\frac{0.05}{0.025} = 2.0",
+      solutionSteps: [
+        "1. 표준오차 $SE = \\sqrt{\\frac{0.5 \\times 0.5}{400}} = \\frac{0.5}{20} = 0.025$",
+        "2. Z값 산출: $Z = \\frac{0.55 - 0.50}{0.025} = 2.0$",
+        "3. 확률 계산: $P(\\hat{p} \\ge 0.55) = P(Z \\ge 2.0) = 1 - 0.9772 = 0.0228$"
+      ],
+      pythonCode: "from scipy.stats import norm\nimport math\nse = math.sqrt(0.5 * 0.5 / 400)\nprob = 1 - norm.cdf(0.55, loc=0.5, scale=se)\nprint(f'Probability: {prob:.4f}')"
+    },
+    {
+      id: 16, chapter: 6, num: 16,
+      title: "Ch 6-16. 신약 효과 표본비율 정규근사",
+      formulaId: "sample_prop_dist",
+      text: "신약의 완치율이 80%이다. 100명의 환자에게 투여했을 때 완치 비율이 75% 이상 85% 이하일 확률을 구하시오.",
+      genRandom: () => {
+        const p = 0.8, n = 100;
+        const z = 0.05 / Math.sqrt(p * (1 - p) / n);
+        return { text: `신약의 완치율이 80%이다. ${n}명의 환자에게 투여했을 때 완치 비율이 75% 이상 85% 이하일 확률을 구하시오.`, ans: normalCDF(z) - normalCDF(-z) };
+      },
+      appliedFormula: "Z = \\frac{\\hat{p} - 0.8}{\\sqrt{\\frac{0.8 \\times 0.2}{100}}} = \\frac{\\hat{p} - 0.8}{0.04}",
+      solutionSteps: [
+        "1. 표준오차 $SE = \\sqrt{\\frac{0.16}{100}} = 0.04$",
+        "2. $0.75$의 Z값: $Z_1 = \\frac{0.75 - 0.80}{0.04} = -1.25$",
+        "3. $0.85$의 Z값: $Z_2 = \\frac{0.85 - 0.80}{0.04} = +1.25$",
+        "4. $P(-1.25 \\le Z \\le 1.25) = \\Phi(1.25) - \\Phi(-1.25) = 0.8944 - 0.1056 = 0.7888$"
+      ],
+      pythonCode: "from scipy.stats import norm\nimport math\nse = math.sqrt(0.8 * 0.2 / 100)\nprob = norm.cdf(0.85, 0.8, se) - norm.cdf(0.75, 0.8, se)\nprint(f'Probability: {prob:.4f}')"
+    },
+    {
+      id: 20, chapter: 6, num: 20,
+      title: "Ch 6-20. 표본비율의 허용오차 만족 조건",
+      formulaId: "sample_prop_dist",
+      text: "모비율 $p = 0.4$일 때 표본비율 $\\hat{p}$가 모비율과의 차이가 0.05 이하일 확률이 95% 이상이 되기 위한 최소 표본 크기 $n$을 구하시오. (단, $Z_{0.025} = 1.96$)",
+      genRandom: () => {
+        const p = 0.4, margin = 0.05, z = 1.96;
+        return { text: `모비율 $p = ${p}$일 때 표본비율 $\\hat{p}$가 모비율과의 차이가 ${margin} 이하일 확률이 95% 이상이 되기 위한 최소 표본 크기 $n$을 구하시오. (단, $Z_{0.025} = 1.96$)`, ans: Math.ceil((z * z * p * (1 - p)) / (margin * margin)) };
+      },
+      appliedFormula: "1.96 \\times \\sqrt{\\frac{p(1-p)}{n}} \\le 0.05 \\implies n \\ge \\frac{1.96^2 \\times p(1-p)}{0.05^2}",
+      solutionSteps: [
+        "1. 허용오차 공식: $1.96 \\times \\sqrt{\\frac{0.4 \\times 0.6}{n}} \\le 0.05$",
+        "2. 양변 제곱: $3.8416 \\times \\frac{0.24}{n} \\le 0.0025$",
+        "3. $n \\ge \\frac{0.921984}{0.0025} = 368.79$",
+        "4. 따라서 최소 표본 크기는 **369**입니다."
+      ],
+      pythonCode: "import math\nz, p, margin = 1.96, 0.4, 0.05\nn = (z**2 * p * (1 - p)) / (margin**2)\nprint(f'Minimum n: {math.ceil(n)}')"
+    }
+  ];
+
+  // 고유 ID (챕터가 달라도 번호가 겹치므로 챕터-번호로 구분)
+  PROBLEMS_DATA.forEach(p => { p.uid = `c${p.chapter}-${p.num}`; });
+
+  // =========================================================================
+  // 수학 도우미
+  // =========================================================================
+  function nCr(n, r) {
+    if (r < 0 || r > n) return 0;
+    let res = 1;
+    for (let i = 1; i <= r; i++) res = res * (n - i + 1) / i;
+    return res;
+  }
+  function normalCDF(z) {
+    const t = 1 / (1 + 0.2316419 * Math.abs(z));
+    const d = 0.3989423 * Math.exp(-z * z / 2);
+    let prob = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+    return z > 0 ? 1 - prob : prob;
+  }
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function md(s) { return s.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); }
+  function fmt(v) {
+    if (Number.isInteger(v)) return String(v);
+    return Math.abs(v) >= 10 ? v.toFixed(2) : v.toFixed(4);
+  }
+  function renderMath(root) {
+    renderMathInElement(root || document.body, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ],
+      throwOnError: false
+    });
+  }
+
+  // =========================================================================
+  // 상태 & 공통 UI
+  // =========================================================================
+  // =========================================================================
+  // 개념 사전 데이터
+  // =========================================================================
+  const CONCEPTS_DATA = [
+    // ---- Chapter 4 ----
+    { ch: 4, term: "확률변수", en: "Random Variable", kw: "X 변수",
+      def: String.raw`실험 결과에 <b>숫자</b>를 하나씩 대응시키는 규칙입니다. 보통 대문자 $X$로 쓰고, 실제로 나온 값은 소문자 $x$로 씁니다.`,
+      ex: String.raw`동전 2번을 던져 <b>앞면이 나온 횟수</b>를 $X$라 하면 $X = 0, 1, 2$` },
+    { ch: 4, term: "이산확률변수", en: "Discrete Random Variable", kw: "셀 수 있는",
+      def: String.raw`취할 수 있는 값을 <b>하나씩 셀 수 있는</b> 확률변수입니다 (0, 1, 2, …).`,
+      ex: String.raw`불량품 개수, 주사위 눈, 시험에서 맞힌 문제 수` },
+    { ch: 4, term: "확률질량함수", en: "PMF (Probability Mass Function)", kw: "pmf",
+      def: String.raw`이산확률변수가 값 $x$를 가질 확률 $P(X=x)$를 알려 주는 함수입니다. 모든 확률은 $0$ 이상이고 <b>전부 더하면 1</b>입니다.`,
+      ex: String.raw`$P(X=0)+P(X=1)+P(X=2) = 0.25+0.5+0.25 = 1$`, formulaId: "pmf_mean" },
+    { ch: 4, term: "누적분포함수", en: "CDF (Cumulative Distribution Function)", kw: "cdf 누적확률 이하",
+      def: String.raw`$x$ 이하가 될 확률을 쌓아 둔 함수 $F(x)=P(X \le x)$ 입니다. "<b>~ 이하</b>" 확률은 CDF로 한 번에 구합니다.`,
+      ex: String.raw`$P(X \le 2) = P(0)+P(1)+P(2)$` },
+    { ch: 4, term: "기댓값 (평균)", en: "Expected Value / Mean", kw: "e(x) 평균 mu 뮤",
+      def: String.raw`같은 실험을 아주 많이 반복했을 때 <b>장기적으로 나오는 평균</b>입니다. (값 × 그 값의 확률)을 모두 더합니다. $E(X)=\sum x\,P(X=x)$`,
+      ex: String.raw`동전 2번의 앞면 횟수: $E(X) = 0(0.25)+1(0.5)+2(0.25) = 1$`, formulaId: "pmf_mean" },
+    { ch: 4, term: "분산", en: "Variance", kw: "var v(x) 퍼짐 산포 sigma 시그마",
+      def: String.raw`값들이 평균에서 <b>얼마나 퍼져 있는지</b>를 나타냅니다. (평균과의 차이)$^2$의 평균이며, 계산은 $Var(X)=E(X^2)-[E(X)]^2$ 로 편하게 합니다.`,
+      ex: String.raw`분산이 클수록 결과가 들쭉날쭉, 0이면 항상 같은 값`, formulaId: "pmf_mean" },
+    { ch: 4, term: "표준편차", en: "Standard Deviation", kw: "sd sigma 시그마",
+      def: String.raw`분산의 제곱근 $\sigma=\sqrt{Var(X)}$ 입니다. 분산은 단위가 제곱이 되지만, 표준편차는 <b>원래 단위</b>로 돌아와 해석하기 쉽습니다.`,
+      ex: String.raw`$Var=16 \Rightarrow \sigma = 4$` },
+    { ch: 4, term: "선형변환의 평균과 분산", en: "Linear Transformation", kw: "aX+b 상수배",
+      def: String.raw`$Y=aX+b$ 일 때 $E(Y)=aE(X)+b$, $Var(Y)=a^2\,Var(X)$ 입니다. 더하는 상수 $b$는 평균만 옮기고 <b>분산에는 영향이 없습니다</b>. 곱하는 $a$는 분산에 <b>제곱</b>으로 들어갑니다.`,
+      ex: String.raw`$E(X)=200 \Rightarrow E(2X+5)=405$, $Var(X)=100 \Rightarrow Var(2X+5)=400$` },
+    { ch: 4, term: "베르누이 시행", en: "Bernoulli Trial", kw: "성공 실패 독립",
+      def: String.raw`결과가 <b>성공 / 실패</b> 두 가지뿐이고, 성공 확률 $p$가 매번 같으며 시행끼리 독립인 실험입니다.`,
+      ex: String.raw`동전 던지기, 제품 1개 검사(양품/불량)` },
+    { ch: 4, term: "이항분포", en: "Binomial Distribution", kw: "b(n,p) 이항",
+      def: String.raw`베르누이 시행을 <b>$n$번 독립 반복</b>했을 때의 성공 횟수 $X \sim B(n,p)$ 의 분포입니다. 평균 $np$, 분산 $np(1-p)$.`,
+      ex: String.raw`4지선다 5문제를 찍어서 맞힌 개수 $\sim B(5, 0.25)$`, formulaId: "binomial_pmf" },
+
+    // ---- Chapter 5 ----
+    { ch: 5, term: "연속확률변수", en: "Continuous Random Variable", kw: "연속",
+      def: String.raw`구간 안의 <b>어떤 실수값이든</b> 가질 수 있는 확률변수입니다. 한 점의 확률은 $P(X=a)=0$ 이어서 <b>구간의 확률</b>만 의미가 있습니다.`,
+      ex: String.raw`키, 몸무게, 대기시간, 부품 수명` },
+    { ch: 5, term: "확률밀도함수", en: "PDF (Probability Density Function)", kw: "pdf 밀도 넓이",
+      def: String.raw`연속확률변수의 확률을 <b>그래프 아래 넓이</b>로 알려 주는 함수 $f(x)$ 입니다. $f(x)\ge0$ 이고 전체 넓이는 1입니다. 높이 자체가 확률은 아닙니다.`,
+      ex: String.raw`$P(a \le X \le b) = \int_a^b f(x)\,dx$` },
+    { ch: 5, term: "연속균등분포", en: "Continuous Uniform Distribution", kw: "균등 u(a,b) 직사각형",
+      def: String.raw`구간 $[a,b]$ 어디에서든 <b>똑같은 가능성</b>을 갖는 분포 $U(a,b)$ 입니다. 평균 $\frac{a+b}{2}$, 분산 $\frac{(b-a)^2}{12}$. 확률은 구간 길이의 비율입니다.`,
+      ex: String.raw`$U(0,15)$ 에서 $P(X \ge 10) = \frac{5}{15}$`, formulaId: "uniform_dist" },
+    { ch: 5, term: "지수분포", en: "Exponential Distribution", kw: "람다 lambda 대기시간 수명",
+      def: String.raw`<b>다음 사건이 일어날 때까지의 대기시간</b>을 나타내는 분포입니다. 모수 $\lambda = \frac{1}{\text{평균}}$, $P(X \le x)=1-e^{-\lambda x}$.`,
+      ex: String.raw`평균 5분이면 $\lambda=0.2$`, formulaId: "exponential_dist" },
+    { ch: 5, term: "무기억성", en: "Memoryless Property", kw: "memoryless 조건부",
+      def: String.raw`지수분포의 성질로, <b>이미 기다린 시간은 앞으로의 확률에 영향을 주지 않습니다</b>. $P(X>t+s \mid X>t)=P(X>s)$`,
+      ex: String.raw`50시간 쓴 부품이 50시간 더 버틸 확률 = 새 부품이 50시간 버틸 확률`, formulaId: "exponential_dist" },
+    { ch: 5, term: "정규분포", en: "Normal Distribution", kw: "n(mu,sigma) 종모양 가우스 68 95",
+      def: String.raw`평균 $\mu$를 중심으로 좌우대칭인 <b>종 모양</b> 분포 $N(\mu,\sigma^2)$ 입니다. $\sigma$가 클수록 넓고 낮아집니다. 평균 $\pm1\sigma$ 약 68%, $\pm2\sigma$ 약 95%, $\pm3\sigma$ 약 99.7%.`,
+      ex: String.raw`$N(70, 10^2)$ 이면 60~80점 사이가 약 68%` },
+    { ch: 5, term: "표준정규분포와 Z값", en: "Standard Normal / Z-score", kw: "z 표준화 z점수 phi",
+      def: String.raw`평균 0, 표준편차 1인 정규분포 $N(0,1)$ 입니다. $Z=\frac{X-\mu}{\sigma}$ 는 <b>평균에서 표준편차 몇 개만큼 떨어졌는지</b>를 뜻하며, 표준화하면 하나의 표(Φ)로 모든 정규분포를 계산할 수 있습니다.`,
+      ex: String.raw`$N(70,10^2)$ 에서 85점 $\Rightarrow Z=1.5$`, formulaId: "normal_standardization" },
+    { ch: 5, term: "정규분포의 대칭성", en: "Symmetry of Normal", kw: "phi 대칭 여사건",
+      def: String.raw`$\Phi(-z)=1-\Phi(z)$, $P(Z>z)=1-\Phi(z)$. 표에는 보통 양수 $z$만 있으므로 음수는 <b>대칭을 이용해 바꿔</b> 계산합니다.`,
+      ex: String.raw`$P(|Z|>2)=2\{1-\Phi(2)\}=0.0456$`, formulaId: "normal_standardization" },
+    { ch: 5, term: "백분위수 (분위수)", en: "Percentile / Quantile", kw: "상위 퍼센트 cutoff 역표준화",
+      def: String.raw`"상위 5% 점수" 처럼 <b>확률이 주어졌을 때 값</b>을 찾는 문제입니다. 확률에 해당하는 $z$를 찾고 $x=\mu+z\sigma$ 로 되돌립니다. (상위 5% → $z=1.645$)`,
+      ex: String.raw`$N(500,50^2)$ 상위 5%: $500+1.645\times50 = 582.25$`, formulaId: "normal_standardization" },
+
+    // ---- Chapter 6 ----
+    { ch: 6, term: "모집단과 표본", en: "Population & Sample", kw: "전체 일부",
+      def: String.raw`<b>모집단</b>은 알고 싶은 대상 전체, <b>표본</b>은 그중 실제로 조사한 일부입니다. 표본으로 모집단을 추측하는 것이 통계의 핵심입니다.`,
+      ex: String.raw`전국 유권자 전체(모집단) vs 조사에 응한 400명(표본)` },
+    { ch: 6, term: "모수와 통계량", en: "Parameter & Statistic", kw: "mu sigma p x bar p hat",
+      def: String.raw`<b>모수</b>는 모집단의 값(고정, 보통 모름)이고 $\mu,\ \sigma,\ p$ 로 씁니다. <b>통계량</b>은 표본에서 계산한 값으로 $\bar{X},\ s,\ \hat{p}$ 이며 표본마다 달라집니다.`,
+      ex: String.raw`모평균 $\mu$ → 표본평균 $\bar{X}$, 모비율 $p$ → 표본비율 $\hat{p}$` },
+    { ch: 6, term: "임의추출", en: "Random Sampling", kw: "무작위 iid 독립",
+      def: String.raw`모집단의 모든 원소가 <b>같은 가능성</b>으로 뽑히고 서로 독립이 되도록 표본을 뽑는 방법입니다. 이 가정이 있어야 표본분포 공식이 성립합니다.` },
+    { ch: 6, term: "표본분포", en: "Sampling Distribution", kw: "통계량의 분포",
+      def: String.raw`<b>통계량이 가지는 분포</b>입니다. 같은 크기의 표본을 계속 뽑아 $\bar{X}$를 계산하면 그 값들이 만드는 분포가 $\bar{X}$의 표본분포입니다.`,
+      ex: String.raw`표본을 100번 뽑아 평균 100개를 모으면 그 100개의 분포` },
+    { ch: 6, term: "표본평균", en: "Sample Mean", kw: "x bar 엑스바",
+      def: String.raw`$\bar{X}=\frac{1}{n}\sum X_i$. 모평균 $\mu$ 근처에서 움직이며 $E(\bar{X})=\mu$, $Var(\bar{X})=\frac{\sigma^2}{n}$ 입니다.`,
+      ex: String.raw`$\mu=50,\sigma=10,n=25 \Rightarrow \bar{X} \sim N(50, 2^2)$`, formulaId: "sample_mean_dist" },
+    { ch: 6, term: "표준오차", en: "Standard Error (SE)", kw: "se 오차 표준편차 차이",
+      def: String.raw`<b>통계량의 표준편차</b>입니다. 표본평균은 $SE=\frac{\sigma}{\sqrt{n}}$, 표본비율은 $SE=\sqrt{\frac{p(1-p)}{n}}$. 데이터 한 개가 퍼진 정도인 표준편차 $\sigma$와 구분하세요.`,
+      ex: String.raw`$\sigma=15,\ n=36 \Rightarrow SE=2.5$`, formulaId: "sample_mean_dist" },
+    { ch: 6, term: "표본 크기와 정밀도", en: "Sample Size & Precision", kw: "n 4배 절반 제곱근",
+      def: String.raw`$SE$는 $\sqrt{n}$ 에 반비례합니다. 따라서 오차를 <b>절반</b>으로 줄이려면 표본 크기를 <b>4배</b>로 늘려야 합니다.`,
+      ex: String.raw`$n=25 \to 100$ 이면 $SE$가 $2 \to 1$`, formulaId: "sample_mean_dist" },
+    { ch: 6, term: "중심극한정리", en: "CLT (Central Limit Theorem)", kw: "clt n 30 근사 정규",
+      def: String.raw`모집단이 어떤 모양이든 표본 크기 $n$이 충분히 크면(보통 $n \ge 30$) <b>표본평균은 근사적으로 정규분포</b>를 따른다는 정리입니다.`,
+      ex: String.raw`모양을 모르는 모집단, $n=64$ $\Rightarrow$ $\bar{X}\approx N(\mu, \sigma^2/64)$`, formulaId: "sample_mean_dist" },
+    { ch: 6, term: "표본비율", en: "Sample Proportion", kw: "p hat 피햇 지지율",
+      def: String.raw`표본 중 특성을 가진 비율 $\hat{p}=\frac{X}{n}$ 입니다. $E(\hat{p})=p$, $Var(\hat{p})=\frac{p(1-p)}{n}$ 이고 $n$이 크면 근사적으로 정규분포를 따릅니다.`,
+      ex: String.raw`400명 중 220명 지지 $\Rightarrow \hat{p}=0.55$`, formulaId: "sample_prop_dist" },
+    { ch: 6, term: "정규근사 조건", en: "Normal Approximation Condition", kw: "np 5 10 근사 조건",
+      def: String.raw`이항분포나 표본비율을 정규분포로 근사하려면 $np \ge 5$ (또는 10) 이고 $n(1-p) \ge 5$ (또는 10) 이어야 합니다. <b>성공과 실패가 모두 충분히</b> 나와야 한다는 뜻입니다.`,
+      ex: String.raw`$n=100,\ p=0.8$: $np=80,\ n(1-p)=20$ ✔`, formulaId: "sample_prop_dist" },
+    { ch: 6, term: "허용오차와 필요 표본 크기", en: "Margin of Error", kw: "오차한계 신뢰 1.96 n 구하기",
+      def: String.raw`허용오차는 $z \times SE$ 입니다. 원하는 오차 한계를 만족하는 최소 표본 크기는 부등식을 $n$에 대해 풀어 구하고, 소수가 나오면 <b>올림</b>합니다.`,
+      ex: String.raw`$n \ge \frac{1.96^2\,p(1-p)}{0.05^2} = 368.8 \Rightarrow 369$`, formulaId: "sample_prop_dist" },
+    { ch: 6, term: "불편추정량", en: "Unbiased Estimator", kw: "편향 추정",
+      def: String.raw`기댓값이 모수와 같은 통계량입니다. $E(\bar{X})=\mu$, $E(\hat{p})=p$ 이므로 둘 다 불편추정량입니다. 평균적으로 모수를 <b>치우침 없이</b> 맞힌다는 뜻입니다.` }
+  ];
+
+  let conceptChapter = 'all';
+
+  function filterConceptChapter(ch) {
+    conceptChapter = ch;
+    renderConcepts();
+  }
+
+  function renderConcepts() {
+    const box = document.getElementById('concept-list');
+    if (!box) return;
+    const q = (document.getElementById('concept-search').value || '').trim().toLowerCase();
+    document.querySelectorAll('.concept-ch-btn').forEach(b => {
+      b.classList.toggle('active', String(conceptChapter) === b.dataset.ch);
+    });
+
+    const list = CONCEPTS_DATA.filter(c => {
+      if (conceptChapter !== 'all' && c.ch !== conceptChapter) return false;
+      if (!q) return true;
+      const hay = `${c.term} ${c.en} ${c.kw || ''} ${c.def.replace(/<[^>]+>/g, '')}`.toLowerCase();
+      return hay.includes(q);
+    });
+
+    document.getElementById('concept-count').textContent = `용어 ${list.length}개`;
+    box.innerHTML = list.length ? list.map(c => `
+      <div class="glass rounded-3xl p-5 space-y-3 fade-in">
+        <div class="flex items-center justify-between gap-2">
+          <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tint-blue">Chapter ${c.ch}</span>
+          ${c.formulaId ? `<button onclick="jumpToFormula('${c.formulaId}')" class="chip !text-[11px] flex items-center gap-1"><span>📐 관련 공식</span></button>` : ''}
+        </div>
+        <div>
+          <h3 class="font-bold text-lg leading-tight">${c.term}</h3>
+          <div class="text-[11px] sub font-semibold mt-0.5">${c.en}</div>
+        </div>
+        <p class="text-sm leading-relaxed">${c.def}</p>
+        ${c.ex ? `<div class="soft rounded-2xl p-3 text-[13px] leading-relaxed"><span class="font-extrabold tint-green bg-transparent">예시</span> ${c.ex}</div>` : ''}
+      </div>`).join('')
+      : `<div class="glass rounded-3xl p-8 text-center sub text-sm md:col-span-2">검색 결과가 없습니다.</div>`;
+    renderMath(box);
+  }
+
+  // =========================================================================
+  // Thaniya Project 크레딧 카드
+  // =========================================================================
+  function todayKey() { return new Date().toLocaleDateString('sv'); }
+  function showThaniya() {
+    try { if (localStorage.getItem('thaniyaHideDate') === todayKey()) return; } catch (e) {}
+    document.getElementById('thaniya-card').classList.remove('hidden');
+  }
+  function closeThaniya(forToday) {
+    document.getElementById('thaniya-card').classList.add('hidden');
+    if (forToday) { try { localStorage.setItem('thaniyaHideDate', todayKey()); } catch (e) {} }
+  }
+
+  let selectedChapter = 'all';
+  let formulaFilter = null;
+
+  function toggleDarkMode() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    document.getElementById('theme-icon').textContent = isDark ? '🌙' : '☀️';
+  }
+
+  function switchTab(tabName) {
+    ['study', 'concepts', 'formulas', 'test'].forEach(t => {
+      document.getElementById(`tab-${t}`).classList.add('hidden');
+      document.getElementById(`nav-${t}`).classList.remove('active');
+    });
+    document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+    document.getElementById(`nav-${tabName}`).classList.add('active');
+    if (tabName === 'study') renderProblems();
+    if (tabName === 'concepts') renderConcepts();
+    if (tabName === 'formulas') renderFormulas();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function toggleAccordion(id) {
+    const el = document.getElementById(id);
+    const icon = document.getElementById(`icon-${id}`);
+    const open = el.classList.toggle('open');
+    if (icon) icon.classList.toggle('rot', open);
+  }
+
+  function flashCard(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.add('flash');
+    setTimeout(() => el.classList.remove('flash'), 2500);
+  }
+
+  // =========================================================================
+  // 문제 풀이
+  // =========================================================================
+  function filterChapter(ch) {
+    selectedChapter = ch;
+    formulaFilter = null;
+    renderProblems();
+  }
+  function clearFormulaFilter() {
+    formulaFilter = null;
+    renderProblems();
+  }
+
+  function renderProblems() {
+    const container = document.getElementById('problem-list');
+    container.innerHTML = '';
+
+    let list = PROBLEMS_DATA;
+    const banner = document.getElementById('formula-banner');
+    if (formulaFilter) {
+      list = list.filter(p => p.formulaId === formulaFilter);
+      document.getElementById('formula-banner-title').textContent = `'${FORMULAS_DATA[formulaFilter].title}' 공식이 쓰인 문제 ${list.length}개`;
+      banner.classList.remove('hidden');
+    } else {
+      banner.classList.add('hidden');
+      if (selectedChapter !== 'all') list = list.filter(p => p.chapter === selectedChapter);
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.classList.toggle('active', !formulaFilter && String(selectedChapter) === btn.dataset.chapter);
+    });
+
+    list.forEach(p => {
+      const f = FORMULAS_DATA[p.formulaId];
+      const u = p.uid;
+      const card = document.createElement('div');
+      card.id = `problem-card-${u}`;
+      card.className = "glass rounded-3xl p-5 sm:p-6 space-y-4 fade-in transition-shadow";
+      card.innerHTML = `
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tint-blue">Ch ${p.chapter}</span>
+            <h3 class="font-bold text-[15px] sm:text-base">${p.title}</h3>
+          </div>
+          <button onclick="jumpToFormula('${p.formulaId}')" class="chip !text-[11.5px] flex items-center gap-1.5">
+            <i data-lucide="sigma" class="w-3.5 h-3.5"></i><span>관련 공식 보기</span>
+          </button>
+        </div>
+
+        <div class="soft rounded-2xl p-4 text-base leading-relaxed font-medium">${p.text}</div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <button onclick="toggleAccordion('${u}-formula')" class="pill-btn tint-amber"><span>📐 적용 공식</span><i data-lucide="chevron-down" id="icon-${u}-formula" class="chev w-4 h-4"></i></button>
+          <button onclick="toggleAccordion('${u}-solution')" class="pill-btn tint-green"><span>💡 단계별 상세 풀이</span><i data-lucide="chevron-down" id="icon-${u}-solution" class="chev w-4 h-4"></i></button>
+          <button onclick="toggleAccordion('${u}-code')" class="pill-btn tint-blue"><span>🐍 Python SciPy 코드</span><i data-lucide="chevron-down" id="icon-${u}-code" class="chev w-4 h-4"></i></button>
+        </div>
+
+        <div id="${u}-formula" class="acc"><div class="acc-inner">
+          <div class="soft rounded-2xl p-4 mt-1 text-center">
+            <div class="text-xs font-bold tint-amber bg-transparent mb-1">${f.title}</div>
+            <div class="formula-box overflow-x-auto">$$${p.appliedFormula}$$</div>
+          </div>
+        </div></div>
+
+        <div id="${u}-solution" class="acc"><div class="acc-inner">
+          <div class="soft rounded-2xl p-4 mt-1 space-y-2 text-sm leading-relaxed">
+            ${p.solutionSteps.map(s => `<p>${md(s)}</p>`).join('')}
+          </div>
+        </div></div>
+
+        <div id="${u}-code" class="acc"><div class="acc-inner">
+          <div class="rounded-2xl p-4 mt-1 font-mono text-xs overflow-x-auto" style="background:#111827;color:#e5e7eb">
+            <div class="text-[10px] uppercase font-bold tracking-wider mb-1" style="color:#9ca3af">SciPy Implementation</div>
+            <pre><code>${esc(p.pythonCode)}</code></pre>
+          </div>
+        </div></div>
+      `;
+      container.appendChild(card);
+    });
+
+    renderMath(container);
+    lucide.createIcons();
+  }
+
+  // =========================================================================
+  // 공식 사전
+  // =========================================================================
+  function renderFormulas() {
+    const container = document.getElementById('formula-hub-list');
+    container.innerHTML = '';
+
+    Object.values(FORMULAS_DATA).forEach(f => {
+      const count = PROBLEMS_DATA.filter(p => p.formulaId === f.id).length;
+      const ex = EXAMPLES_DATA[f.id];
+      const card = document.createElement('div');
+      card.id = `formula-card-${f.id}`;
+      card.className = "glass rounded-3xl p-5 space-y-4 fade-in transition-shadow";
+      card.innerHTML = `
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tint-blue">Chapter ${f.chapter}</span>
+            <span class="text-[11px] sub">${count ? `${count}개 문제 적용` : '개념 공식'}</span>
+          </div>
+          <h3 class="font-bold text-lg">${f.title}</h3>
+          <p class="text-xs sub leading-relaxed">${f.desc}</p>
+        </div>
+        <div class="p-4 soft rounded-2xl formula-box text-center overflow-x-auto">$$${f.latex}$$</div>
+
+        ${ex ? `
+          <button onclick="toggleAccordion('ex-${f.id}')" class="pill-btn tint-green w-full">
+            <span>🪙 쉬운 예시 · ${ex.title}</span>
+            <i data-lucide="chevron-down" id="icon-ex-${f.id}" class="chev w-4 h-4"></i>
+          </button>
+          <div id="ex-${f.id}" class="acc"><div class="acc-inner">
+            <div class="rounded-2xl p-4 mt-1 space-y-4" style="background: rgba(52,199,89,.10); border:1px solid rgba(52,199,89,.25)">
+              ${ex.html}
+            </div>
+          </div></div>` : ''}
+
+        ${count ? `
+          <button onclick="jumpToProblems('${f.id}')" class="w-full py-3 rounded-2xl text-white text-xs font-bold shadow-md transition active:scale-95 flex items-center justify-center gap-2" style="background: linear-gradient(135deg,#5e5ce6,#0a84ff)">
+            <span>이 공식이 쓰인 문제 보기</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>` : ''}
+      `;
+      container.appendChild(card);
+    });
+    renderMath(container);
+    lucide.createIcons();
+  }
+
+  let lastFormulaId = null;
+  function jumpToProblems(formulaId) {
+    lastFormulaId = formulaId;
+    formulaFilter = formulaId;
+    switchTab('study');
+  }
+  function returnToFormula() {
+    const id = formulaFilter || lastFormulaId;
+    switchTab('formulas');
+    if (id) setTimeout(() => flashCard(`formula-card-${id}`), 120);
+  }
+  function jumpToFormula(formulaId) {
+    lastFormulaId = formulaId;
+    switchTab('formulas');
+    setTimeout(() => flashCard(`formula-card-${formulaId}`), 120);
+  }
+
+  // =========================================================================
+  // 모의 테스트
+  // =========================================================================
+  let testQuestions = [];
+  let currentTestIdx = 0;
+  let userAnswers = {};
+
+  function shuffle(arr) { return arr.map(v => [Math.random(), v]).sort((a, b) => a[0] - b[0]).map(x => x[1]); }
+
+  function generateChoices(correct) {
+    const isInt = Number.isInteger(correct);
+    const prec = Math.abs(correct) >= 10 ? 2 : 4;
+    const round = v => isInt ? Math.round(v) : +v.toFixed(prec);
+    const eps = isInt ? 0.5 : Math.pow(10, -prec) / 2;
+    let cands;
+    if (isInt) {
+      cands = [correct + 1, correct - 1, correct + 2, correct - 2, correct * 2, correct / 2, correct + 5, correct - 5, correct * 4, correct + 10];
+    } else {
+      cands = [0.5, 0.6, 0.7, 0.8, 0.9, 1.1, 1.2, 1.3, 1.5, 2].map(f => correct * f);
+    }
+    const isProb = !isInt && correct <= 1;
+    const picked = [];
+    shuffle(cands.map(round)).forEach(v => {
+      if (picked.length >= 3) return;
+      if (!isFinite(v) || v <= 0) return;
+      if (isProb && v > 1) return;
+      if (Math.abs(v - correct) < eps) return;
+      if (picked.some(x => Math.abs(x - v) < eps)) return;
+      picked.push(v);
+    });
+    let bump = 1;
+    while (picked.length < 3) { picked.push(round(correct + bump * (isInt ? 1 : 0.01))); bump++; }
+    return shuffle([{ v: correct, ok: true }, ...picked.map(v => ({ v, ok: false }))]);
+  }
+
+  const testChapters = new Set([4, 5, 6]);
+
+  function testPool() { return PROBLEMS_DATA.filter(p => testChapters.has(p.chapter)); }
+
+  function updateTestSetup() {
+    document.querySelectorAll('.test-ch-btn').forEach(b => {
+      b.classList.toggle('active', testChapters.has(Number(b.dataset.ch)));
+    });
+    const n = testPool().length;
+    document.getElementById('test-pool-info').textContent = `선택한 범위의 문제 ${n}개 중에서 출제됩니다.`;
+    document.getElementById('test-all-btn').textContent = `전체 ${n}문제`;
+  }
+
+  function toggleTestChapter(ch) {
+    if (testChapters.has(ch)) {
+      if (testChapters.size === 1) return; // 최소 1개 챕터는 선택 유지
+      testChapters.delete(ch);
+    } else {
+      testChapters.add(ch);
+    }
+    updateTestSetup();
+  }
+
+  function startTest(count) {
+    const pool = testPool();
+    if (!pool.length) return;
+    if (!count || count > pool.length) count = pool.length;
+
+    document.getElementById('test-setup').classList.add('hidden');
+    document.getElementById('test-result').classList.add('hidden');
+    document.getElementById('test-running').classList.remove('hidden');
+
+    testQuestions = shuffle(pool).slice(0, count).map((base, i) => {
+      const r = base.genRandom();
+      return {
+        n: i + 1, base, text: r.text, ans: r.ans,
+        choices: generateChoices(r.ans)
+      };
+    });
+    currentTestIdx = 0;
+    userAnswers = {};
+    renderTestQuestion();
+  }
+
+  function renderTestQuestion() {
+    const container = document.getElementById('test-running');
+    const q = testQuestions[currentTestIdx];
+    const marks = ['①', '②', '③', '④'];
+    const progress = ((currentTestIdx + 1) / testQuestions.length) * 100;
+
+    container.innerHTML = `
+      <div class="glass rounded-3xl p-6 sm:p-8 space-y-6 fade-in">
+        <div class="h-1.5 rounded-full soft overflow-hidden"><div class="h-full rounded-full" style="width:${progress}%; background:linear-gradient(90deg,#5e5ce6,#0a84ff); transition: width .4s"></div></div>
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold px-3 py-1 rounded-full tint-blue">문제 ${currentTestIdx + 1} / ${testQuestions.length}</span>
+          <div class="flex gap-2">
+            <button onclick="openHint('${q.base.formulaId}')" class="pill-btn tint-amber !py-1.5">💡 힌트</button>
+            <button onclick="quitTest()" class="pill-btn soft sub !py-1.5">중단</button>
+          </div>
+        </div>
+        <div class="text-lg font-bold leading-relaxed">${q.text}</div>
+        <div class="space-y-3">
+          ${q.choices.map((c, i) => `
+            <label class="flex items-center gap-3 p-4 rounded-2xl cursor-pointer transition-all soft ${userAnswers[currentTestIdx] === i ? 'ring-2 ring-blue-500' : ''}">
+              <input type="radio" name="test-opt" ${userAnswers[currentTestIdx] === i ? 'checked' : ''} onclick="userAnswers[currentTestIdx]=${i}; renderTestQuestion();" class="w-4 h-4">
+              <span class="font-medium">${marks[i]} ${fmt(c.v)}</span>
+            </label>`).join('')}
+        </div>
+        <div class="flex justify-between pt-2">
+          <button onclick="prevTestQuestion()" ${currentTestIdx === 0 ? 'disabled' : ''} class="px-5 py-2.5 rounded-2xl soft text-sm font-bold ${currentTestIdx === 0 ? 'opacity-40' : ''}">이전</button>
+          ${currentTestIdx < testQuestions.length - 1
+            ? `<button onclick="nextTestQuestion()" class="px-6 py-2.5 rounded-2xl text-white text-sm font-bold shadow" style="background:#007aff">다음</button>`
+            : `<button onclick="submitTest()" class="px-6 py-2.5 rounded-2xl text-white text-sm font-bold shadow" style="background:#34c759">채점하기</button>`}
+        </div>
+      </div>`;
+    renderMath(container);
+  }
+
+  function nextTestQuestion() { if (currentTestIdx < testQuestions.length - 1) { currentTestIdx++; renderTestQuestion(); } }
+  function prevTestQuestion() { if (currentTestIdx > 0) { currentTestIdx--; renderTestQuestion(); } }
+  function quitTest() {
+    if (confirm("테스트를 중단하시겠습니까? 작성한 답안은 저장되지 않습니다.")) resetTest();
+  }
+  function resetTest() {
+    document.getElementById('test-running').classList.add('hidden');
+    document.getElementById('test-result').classList.add('hidden');
+    document.getElementById('test-setup').classList.remove('hidden');
+  }
+
+  function openHint(formulaId) {
+    const f = FORMULAS_DATA[formulaId];
+    if (!f) return;
+    document.getElementById('hint-title').textContent = '💡 힌트 (필요 공식)';
+    document.getElementById('hint-modal-content').innerHTML = `
+      <div class="text-xs font-bold mb-1 tint-amber bg-transparent">${f.title}</div>
+      <div class="text-lg overflow-x-auto">$$${f.latex}$$</div>
+      <div class="text-xs sub mt-2">${f.desc}</div>`;
+    const m = document.getElementById('hint-modal');
+    m.classList.remove('hidden'); m.classList.add('flex');
+    renderMath(document.getElementById('hint-modal-content'));
+  }
+  function closeHintModal() {
+    const m = document.getElementById('hint-modal');
+    m.classList.add('hidden'); m.classList.remove('flex');
+  }
+
+  function submitTest() {
+    document.getElementById('test-running').classList.add('hidden');
+    const rc = document.getElementById('test-result');
+    rc.classList.remove('hidden');
+
+    let correct = 0;
+    testQuestions.forEach((q, i) => { if (userAnswers[i] !== undefined && q.choices[userAnswers[i]].ok) correct++; });
+    const percent = Math.round((correct / testQuestions.length) * 100);
+
+    rc.innerHTML = `
+      <div class="glass rounded-3xl p-8 text-center space-y-4 fade-in">
+        <h2 class="text-2xl font-black">🎉 테스트 완료!</h2>
+        <div class="text-5xl font-black" style="color:#0a84ff">${percent}점</div>
+        <p class="sub text-sm">${testQuestions.length}문제 중 ${correct}문제 정답</p>
+        <button onclick="resetTest()" class="px-6 py-3 rounded-2xl text-white font-bold shadow" style="background:#007aff">새 문제로 다시 풀기</button>
+      </div>
+      <h3 class="text-lg font-bold pt-2">상세 채점 및 해설</h3>
+      ${testQuestions.map((q, i) => {
+        const ua = userAnswers[i];
+        const ok = ua !== undefined && q.choices[ua].ok;
+        return `
+        <div class="glass rounded-3xl p-5 space-y-3 fade-in" style="${ok ? 'border-color: rgba(52,199,89,.5)' : 'border-color: rgba(255,69,58,.5)'}">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm">문제 ${q.n}</span>
+            <span class="px-3 py-1 rounded-full text-xs font-bold ${ok ? 'tint-green' : 'tint-red'}">${ok ? '정답 ⭕' : '오답 ❌'}</span>
+          </div>
+          <div class="text-sm leading-relaxed">${q.text}</div>
+          <div class="flex flex-wrap gap-4 text-xs font-semibold soft rounded-2xl p-3">
+            <span class="${ok ? 'tint-green' : 'tint-red'} bg-transparent">선택한 답: ${ua !== undefined ? fmt(q.choices[ua].v) : '미응답'}</span>
+            <span class="tint-green bg-transparent">실제 정답: ${fmt(q.ans)}</span>
+          </div>
+          <button onclick="toggleAccordion('rs-${i}')" class="pill-btn tint-green w-full"><span>💡 풀이 참고 (원본 문제 기준)</span><i data-lucide="chevron-down" id="icon-rs-${i}" class="chev w-4 h-4"></i></button>
+          <div id="rs-${i}" class="acc"><div class="acc-inner">
+            <div class="soft rounded-2xl p-4 mt-1 space-y-2 text-xs leading-relaxed">
+              <p class="sub">※ 풀이는 원본 문제의 수치로 작성되어 있습니다. 변형된 수치로 같은 방식으로 계산해 보세요.</p>
+              ${q.base.solutionSteps.map(s => `<p>${md(s)}</p>`).join('')}
+            </div>
+          </div></div>
+        </div>`;
+      }).join('')}
+    `;
+    renderMath(rc);
+    lucide.createIcons();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    updateTestSetup();
+    setTimeout(showThaniya, 600);
+    renderProblems();
+    lucide.createIcons();
+  });
+</script>
+</body>
+</html>
