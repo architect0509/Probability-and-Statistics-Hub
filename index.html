@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Statistics Study Hub</title>
+<title>Probability-and-Statistics-Hub</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = { darkMode: 'class' }
@@ -96,6 +96,15 @@
   .ex-table th { background: rgba(0,122,255,.14); font-weight: 700; padding: 8px 6px; }
   .ex-table td { padding: 8px 6px; text-align: center; background: var(--soft-bg); border-top: 1px solid var(--glass-border); }
 
+  .fav-btn { width:32px; height:32px; border-radius:999px; background:var(--soft-bg); color:var(--text-sub); font-size:17px; line-height:1; display:inline-flex; align-items:center; justify-content:center; transition:transform .15s ease, background .2s, color .2s; flex-shrink:0; }
+  .fav-btn:hover { transform:scale(1.12); }
+  .fav-btn:active { transform:scale(.9); }
+  .fav-btn.on { background:rgba(255,204,0,.24); color:#f5a300; }
+  .hscroll { display:flex; gap:14px; overflow-x:auto; scroll-snap-type:x proximity; padding:4px 2px 14px; }
+  .hscroll > * { scroll-snap-align:start; flex:0 0 auto; }
+  .home-title a { background:linear-gradient(135deg,#5e5ce6,#0a84ff 60%,#32d4c4); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  #toast { position:fixed; left:50%; bottom:28px; transform:translate(-50%,20px); opacity:0; pointer-events:none; z-index:60; padding:10px 18px; border-radius:999px; font-size:13px; font-weight:700; color:#fff; background:rgba(28,28,30,.92); transition:all .3s ease; }
+  #toast.show { opacity:1; transform:translate(-50%,0); }
   .fade-in { animation: fadeUp .45s ease both; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   .flash { box-shadow: 0 0 0 3px #0a84ff, var(--glass-shadow) !important; }
@@ -108,7 +117,7 @@
 
 <header class="sticky top-0 z-40 px-3 pt-3">
   <div class="glass max-w-6xl mx-auto rounded-3xl px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
       <span class="w-10 h-10 rounded-2xl flex items-center justify-center text-white shadow-lg" style="background: linear-gradient(135deg,#5e5ce6,#0a84ff)">
         <i data-lucide="calculator" class="w-5 h-5"></i>
       </span>
@@ -118,10 +127,12 @@
       </div>
     </div>
     <div class="flex items-center gap-3 flex-wrap">
-      <div class="segment">
-        <button onclick="switchTab('study')" id="nav-study" class="seg-btn active">📚 문제 풀이</button>
+      <div class="segment max-w-full overflow-x-auto">
+        <button onclick="switchTab('home')" id="nav-home" class="seg-btn active">🏠 홈</button>
+        <button onclick="switchTab('study')" id="nav-study" class="seg-btn">📚 문제풀이</button>
         <button onclick="switchTab('concepts')" id="nav-concepts" class="seg-btn">📖 개념 사전</button>
         <button onclick="switchTab('formulas')" id="nav-formulas" class="seg-btn">📐 공식 사전</button>
+        <button onclick="switchTab('favs')" id="nav-favs" class="seg-btn">⭐ 즐겨찾기 <span id="fav-count" class="opacity-70"></span></button>
         <button onclick="switchTab('test')" id="nav-test" class="seg-btn">📝 모의 테스트</button>
       </div>
       <button onclick="toggleDarkMode()" class="flex items-center gap-2" aria-label="다크모드 전환">
@@ -134,8 +145,49 @@
 
 <main class="max-w-6xl w-full mx-auto px-3 sm:px-4 py-5">
 
+  <!-- 0. 홈 -->
+  <section id="tab-home" class="space-y-7">
+    <div class="glass rounded-3xl px-6 py-9 sm:py-12 text-center relative overflow-hidden">
+      <div class="absolute -left-10 -top-10 w-48 h-48 rounded-full blur-3xl" style="background:rgba(94,92,230,.25)"></div>
+      <div class="absolute -right-10 -bottom-10 w-48 h-48 rounded-full blur-3xl" style="background:rgba(50,212,196,.22)"></div>
+      <h2 class="home-title relative text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight break-words">
+        <a href="https://github.com/architect0509/Probability-and-Statistics-Hub" target="_blank" rel="noopener noreferrer">Probability-and-Statistics-Hub</a>
+      </h2>
+      <p class="relative mt-3 text-sm sm:text-base font-semibold sub">수원대학교 컴퓨터공학부 확률과 통계</p>
+      <div id="home-stats" class="relative mt-5 flex justify-center gap-2 flex-wrap"></div>
+    </div>
+
+    <div class="space-y-3">
+      <div class="flex items-center justify-between gap-2 px-1">
+        <h3 class="text-lg font-extrabold">📖 오늘의 개념 5</h3>
+        <div class="flex gap-2">
+          <button onclick="renderHome()" class="chip">🔄 다시 뽑기</button>
+          <button onclick="switchTab('concepts')" class="chip">개념 사전 전체 →</button>
+        </div>
+      </div>
+      <div id="home-concepts" class="hscroll"></div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      <div class="space-y-3">
+        <div class="flex items-center justify-between px-1">
+          <h3 class="text-lg font-extrabold">📐 공식 모아보기</h3>
+          <button onclick="switchTab('formulas')" class="chip">공식 사전 →</button>
+        </div>
+        <div id="home-formulas" class="space-y-3"></div>
+      </div>
+      <div class="space-y-3">
+        <div class="flex items-center justify-between px-1">
+          <h3 class="text-lg font-extrabold">📚 문제풀이 맛보기</h3>
+          <button onclick="switchTab('study')" class="chip">문제풀이 →</button>
+        </div>
+        <div id="home-problems" class="space-y-3"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- 1. 문제 풀이 -->
-  <section id="tab-study" class="space-y-5">
+  <section id="tab-study" class="hidden space-y-5">
     <div class="glass rounded-3xl p-3.5 flex flex-wrap gap-3 items-center justify-between">
       <div class="flex items-center gap-2 flex-wrap">
         <span class="text-xs font-bold sub pl-1">챕터</span>
@@ -191,6 +243,25 @@
     <div id="formula-hub-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start"></div>
   </section>
 
+  <!-- 2.5 즐겨찾기 -->
+  <section id="tab-favs" class="hidden space-y-5">
+    <div class="rounded-3xl p-6 text-white shadow-xl relative overflow-hidden" style="background: linear-gradient(135deg,#ff9f0a 0%,#ffd60a 100%)">
+      <div class="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/25 blur-2xl"></div>
+      <h2 class="text-2xl font-extrabold mb-1 relative">⭐ 즐겨찾기</h2>
+      <p class="text-white/95 text-sm relative">문제·개념·공식 카드의 ☆ 버튼으로 담은 항목을 한곳에서 몰아보고, 필요 없는 건 삭제하세요. 브라우저에 저장됩니다.</p>
+    </div>
+    <div class="glass rounded-3xl p-3.5 flex flex-wrap gap-3 items-center justify-between">
+      <div class="flex items-center gap-2 flex-wrap">
+        <button onclick="setFavFilter('all')" class="fav-filter chip active" data-t="all">전체</button>
+        <button onclick="setFavFilter('problem')" class="fav-filter chip" data-t="problem">문제</button>
+        <button onclick="setFavFilter('concept')" class="fav-filter chip" data-t="concept">개념</button>
+        <button onclick="setFavFilter('formula')" class="fav-filter chip" data-t="formula">공식</button>
+      </div>
+      <button onclick="clearFavs()" class="chip tint-red">🗑 전체 삭제</button>
+    </div>
+    <div id="fav-list" class="space-y-7"></div>
+  </section>
+
   <!-- 3. 모의 테스트 -->
   <section id="tab-test" class="hidden space-y-5">
     <div id="test-setup" class="glass rounded-3xl p-8 text-center max-w-xl mx-auto space-y-6">
@@ -230,6 +301,8 @@
   <a href="https://thaniya.co.kr/" target="_blank" rel="noopener noreferrer" class="mt-4 flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-extrabold text-[15px] transition active:scale-95" style="background:linear-gradient(180deg,#fde047,#facc15); color:#1c1c1e; box-shadow:0 4px 16px rgba(250,204,21,.35)">공식 사이트 방문하기 →</a>
   <button onclick="closeThaniya(true)" class="mt-3 block w-full text-center text-[12px]" style="color:#a1a1a8">오늘은 그만 보기</button>
 </div>
+
+<div id="toast"></div>
 
 <div id="hint-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(0,0,0,.4); backdrop-filter: blur(8px);">
   <div class="glass rounded-3xl max-w-lg w-full p-6 space-y-4 fade-in">
@@ -1010,6 +1083,25 @@
     renderConcepts();
   }
 
+  function buildConceptCard(c, extra = '') {
+    return `
+      <div class="glass rounded-3xl p-5 space-y-3 fade-in ${extra}">
+        <div class="flex items-center justify-between gap-2">
+          <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tint-blue">Chapter ${c.ch}</span>
+          <div class="flex items-center gap-2">
+            ${c.formulaId ? `<button onclick="jumpToFormula('${c.formulaId}')" class="chip !text-[11px] flex items-center gap-1"><span>📐 관련 공식</span></button>` : ''}
+            ${favBtn('concept', c.term)}
+          </div>
+        </div>
+        <div>
+          <h3 class="font-bold text-lg leading-tight">${c.term}</h3>
+          <div class="text-[11px] sub font-semibold mt-0.5">${c.en}</div>
+        </div>
+        <p class="text-sm leading-relaxed">${c.def}</p>
+        ${c.ex ? `<div class="soft rounded-2xl p-3 text-[13px] leading-relaxed"><span class="font-extrabold tint-green bg-transparent">예시</span> ${c.ex}</div>` : ''}
+      </div>`;
+  }
+
   function renderConcepts() {
     const box = document.getElementById('concept-list');
     if (!box) return;
@@ -1026,21 +1118,157 @@
     });
 
     document.getElementById('concept-count').textContent = `용어 ${list.length}개`;
-    box.innerHTML = list.length ? list.map(c => `
-      <div class="glass rounded-3xl p-5 space-y-3 fade-in">
-        <div class="flex items-center justify-between gap-2">
-          <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tint-blue">Chapter ${c.ch}</span>
-          ${c.formulaId ? `<button onclick="jumpToFormula('${c.formulaId}')" class="chip !text-[11px] flex items-center gap-1"><span>📐 관련 공식</span></button>` : ''}
-        </div>
-        <div>
-          <h3 class="font-bold text-lg leading-tight">${c.term}</h3>
-          <div class="text-[11px] sub font-semibold mt-0.5">${c.en}</div>
-        </div>
-        <p class="text-sm leading-relaxed">${c.def}</p>
-        ${c.ex ? `<div class="soft rounded-2xl p-3 text-[13px] leading-relaxed"><span class="font-extrabold tint-green bg-transparent">예시</span> ${c.ex}</div>` : ''}
-      </div>`).join('')
+    box.innerHTML = list.length ? list.map(c => buildConceptCard(c)).join('')
       : `<div class="glass rounded-3xl p-8 text-center sub text-sm md:col-span-2">검색 결과가 없습니다.</div>`;
     renderMath(box);
+  }
+
+  // =========================================================================
+  // 즐겨찾기 (localStorage)
+  // =========================================================================
+  const FAV_KEY = 'psh_favorites';
+  function loadFavs() {
+    try { const a = JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+  }
+  let favs = loadFavs();
+  function saveFavs() { try { localStorage.setItem(FAV_KEY, JSON.stringify(favs)); } catch (e) {} }
+  function isFav(type, id) { return favs.some(f => f.type === type && f.id === id); }
+  function escAttr(s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
+  function favBtn(type, id) {
+    const on = isFav(type, id);
+    return `<button class="fav-btn ${on ? 'on' : ''}" data-type="${type}" data-id="${escAttr(id)}" onclick="toggleFav('${type}', this.dataset.id)" aria-label="즐겨찾기" title="즐겨찾기"><span>${on ? '★' : '☆'}</span></button>`;
+  }
+  let toastTimer = null;
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
+  }
+  function syncFavUI() {
+    document.querySelectorAll('.fav-btn').forEach(b => {
+      const on = isFav(b.dataset.type, b.dataset.id);
+      b.classList.toggle('on', on);
+      b.firstChild.textContent = on ? '★' : '☆';
+    });
+    document.getElementById('fav-count').textContent = favs.length ? `(${favs.length})` : '';
+  }
+  function toggleFav(type, id) {
+    const i = favs.findIndex(f => f.type === type && f.id === id);
+    if (i >= 0) { favs.splice(i, 1); toast('즐겨찾기에서 삭제했어요'); }
+    else { favs.unshift({ type, id }); toast('⭐ 즐겨찾기에 담았어요'); }
+    saveFavs(); syncFavUI();
+    if (currentTab === 'favs') renderFavs();
+  }
+  function clearFavs() {
+    if (!favs.length) return;
+    if (!confirm('즐겨찾기를 모두 삭제할까요?')) return;
+    favs = []; saveFavs(); syncFavUI(); renderFavs();
+  }
+  let favFilter = 'all';
+  function setFavFilter(t) { favFilter = t; renderFavs(); }
+
+  function renderFavs() {
+    const box = document.getElementById('fav-list');
+    const items = favs.map(f => {
+      let data = null;
+      if (f.type === 'problem') data = PROBLEMS_DATA.find(p => p.uid === f.id);
+      else if (f.type === 'concept') data = CONCEPTS_DATA.find(c => c.term === f.id);
+      else if (f.type === 'formula') data = FORMULAS_DATA[f.id];
+      return data ? { ...f, data } : null;
+    }).filter(Boolean);
+    const counts = { problem: 0, concept: 0, formula: 0 };
+    items.forEach(i => counts[i.type]++);
+    const labels = { all: `전체 ${items.length}`, problem: `문제 ${counts.problem}`, concept: `개념 ${counts.concept}`, formula: `공식 ${counts.formula}` };
+    document.querySelectorAll('.fav-filter').forEach(b => {
+      b.textContent = labels[b.dataset.t];
+      b.classList.toggle('active', b.dataset.t === favFilter);
+    });
+
+    box.innerHTML = '';
+    const shown = items.filter(i => favFilter === 'all' || i.type === favFilter);
+    if (!shown.length) {
+      box.innerHTML = `<div class="glass rounded-3xl p-10 text-center sub text-sm leading-relaxed">아직 담은 항목이 없어요.<br>문제·개념·공식 카드의 <b>☆</b> 버튼을 눌러 담아 보세요.</div>`;
+      return;
+    }
+    const groups = [
+      ['problem', '📚 문제', 'space-y-5'],
+      ['concept', '📖 개념', 'grid grid-cols-1 md:grid-cols-2 gap-4 items-start'],
+      ['formula', '📐 공식', 'grid grid-cols-1 md:grid-cols-2 gap-4 items-start']
+    ];
+    groups.forEach(([type, label, gridCls]) => {
+      const list = shown.filter(i => i.type === type);
+      if (!list.length) return;
+      const sec = document.createElement('div');
+      sec.className = 'space-y-3';
+      sec.innerHTML = `<h3 class="text-lg font-extrabold px-1">${label} <span class="text-sm sub font-semibold">${list.length}</span></h3>`;
+      const grid = document.createElement('div');
+      grid.className = gridCls;
+      list.forEach(it => {
+        const wrap = document.createElement('div');
+        wrap.className = 'space-y-2';
+        if (type === 'problem') wrap.appendChild(buildProblemCard(it.data, 'fav-'));
+        else if (type === 'concept') wrap.insertAdjacentHTML('beforeend', buildConceptCard(it.data));
+        else wrap.appendChild(buildFormulaCard(it.data, 'fav-'));
+        const del = document.createElement('button');
+        del.className = 'chip tint-red ml-auto flex items-center gap-1';
+        del.textContent = '🗑 삭제';
+        del.onclick = () => toggleFav(it.type, it.id);
+        wrap.appendChild(del);
+        grid.appendChild(wrap);
+      });
+      sec.appendChild(grid);
+      box.appendChild(sec);
+    });
+    renderMath(box);
+    lucide.createIcons();
+  }
+
+  // =========================================================================
+  // 홈
+  // =========================================================================
+  function pickRandom(arr, n) { return shuffle(arr).slice(0, n); }
+  function renderHome() {
+    document.getElementById('home-stats').innerHTML = [
+      `📚 문제 ${PROBLEMS_DATA.length}`, `📖 개념 ${CONCEPTS_DATA.length}`, `📐 공식 ${Object.keys(FORMULAS_DATA).length}`
+    ].map(t => `<span class="chip">${t}</span>`).join('');
+
+    const cbox = document.getElementById('home-concepts');
+    cbox.innerHTML = pickRandom(CONCEPTS_DATA, 5).map(c => buildConceptCard(c, 'w-[290px] sm:w-[320px]')).join('');
+
+    const fbox = document.getElementById('home-formulas');
+    fbox.innerHTML = pickRandom(Object.values(FORMULAS_DATA), 4).map(f => `
+      <div class="glass rounded-3xl p-4 space-y-2 fade-in">
+        <div class="flex items-center justify-between gap-2">
+          <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tint-blue">Chapter ${f.chapter}</span>
+          ${favBtn('formula', f.id)}
+        </div>
+        <h4 class="font-bold text-sm">${f.title}</h4>
+        <div class="p-3 soft rounded-2xl formula-box text-center overflow-x-auto">$$${f.latex}$$</div>
+        <button onclick="jumpToFormula('${f.id}')" class="chip !text-[11.5px]">📐 공식 사전에서 보기</button>
+      </div>`).join('');
+
+    const pbox = document.getElementById('home-problems');
+    pbox.innerHTML = pickRandom(PROBLEMS_DATA, 3).map(p => `
+      <div class="glass rounded-3xl p-4 space-y-2 fade-in">
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tint-blue">Ch ${p.chapter}</span>
+            <h4 class="font-bold text-sm">${p.title}</h4>
+          </div>
+          ${favBtn('problem', p.uid)}
+        </div>
+        <div class="soft rounded-2xl p-3 text-[13px] leading-relaxed line-clamp-3">${p.text}</div>
+        <button onclick="jumpToProblem('${p.uid}')" class="chip !text-[11.5px]">💡 풀이 보러 가기</button>
+      </div>`).join('');
+
+    renderMath(document.getElementById('tab-home'));
+    lucide.createIcons();
+  }
+  function jumpToProblem(uid) {
+    selectedChapter = 'all'; formulaFilter = null;
+    switchTab('study');
+    setTimeout(() => flashCard(`problem-card-${uid}`), 200);
   }
 
   // =========================================================================
@@ -1064,16 +1292,21 @@
     document.getElementById('theme-icon').textContent = isDark ? '🌙' : '☀️';
   }
 
+  const TABS = ['home', 'study', 'concepts', 'formulas', 'favs', 'test'];
+  let currentTab = 'home';
   function switchTab(tabName) {
-    ['study', 'concepts', 'formulas', 'test'].forEach(t => {
+    currentTab = tabName;
+    TABS.forEach(t => {
       document.getElementById(`tab-${t}`).classList.add('hidden');
       document.getElementById(`nav-${t}`).classList.remove('active');
     });
     document.getElementById(`tab-${tabName}`).classList.remove('hidden');
     document.getElementById(`nav-${tabName}`).classList.add('active');
+    if (tabName === 'home') renderHome();
     if (tabName === 'study') renderProblems();
     if (tabName === 'concepts') renderConcepts();
     if (tabName === 'formulas') renderFormulas();
+    if (tabName === 'favs') renderFavs();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -1105,40 +1338,24 @@
     renderProblems();
   }
 
-  function renderProblems() {
-    const container = document.getElementById('problem-list');
-    container.innerHTML = '';
-
-    let list = PROBLEMS_DATA;
-    const banner = document.getElementById('formula-banner');
-    if (formulaFilter) {
-      list = list.filter(p => p.formulaId === formulaFilter);
-      document.getElementById('formula-banner-title').textContent = `'${FORMULAS_DATA[formulaFilter].title}' 공식이 쓰인 문제 ${list.length}개`;
-      banner.classList.remove('hidden');
-    } else {
-      banner.classList.add('hidden');
-      if (selectedChapter !== 'all') list = list.filter(p => p.chapter === selectedChapter);
-    }
-
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.classList.toggle('active', !formulaFilter && String(selectedChapter) === btn.dataset.chapter);
-    });
-
-    list.forEach(p => {
-      const f = FORMULAS_DATA[p.formulaId];
-      const u = p.uid;
-      const card = document.createElement('div');
-      card.id = `problem-card-${u}`;
-      card.className = "glass rounded-3xl p-5 sm:p-6 space-y-4 fade-in transition-shadow";
-      card.innerHTML = `
+  function buildProblemCard(p, prefix = '') {
+    const f = FORMULAS_DATA[p.formulaId];
+    const u = prefix + p.uid;
+    const card = document.createElement('div');
+    card.id = `${prefix}problem-card-${p.uid}`;
+    card.className = "glass rounded-3xl p-5 sm:p-6 space-y-4 fade-in transition-shadow";
+    card.innerHTML = `
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div class="flex items-center gap-2 flex-wrap">
             <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tint-blue">Ch ${p.chapter}</span>
             <h3 class="font-bold text-[15px] sm:text-base">${p.title}</h3>
           </div>
-          <button onclick="jumpToFormula('${p.formulaId}')" class="chip !text-[11.5px] flex items-center gap-1.5">
-            <i data-lucide="sigma" class="w-3.5 h-3.5"></i><span>관련 공식 보기</span>
-          </button>
+          <div class="flex items-center gap-2">
+            <button onclick="jumpToFormula('${p.formulaId}')" class="chip !text-[11.5px] flex items-center gap-1.5">
+              <i data-lucide="sigma" class="w-3.5 h-3.5"></i><span>관련 공식 보기</span>
+            </button>
+            ${favBtn('problem', p.uid)}
+          </div>
         </div>
 
         <div class="soft rounded-2xl p-4 text-base leading-relaxed font-medium">${p.text}</div>
@@ -1169,8 +1386,29 @@
           </div>
         </div></div>
       `;
-      container.appendChild(card);
+    return card;
+  }
+
+  function renderProblems() {
+    const container = document.getElementById('problem-list');
+    container.innerHTML = '';
+
+    let list = PROBLEMS_DATA;
+    const banner = document.getElementById('formula-banner');
+    if (formulaFilter) {
+      list = list.filter(p => p.formulaId === formulaFilter);
+      document.getElementById('formula-banner-title').textContent = `'${FORMULAS_DATA[formulaFilter].title}' 공식이 쓰인 문제 ${list.length}개`;
+      banner.classList.remove('hidden');
+    } else {
+      banner.classList.add('hidden');
+      if (selectedChapter !== 'all') list = list.filter(p => p.chapter === selectedChapter);
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.classList.toggle('active', !formulaFilter && String(selectedChapter) === btn.dataset.chapter);
     });
+
+    list.forEach(p => container.appendChild(buildProblemCard(p)));
 
     renderMath(container);
     lucide.createIcons();
@@ -1179,21 +1417,20 @@
   // =========================================================================
   // 공식 사전
   // =========================================================================
-  function renderFormulas() {
-    const container = document.getElementById('formula-hub-list');
-    container.innerHTML = '';
-
-    Object.values(FORMULAS_DATA).forEach(f => {
-      const count = PROBLEMS_DATA.filter(p => p.formulaId === f.id).length;
-      const ex = EXAMPLES_DATA[f.id];
-      const card = document.createElement('div');
-      card.id = `formula-card-${f.id}`;
-      card.className = "glass rounded-3xl p-5 space-y-4 fade-in transition-shadow";
-      card.innerHTML = `
+  function buildFormulaCard(f, prefix = '') {
+    const count = PROBLEMS_DATA.filter(p => p.formulaId === f.id).length;
+    const ex = EXAMPLES_DATA[f.id];
+    const card = document.createElement('div');
+    card.id = `${prefix}formula-card-${f.id}`;
+    card.className = "glass rounded-3xl p-5 space-y-4 fade-in transition-shadow";
+    card.innerHTML = `
         <div class="space-y-2">
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between gap-2">
             <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tint-blue">Chapter ${f.chapter}</span>
-            <span class="text-[11px] sub">${count ? `${count}개 문제 적용` : '개념 공식'}</span>
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] sub">${count ? `${count}개 문제 적용` : '개념 공식'}</span>
+              ${favBtn('formula', f.id)}
+            </div>
           </div>
           <h3 class="font-bold text-lg">${f.title}</h3>
           <p class="text-xs sub leading-relaxed">${f.desc}</p>
@@ -1201,11 +1438,11 @@
         <div class="p-4 soft rounded-2xl formula-box text-center overflow-x-auto">$$${f.latex}$$</div>
 
         ${ex ? `
-          <button onclick="toggleAccordion('ex-${f.id}')" class="pill-btn tint-green w-full">
+          <button onclick="toggleAccordion('${prefix}ex-${f.id}')" class="pill-btn tint-green w-full">
             <span>🪙 쉬운 예시 · ${ex.title}</span>
-            <i data-lucide="chevron-down" id="icon-ex-${f.id}" class="chev w-4 h-4"></i>
+            <i data-lucide="chevron-down" id="icon-${prefix}ex-${f.id}" class="chev w-4 h-4"></i>
           </button>
-          <div id="ex-${f.id}" class="acc"><div class="acc-inner">
+          <div id="${prefix}ex-${f.id}" class="acc"><div class="acc-inner">
             <div class="rounded-2xl p-4 mt-1 space-y-4" style="background: rgba(52,199,89,.10); border:1px solid rgba(52,199,89,.25)">
               ${ex.html}
             </div>
@@ -1217,8 +1454,13 @@
             <i data-lucide="arrow-right" class="w-4 h-4"></i>
           </button>` : ''}
       `;
-      container.appendChild(card);
-    });
+    return card;
+  }
+
+  function renderFormulas() {
+    const container = document.getElementById('formula-hub-list');
+    container.innerHTML = '';
+    Object.values(FORMULAS_DATA).forEach(f => container.appendChild(buildFormulaCard(f)));
     renderMath(container);
     lucide.createIcons();
   }
@@ -1430,7 +1672,8 @@
   window.addEventListener('DOMContentLoaded', () => {
     updateTestSetup();
     setTimeout(showThaniya, 600);
-    renderProblems();
+    syncFavUI();
+    renderHome();
     lucide.createIcons();
   });
 </script>
