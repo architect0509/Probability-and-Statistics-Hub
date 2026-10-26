@@ -2,7 +2,7 @@
 <html lang="ko" class="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Probability-and-Statistics-Hub</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
@@ -105,6 +105,47 @@
   .home-title a { background:linear-gradient(135deg,#5e5ce6,#0a84ff 60%,#32d4c4); -webkit-background-clip:text; background-clip:text; color:transparent; }
   #toast { position:fixed; left:50%; bottom:28px; transform:translate(-50%,20px); opacity:0; pointer-events:none; z-index:60; padding:10px 18px; border-radius:999px; font-size:13px; font-weight:700; color:#fff; background:rgba(28,28,30,.92); transition:all .3s ease; }
   #toast.show { opacity:1; transform:translate(-50%,0); }
+  /* ===== 텍스트 흐름 / 오버플로 기본 보정 ===== */
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body { word-break: keep-all; overflow-wrap: break-word; overflow-x: clip; }
+  pre, code, .font-mono { word-break: normal; overflow-wrap: normal; }
+  h1, h2, h3, h4 { text-wrap: balance; }
+  p { text-wrap: pretty; }
+  .grid > *, section > * { min-width: 0; }
+  .segment { position: relative; }
+  .katex-display { display: flex !important; justify-content: center; justify-content: safe center; }
+  .katex-display > .katex { flex: 0 0 auto; max-width: none; }
+  .home-title a { -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+
+  /* ===== 모바일 ===== */
+  @media (max-width: 639px) {
+    header { padding-top: calc(.5rem + env(safe-area-inset-top)) !important; padding-left: .5rem !important; padding-right: .5rem !important; }
+    header > div { padding: .65rem .75rem !important; border-radius: 22px !important; gap: .55rem !important; }
+    main { padding: 1rem .75rem calc(2.5rem + env(safe-area-inset-bottom)) !important; }
+    .segment { display: flex; width: 100%; overflow-x: auto; scrollbar-width: none; border-radius: 13px; }
+    .segment::-webkit-scrollbar { display: none; }
+    .seg-btn { flex: 0 0 auto; padding: 8px 13px; font-size: 12.5px; }
+    .chip { padding: 7px 13px; font-size: 12.5px; }
+    .chip-row { flex-wrap: nowrap !important; overflow-x: auto; max-width: 100%; scrollbar-width: none; }
+    .chip-row::-webkit-scrollbar { display: none; }
+    .chip-row > * { flex: 0 0 auto; white-space: nowrap; }
+    .fav-btn { width: 36px; height: 36px; }
+    .pill-btn { padding: 11px 12px; font-size: 13px; }
+    .hscroll { margin: 0 -.75rem; padding: 4px .75rem 14px; scroll-padding-left: .75rem; scroll-snap-type: x mandatory; }
+    .hscroll > .glass { width: min(82vw, 320px) !important; }
+    .katex { font-size: 1.08em !important; }
+    .formula-box .katex { font-size: 1.12em !important; }
+    .soft:not(input):not(button) { overflow-x: auto; overflow-y: hidden; }
+    .acc-inner > div { overflow-x: auto; }
+    .acc-inner .grid-cols-3 { grid-template-columns: minmax(0, 1fr) !important; }
+    .ex-table { font-size: 12.5px; }
+    .ex-table th, .ex-table td { padding: 7px 3px; }
+    #thaniya-card { right: .75rem !important; bottom: calc(.75rem + env(safe-area-inset-bottom)) !important; padding: 14px !important; border-radius: 22px !important; }
+    #thaniya-card img { width: 44px !important; height: 44px !important; }
+    #toast { bottom: calc(24px + env(safe-area-inset-bottom)); max-width: 88vw; text-align: center; }
+  }
+  @media (hover: none) { .chip:hover, .fav-btn:hover { transform: none; } }
+
   .fade-in { animation: fadeUp .45s ease both; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   .flash { box-shadow: 0 0 0 3px #0a84ff, var(--glass-shadow) !important; }
@@ -117,17 +158,17 @@
 
 <header class="sticky top-0 z-40 px-3 pt-3">
   <div class="glass max-w-6xl mx-auto rounded-3xl px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-    <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+    <div class="flex items-center gap-3 cursor-pointer order-1" onclick="switchTab('home')">
       <span class="w-10 h-10 rounded-2xl flex items-center justify-center text-white shadow-lg" style="background: linear-gradient(135deg,#5e5ce6,#0a84ff)">
         <i data-lucide="calculator" class="w-5 h-5"></i>
       </span>
       <div>
         <h1 class="text-[17px] font-bold tracking-tight leading-tight">확률과 통계 학습 허브</h1>
-        <p class="text-[11px] sub">Chapter 4 · 5 · 6 핵심 20문제 & 공식 사전</p>
+        <p class="text-[11px] sub hidden sm:block">Chapter 4 · 5 · 6 핵심 20문제 & 공식 사전</p>
       </div>
     </div>
-    <div class="flex items-center gap-3 flex-wrap">
-      <div class="segment max-w-full overflow-x-auto">
+    <div class="contents">
+      <div class="segment max-w-full overflow-x-auto order-3 w-full sm:w-auto sm:order-2 sm:ml-auto">
         <button onclick="switchTab('home')" id="nav-home" class="seg-btn active">🏠 홈</button>
         <button onclick="switchTab('study')" id="nav-study" class="seg-btn">📚 문제풀이</button>
         <button onclick="switchTab('concepts')" id="nav-concepts" class="seg-btn">📖 개념 사전</button>
@@ -135,7 +176,7 @@
         <button onclick="switchTab('favs')" id="nav-favs" class="seg-btn">⭐ 즐겨찾기 <span id="fav-count" class="opacity-70"></span></button>
         <button onclick="switchTab('test')" id="nav-test" class="seg-btn">📝 모의 테스트</button>
       </div>
-      <button onclick="toggleDarkMode()" class="flex items-center gap-2" aria-label="다크모드 전환">
+      <button onclick="toggleDarkMode()" class="flex items-center gap-2 order-2 sm:order-3" aria-label="다크모드 전환">
         <span id="theme-icon" class="text-lg">🌙</span>
         <span class="ios-switch"></span>
       </button>
@@ -147,20 +188,20 @@
 
   <!-- 0. 홈 -->
   <section id="tab-home" class="space-y-7">
-    <div class="glass rounded-3xl px-6 py-9 sm:py-12 text-center relative overflow-hidden">
+    <div class="glass rounded-3xl px-4 sm:px-6 py-8 sm:py-12 text-center relative overflow-hidden">
       <div class="absolute -left-10 -top-10 w-48 h-48 rounded-full blur-3xl" style="background:rgba(94,92,230,.25)"></div>
       <div class="absolute -right-10 -bottom-10 w-48 h-48 rounded-full blur-3xl" style="background:rgba(50,212,196,.22)"></div>
-      <h2 class="home-title relative text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight break-words">
-        <a href="https://github.com/architect0509/Probability-and-Statistics-Hub" target="_blank" rel="noopener noreferrer">Probability-and-Statistics-Hub</a>
+      <h2 class="home-title relative text-[26px] sm:text-5xl font-extrabold tracking-tight leading-tight">
+        <a href="https://github.com/architect0509/Probability-and-Statistics-Hub" target="_blank" rel="noopener noreferrer">Probability-<wbr>and-<wbr>Statistics-<wbr>Hub</a>
       </h2>
       <p class="relative mt-3 text-sm sm:text-base font-semibold sub">수원대학교 컴퓨터공학부 확률과 통계</p>
       <div id="home-stats" class="relative mt-5 flex justify-center gap-2 flex-wrap"></div>
     </div>
 
     <div class="space-y-3">
-      <div class="flex items-center justify-between gap-2 px-1">
+      <div class="flex flex-wrap items-center justify-between gap-2 px-1">
         <h3 class="text-lg font-extrabold">📖 오늘의 개념 5</h3>
-        <div class="flex gap-2">
+        <div class="flex gap-2 flex-wrap">
           <button onclick="renderHome()" class="chip">🔄 다시 뽑기</button>
           <button onclick="switchTab('concepts')" class="chip">개념 사전 전체 →</button>
         </div>
@@ -189,7 +230,7 @@
   <!-- 1. 문제 풀이 -->
   <section id="tab-study" class="hidden space-y-5">
     <div class="glass rounded-3xl p-3.5 flex flex-wrap gap-3 items-center justify-between">
-      <div class="flex items-center gap-2 flex-wrap">
+      <div class="chip-row flex items-center gap-2 flex-wrap">
         <span class="text-xs font-bold sub pl-1">챕터</span>
         <button onclick="filterChapter('all')" class="filter-btn chip active" data-chapter="all">전체 20</button>
         <button onclick="filterChapter(4)" class="filter-btn chip" data-chapter="4">Ch 4 · 이산확률분포 4</button>
@@ -215,13 +256,13 @@
 
   <!-- 1.5 개념 사전 -->
   <section id="tab-concepts" class="hidden space-y-5">
-    <div class="rounded-3xl p-6 text-white shadow-xl relative overflow-hidden" style="background: linear-gradient(135deg,#ff9f0a 0%,#ff6b9d 55%,#af52de 100%)">
+    <div class="rounded-3xl p-5 sm:p-6 text-white shadow-xl relative overflow-hidden" style="background: linear-gradient(135deg,#ff9f0a 0%,#ff6b9d 55%,#af52de 100%)">
       <div class="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/20 blur-2xl"></div>
       <h2 class="text-2xl font-extrabold mb-1 relative">📖 개념 사전</h2>
       <p class="text-white/90 text-sm relative">분산, 표본평균, 표준오차 같은 핵심 용어를 쉬운 말로 정리했어요. 검색하거나 챕터별로 골라 보세요.</p>
     </div>
     <div class="glass rounded-3xl p-3.5 flex flex-wrap gap-3 items-center justify-between">
-      <div class="flex items-center gap-2 flex-wrap">
+      <div class="chip-row flex items-center gap-2 flex-wrap">
         <button onclick="filterConceptChapter('all')" class="concept-ch-btn chip active" data-ch="all">전체</button>
         <button onclick="filterConceptChapter(4)" class="concept-ch-btn chip" data-ch="4">Ch 4 · 이산확률분포</button>
         <button onclick="filterConceptChapter(5)" class="concept-ch-btn chip" data-ch="5">Ch 5 · 연속확률분포</button>
@@ -235,7 +276,7 @@
 
   <!-- 2. 공식 사전 -->
   <section id="tab-formulas" class="hidden space-y-5">
-    <div class="rounded-3xl p-6 text-white shadow-xl relative overflow-hidden" style="background: linear-gradient(135deg,#5e5ce6 0%,#0a84ff 55%,#64d2ff 100%)">
+    <div class="rounded-3xl p-5 sm:p-6 text-white shadow-xl relative overflow-hidden" style="background: linear-gradient(135deg,#5e5ce6 0%,#0a84ff 55%,#64d2ff 100%)">
       <div class="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/20 blur-2xl"></div>
       <h2 class="text-2xl font-extrabold mb-1 relative">📐 공식 사전</h2>
       <p class="text-white/85 text-sm relative">핵심 공식을 정리했습니다. <b>쉬운 예시</b>를 펼쳐 숫자로 확인하고, 하단 버튼으로 해당 공식이 쓰인 문제로 바로 이동하세요.</p>
@@ -245,13 +286,13 @@
 
   <!-- 2.5 즐겨찾기 -->
   <section id="tab-favs" class="hidden space-y-5">
-    <div class="rounded-3xl p-6 text-white shadow-xl relative overflow-hidden" style="background: linear-gradient(135deg,#ff9f0a 0%,#ffd60a 100%)">
+    <div class="rounded-3xl p-5 sm:p-6 text-white shadow-xl relative overflow-hidden" style="background: linear-gradient(135deg,#ff9f0a 0%,#ffd60a 100%)">
       <div class="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/25 blur-2xl"></div>
       <h2 class="text-2xl font-extrabold mb-1 relative">⭐ 즐겨찾기</h2>
       <p class="text-white/95 text-sm relative">문제·개념·공식 카드의 ☆ 버튼으로 담은 항목을 한곳에서 몰아보고, 필요 없는 건 삭제하세요. 브라우저에 저장됩니다.</p>
     </div>
     <div class="glass rounded-3xl p-3.5 flex flex-wrap gap-3 items-center justify-between">
-      <div class="flex items-center gap-2 flex-wrap">
+      <div class="chip-row flex items-center gap-2 flex-wrap">
         <button onclick="setFavFilter('all')" class="fav-filter chip active" data-t="all">전체</button>
         <button onclick="setFavFilter('problem')" class="fav-filter chip" data-t="problem">문제</button>
         <button onclick="setFavFilter('concept')" class="fav-filter chip" data-t="concept">개념</button>
@@ -264,7 +305,7 @@
 
   <!-- 3. 모의 테스트 -->
   <section id="tab-test" class="hidden space-y-5">
-    <div id="test-setup" class="glass rounded-3xl p-8 text-center max-w-xl mx-auto space-y-6">
+    <div id="test-setup" class="glass rounded-3xl p-5 sm:p-8 text-center max-w-xl mx-auto space-y-6">
       <h2 class="text-2xl font-bold">📝 동적 랜덤 모의 테스트</h2>
       <p class="sub text-sm leading-relaxed">원본 문제의 수치가 매회 <b>무작위로 변형</b>되어 출제됩니다.<br>정답은 실제 계산값이며, 4지선다형으로 풀어 보세요.</p>
       <div class="space-y-2">
@@ -1085,7 +1126,7 @@
 
   function buildConceptCard(c, extra = '') {
     return `
-      <div class="glass rounded-3xl p-5 space-y-3 fade-in ${extra}">
+      <div class="glass rounded-3xl p-4 sm:p-5 space-y-3 fade-in ${extra}">
         <div class="flex items-center justify-between gap-2">
           <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tint-blue">Chapter ${c.ch}</span>
           <div class="flex items-center gap-2">
@@ -1301,7 +1342,10 @@
       document.getElementById(`nav-${t}`).classList.remove('active');
     });
     document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-    document.getElementById(`nav-${tabName}`).classList.add('active');
+    const nb = document.getElementById(`nav-${tabName}`);
+    nb.classList.add('active');
+    const seg = nb.parentElement;
+    if (seg.scrollWidth > seg.clientWidth) seg.scrollTo({ left: nb.offsetLeft - (seg.clientWidth - nb.offsetWidth) / 2, behavior: 'smooth' });
     if (tabName === 'home') renderHome();
     if (tabName === 'study') renderProblems();
     if (tabName === 'concepts') renderConcepts();
@@ -1343,14 +1387,14 @@
     const u = prefix + p.uid;
     const card = document.createElement('div');
     card.id = `${prefix}problem-card-${p.uid}`;
-    card.className = "glass rounded-3xl p-5 sm:p-6 space-y-4 fade-in transition-shadow";
+    card.className = "glass rounded-3xl p-4 sm:p-6 space-y-4 fade-in transition-shadow";
     card.innerHTML = `
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div class="flex items-center gap-2 flex-wrap">
             <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tint-blue">Ch ${p.chapter}</span>
             <h3 class="font-bold text-[15px] sm:text-base">${p.title}</h3>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 ml-auto">
             <button onclick="jumpToFormula('${p.formulaId}')" class="chip !text-[11.5px] flex items-center gap-1.5">
               <i data-lucide="sigma" class="w-3.5 h-3.5"></i><span>관련 공식 보기</span>
             </button>
@@ -1422,7 +1466,7 @@
     const ex = EXAMPLES_DATA[f.id];
     const card = document.createElement('div');
     card.id = `${prefix}formula-card-${f.id}`;
-    card.className = "glass rounded-3xl p-5 space-y-4 fade-in transition-shadow";
+    card.className = "glass rounded-3xl p-4 sm:p-5 space-y-4 fade-in transition-shadow";
     card.innerHTML = `
         <div class="space-y-2">
           <div class="flex items-center justify-between gap-2">
@@ -1568,7 +1612,7 @@
     const progress = ((currentTestIdx + 1) / testQuestions.length) * 100;
 
     container.innerHTML = `
-      <div class="glass rounded-3xl p-6 sm:p-8 space-y-6 fade-in">
+      <div class="glass rounded-3xl p-4 sm:p-8 space-y-5 sm:space-y-6 fade-in">
         <div class="h-1.5 rounded-full soft overflow-hidden"><div class="h-full rounded-full" style="width:${progress}%; background:linear-gradient(90deg,#5e5ce6,#0a84ff); transition: width .4s"></div></div>
         <div class="flex justify-between items-center">
           <span class="text-xs font-bold px-3 py-1 rounded-full tint-blue">문제 ${currentTestIdx + 1} / ${testQuestions.length}</span>
@@ -1577,10 +1621,10 @@
             <button onclick="quitTest()" class="pill-btn soft sub !py-1.5">중단</button>
           </div>
         </div>
-        <div class="text-lg font-bold leading-relaxed">${q.text}</div>
+        <div class="text-base sm:text-lg font-bold leading-relaxed">${q.text}</div>
         <div class="space-y-3">
           ${q.choices.map((c, i) => `
-            <label class="flex items-center gap-3 p-4 rounded-2xl cursor-pointer transition-all soft ${userAnswers[currentTestIdx] === i ? 'ring-2 ring-blue-500' : ''}">
+            <label class="flex items-center gap-3 p-3.5 sm:p-4 rounded-2xl cursor-pointer transition-all soft ${userAnswers[currentTestIdx] === i ? 'ring-2 ring-blue-500' : ''}">
               <input type="radio" name="test-opt" ${userAnswers[currentTestIdx] === i ? 'checked' : ''} onclick="userAnswers[currentTestIdx]=${i}; renderTestQuestion();" class="w-4 h-4">
               <span class="font-medium">${marks[i]} ${fmt(c.v)}</span>
             </label>`).join('')}
@@ -1633,7 +1677,7 @@
     const percent = Math.round((correct / testQuestions.length) * 100);
 
     rc.innerHTML = `
-      <div class="glass rounded-3xl p-8 text-center space-y-4 fade-in">
+      <div class="glass rounded-3xl p-5 sm:p-8 text-center space-y-4 fade-in">
         <h2 class="text-2xl font-black">🎉 테스트 완료!</h2>
         <div class="text-5xl font-black" style="color:#0a84ff">${percent}점</div>
         <p class="sub text-sm">${testQuestions.length}문제 중 ${correct}문제 정답</p>
