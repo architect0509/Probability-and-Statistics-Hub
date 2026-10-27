@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>대학교 확통허브</title>
+<link rel="icon" href="./favicon.ico" sizes="32x32">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta name="theme-color" content="#5e5ce6">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="확통허브">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = { darkMode: 'class' }
@@ -195,6 +203,9 @@
   [class*="cc-ch"] .ch-name { color: rgb(var(--cct)); }
   .gloss { cursor: help; text-decoration: underline dotted; text-decoration-color: #ff9f0a; text-decoration-thickness: 2px; text-underline-offset: 3px; background: rgba(255,159,10,.12); border-radius: 4px; padding: 0 1px; -webkit-tap-highlight-color: transparent; outline: none; }
   .gloss:hover, .gloss:focus-visible, .gloss.on { background: rgba(255,159,10,.28); }
+  /* 수식 속 기호·숫자 툴팁 */
+  .katex [data-t] { cursor: help; border-radius: 4px; -webkit-tap-highlight-color: transparent; transition: background .15s ease; }
+  .katex [data-t].on { background: rgba(255,159,10,.30); }
   @media (hover: none) { .gloss { cursor: pointer; } }
   #gloss-tip { position: fixed; z-index: 90; left: 0; top: 0; max-width: min(270px, calc(100vw - 16px)); padding: 10px 13px; border-radius: 14px; background: rgba(28,28,36,.97); color: #f5f5f7; font-size: 12.5px; line-height: 1.6; box-shadow: 0 12px 34px rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.12); pointer-events: none; opacity: 0; visibility: hidden; transition: opacity .15s ease; word-break: keep-all; }
   #gloss-tip.show { opacity: 1; visibility: visible; }
@@ -256,6 +267,21 @@
       </h2>
       <p class="relative mt-3 text-sm sm:text-base font-semibold sub">수원대학교 컴퓨터공학부 확률과 통계</p>
       <div id="home-stats" class="relative mt-5 flex justify-center gap-2 flex-wrap"></div>
+    </div>
+
+    <div id="install-card" class="hidden glass rounded-3xl p-4 sm:p-5 fade-in">
+      <div class="flex items-center gap-3 flex-wrap sm:flex-nowrap">
+        <img src="./favicon.svg" alt="" class="w-12 h-12 rounded-2xl flex-shrink-0">
+        <div class="min-w-0 flex-1 basis-40">
+          <div class="font-extrabold text-[15px]">앱으로 설치하기</div>
+          <p class="text-xs sub leading-relaxed mt-0.5">홈 화면에 추가하면 앱처럼 바로 열리고, 한 번 열어 본 뒤에는 인터넷이 없어도 볼 수 있어요.</p>
+        </div>
+        <button id="install-btn" onclick="onInstallClick()" class="pill-btn !px-5 w-full sm:w-auto shrink-0 text-white shadow-md" style="background:linear-gradient(135deg,#5e5ce6,#0a84ff)">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+          <span id="install-label">설치 방법 보기</span>
+        </button>
+      </div>
+      <div id="install-guide" class="hidden mt-3 soft rounded-2xl p-4 text-[13px] leading-relaxed space-y-2"></div>
     </div>
 
     <div class="space-y-3">
@@ -327,7 +353,7 @@
     <div class="rounded-3xl p-5 sm:p-6 text-white shadow-xl relative overflow-hidden" style="background: linear-gradient(135deg,#ff9f0a 0%,#ff6b9d 55%,#af52de 100%)">
       <div class="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/20 blur-2xl"></div>
       <h2 class="text-2xl font-extrabold mb-1 relative"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 개념 사전</h2>
-      <p class="text-white/90 text-sm relative">분산, 표본평균, 표준오차 같은 핵심 용어를 쉬운 말로 정리했어요. 검색하거나 챕터별로 골라 보세요.</p>
+      <p class="text-white/90 text-sm relative">분산, 표본평균, 표준오차 같은 핵심 용어를 쉬운 말로 정리했어요. 검색하거나 챕터별로 골라 보세요. 카드 안 수식의 기호에 마우스를 올리면(모바일은 터치) 뜻이 나와요.</p>
     </div>
     <div class="glass rounded-3xl p-3.5 flex flex-wrap gap-3 items-center justify-between">
       <div class="chip-row flex items-center gap-2 flex-wrap">
@@ -347,7 +373,7 @@
     <div class="rounded-3xl p-5 sm:p-6 text-white shadow-xl relative overflow-hidden" style="background: linear-gradient(135deg,#5e5ce6 0%,#0a84ff 55%,#64d2ff 100%)">
       <div class="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/20 blur-2xl"></div>
       <h2 class="text-2xl font-extrabold mb-1 relative"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 7V5a1 1 0 0 0-1-1H6.5a.5.5 0 0 0-.4.8l4.5 6a2 2 0 0 1 0 2.4l-4.5 6a.5.5 0 0 0 .4.8H17a1 1 0 0 0 1-1v-2"/></svg> 공식 사전</h2>
-      <p class="text-white/85 text-sm relative">핵심 공식을 정리했습니다. <b>쉬운 예시</b>를 펼쳐 숫자로 확인하고, 하단 버튼으로 해당 공식이 쓰인 문제로 바로 이동하세요.</p>
+      <p class="text-white/85 text-sm relative">핵심 공식을 정리했습니다. <b>쉬운 예시</b>를 펼쳐 숫자로 확인하고, 하단 버튼으로 해당 공식이 쓰인 문제로 바로 이동하세요. 수식 속 기호와 숫자에 마우스를 올리면(모바일은 터치) 뜻이 나와요.</p>
     </div>
     <div id="formula-hub-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start"></div>
   </section>
@@ -422,6 +448,22 @@
 <div id="return-pill" class="hidden"><button id="return-pill-btn" onclick="returnToConcept()"></button></div>
 
 <div id="toast"></div>
+
+<div id="update-banner" class="hidden fixed z-[70] rounded-3xl p-4 fade-in" style="left:0;right:0;margin-inline:auto;width:min(440px,calc(100vw - 1.5rem));bottom:calc(20px + env(safe-area-inset-bottom));background:var(--modal-bg);border:1px solid var(--glass-border);box-shadow:0 16px 48px rgba(0,0,0,.4)">
+  <div class="flex items-center gap-3">
+    <span class="w-10 h-10 rounded-2xl flex items-center justify-center text-white flex-shrink-0" style="background:linear-gradient(135deg,#34c759,#32d4c4)">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+    </span>
+    <div class="min-w-0 flex-1">
+      <div class="font-extrabold text-sm">새 버전이 나왔어요</div>
+      <div class="text-[11.5px] sub">업데이트하면 최신 문제와 개념으로 바뀌어요.</div>
+    </div>
+  </div>
+  <div class="flex gap-2 mt-3">
+    <button onclick="applyUpdate()" class="flex-1 py-2.5 rounded-2xl text-white text-sm font-bold" style="background:#007aff">지금 업데이트</button>
+    <button onclick="dismissUpdate()" class="px-4 py-2.5 rounded-2xl soft text-sm font-bold">나중에</button>
+  </div>
+</div>
 <div id="gloss-tip" role="tooltip"></div>
 
 <div id="hint-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(0,0,0,.4); backdrop-filter: blur(8px);">
@@ -1088,14 +1130,17 @@
     return Math.abs(v) >= 10 ? v.toFixed(2) : v.toFixed(4);
   }
   function renderMath(root) {
-    renderMathInElement(root || document.body, {
+    const r = root || document.body;
+    try { tipifyMath(r); } catch (e) {}
+    renderMathInElement(r, {
       delimiters: [
         { left: '$$', right: '$$', display: true },
         { left: '$', right: '$', display: false }
       ],
-      throwOnError: false
+      throwOnError: false,
+      trust: ctx => ctx.command === '\\htmlData'
     });
-    applyGloss(root || document.body);
+    applyGloss(r);
   }
 
   // =========================================================================
@@ -2156,6 +2201,235 @@
   const GLOSS_SKIP = 'script,style,textarea,input,button,a,h1,h2,h3,h4,.katex,.gloss,.ch-badge,.ch-name,.quote-link,.no-gloss,#gloss-tip';
   const GLOSS_SCOPE = '.glass,.cm-panel,[data-gscope]';
 
+  // =========================================================================
+  // 수식 기호 툴팁: 수식 속 μ, σ, N(500, 50²)의 숫자 등에 마우스를 올리면 뜻을 보여 줌
+  // 수식(LaTeX) 문자열을 \htmlData{t=아이디}{...} 로 감싼 뒤 KaTeX가 렌더링하는 방식
+  // =========================================================================
+  const MATH_TIPS = {
+    mu: ['평균 μ (뮤)', '모집단의 평균(모평균)이에요. 분포가 어디를 중심으로 놓여 있는지를 알려 줘요.'],
+    sigma: ['표준편차 σ (시그마)', '값들이 평균에서 평균적으로 얼마나 떨어져 있는지(퍼진 정도)예요. 제곱하면 분산 σ²가 돼요.'],
+    sigma2: ['분산 σ²', '표준편차 σ를 제곱한 값으로, 퍼진 정도를 나타내요. N(평균, 분산)에서 두 번째 자리에 오는 값이에요.'],
+    lambda: ['λ (람다)', '지수분포의 모수예요. 단위 시간에 사건이 일어나는 평균 횟수이고, λ = 1 ÷ 평균 대기시간이에요.'],
+    Phi: ['Φ(z) 표준정규분포 누적확률', 'Φ(z) = P(Z ≤ z). 표준정규분포표에서 z에 해당하는 값을 읽어요.'],
+    xbar: ['표본평균 X̄ (엑스바)', '표본에서 계산한 평균이에요. 표본을 뽑을 때마다 값이 조금씩 달라져요.'],
+    phat: ['표본비율 p̂ (피햇)', '표본 중 특성을 가진 비율(성공 횟수 ÷ n)이에요. 모비율 p를 추측하는 데 써요.'],
+    binom: ['조합 C(n, k)', 'n개 중에서 k개를 고르는 경우의 수예요. 위쪽 숫자가 전체 개수 n, 아래쪽이 고르는 개수 k예요.'],
+    sum: ['Σ (합)', '오른쪽 식을 가능한 모든 경우에 대해 전부 더하라는 기호예요.'],
+    int: ['∫ (적분)', '곡선 아래의 넓이를 구하는 계산이에요. 연속확률변수에서는 넓이가 곧 확률이에요.'],
+    sim: ['~ (분포를 따른다)', '‘왼쪽 변수가 오른쪽 분포를 따른다’는 뜻이에요. 예: X ~ N(0, 1)은 X가 표준정규분포를 따른다는 말이에요.'],
+    le: ['≤ 작거나 같다', '‘이하’를 뜻해요. P(X ≤ x)는 X가 x 이하일 확률이에요.'],
+    ge: ['≥ 크거나 같다', '‘이상’을 뜻해요. P(X ≥ x)는 X가 x 이상일 확률이에요.'],
+    approx: ['≈ 거의 같다', '정확히 같지는 않지만 아주 가깝다는 뜻이에요.'],
+    implies: ['⟹ 따라서', '앞의 식에서 뒤의 결론이 이어진다는 뜻이에요.'],
+    mid: ['| 조건 (~가 주어졌을 때)', 'P(A | B)는 B가 이미 일어났다는 조건에서 A가 일어날 확률이에요.'],
+    pm: ['± (플러스마이너스)', '더하거나 빼라는 뜻이에요.'],
+    E: ['E(·) 기댓값', '같은 실험을 아주 많이 반복했을 때 장기적으로 나오는 평균이에요. E(X) = (값 × 확률)의 합이에요.'],
+    Var: ['Var(·) 분산', '평균에서 얼마나 퍼져 있는지를 나타내요. Var(X) = E(X²) − [E(X)]²로 계산해요.'],
+    V: ['V(·) 분산', 'Var와 같은 말로, 평균에서 얼마나 퍼져 있는지를 나타내요.'],
+    P: ['P(·) 확률', '괄호 안 사건이 일어날 확률이에요. 예: P(X ≤ 3)은 X가 3 이하일 확률이에요.'],
+    SE: ['SE 표준오차', '통계량(표본평균, 표본비율 등)의 표준편차예요. 표본평균은 σ/√n, 표본비율은 √(p(1−p)/n)이에요.'],
+    f: ['f(x) 확률밀도함수', '연속확률변수의 확률을 그래프 아래 넓이로 알려 주는 함수예요. 높이 자체가 확률은 아니에요.'],
+    X: ['X 확률변수', '실험 결과에 숫자를 하나씩 대응시킨 변수예요. 대문자 X는 변수 그 자체를 뜻해요.'],
+    Y: ['Y 확률변수', '보통 X를 변형해 만든 새로운 확률변수예요. 예: Y = 2X + 5'],
+    x: ['x 구체적인 값', '확률변수 X가 실제로 가질 수 있는 구체적인 값(소문자)이에요. 지수분포에서는 대기시간 같은 값이에요.'],
+    n: ['n 표본 크기 · 시행 횟수', '표본에서 뽑은 개수 또는 시행을 반복한 횟수예요. n이 클수록 표준오차는 작아져요.'],
+    p: ['p 확률 · 비율', '한 번 시행할 때 성공할 확률, 또는 모집단의 비율(모비율)이에요.'],
+    q: ['(1−p) 실패 확률', '성공 확률이 p일 때, 실패할 확률은 1−p예요.'],
+    k: ['k 횟수(구하는 값)', '성공한 횟수처럼 확률을 구하고 싶은 구체적인 값이에요. 문제에 따라 구하려는 점수나 기준값일 수도 있어요.'],
+    Z: ['Z 표준화한 값', '(값 − 평균) ÷ 표준편차예요. 평균에서 표준편차 몇 개만큼 떨어졌는지를 뜻하고, 표준정규분포 N(0, 1)을 따라요.'],
+    z: ['z 표준화한 구체적인 값', 'Z가 가지는 구체적인 숫자예요. 이 값으로 표준정규분포표에서 확률을 찾아요.'],
+    a: ['a', '구간 [a, b]의 시작값(가장 작은 값)이에요. 일차식 aX + b에서는 X에 곱해 주는 상수예요.'],
+    b: ['b', '구간 [a, b]의 끝값(가장 큰 값)이에요. 일차식 aX + b에서는 더해 주는 상수예요.'],
+    ts: ['t, s 시간 · 기준값', '시간이나 기준이 되는 값이에요. 무기억성 식에서 t는 이미 지난 시간, s는 앞으로 더 기다리는 시간이에요.'],
+    e: ['e 자연상수', '약 2.718인 수예요. 지수분포에서 e의 (−λx) 제곱 꼴로 나와요.'],
+    N: ['N 정규분포', 'N(평균, 분산)으로 쓰는 종 모양 분포예요. 첫 번째 자리는 평균, 두 번째 자리는 분산이에요.'],
+    B: ['B 이항분포', 'B(n, p)는 성공 확률이 p인 시행을 n번 반복할 때 성공 횟수가 따르는 분포예요.'],
+    U: ['U 연속균등분포', 'U(a, b)는 구간 [a, b] 어디서나 나올 가능성이 똑같은 분포예요.'],
+    N_mean: ['평균 (첫 번째 값)', 'N(평균, 분산)에서 첫 번째 자리는 분포의 중심인 평균 μ예요.'],
+    N_var: ['분산 (두 번째 값)', 'N(평균, 분산)에서 두 번째 자리는 표준편차가 아니라 분산이에요. 표준편차를 제곱한 값이라 σ²로 써요. (N(0, 1)이면 분산이 1)'],
+    N_sd: ['표준편차 σ', '제곱이 붙기 전의 숫자가 표준편차이고, 이 숫자를 제곱한 것이 분산이에요. 예를 들어 표준편차 10이면 분산은 10² = 100이에요.'],
+    B_n: ['시행 횟수 n', 'B(n, p)의 첫 번째 값으로, 시행을 반복하는 횟수예요.'],
+    B_p: ['성공 확률 p', 'B(n, p)의 두 번째 값으로, 한 번 시행할 때 성공할 확률이에요.'],
+    U_a: ['구간의 시작 a', 'U(a, b)의 첫 번째 값으로, 나올 수 있는 가장 작은 값이에요.'],
+    U_b: ['구간의 끝 b', 'U(a, b)의 두 번째 값으로, 나올 수 있는 가장 큰 값이에요.']
+  };
+  const MT_LETTERS = { X: 'X', Y: 'Y', x: 'x', n: 'n', p: 'p', k: 'k', Z: 'Z', z: 'z', a: 'a', b: 'b', t: 'ts', s: 'ts' };
+  const MT_SYMS = { mu: 'mu', sigma: 'sigma', lambda: 'lambda', Phi: 'Phi', sum: 'sum', int: 'int', sim: 'sim', le: 'le', leq: 'le', ge: 'ge', geq: 'ge', approx: 'approx', implies: 'implies', mid: 'mid', pm: 'pm' };
+  const MT_RAWCMDS = ['text', 'textbf', 'textit', 'mathrm', 'operatorname', 'mbox'];
+  const MT_ROLES = { N: ['N_mean', 'N_var'], B: ['B_n', 'B_p'], U: ['U_a', 'U_b'] };
+  const mtIsL = ch => !!ch && /[A-Za-z]/.test(ch);
+  const mtTip = (id, inner) => '\\htmlData{t=' + id + '}{' + inner + '}';
+
+  function mtGroupEnd(s, i) {            // s[i] === '{' → 짝이 되는 '}' 다음 위치 (없으면 -1)
+    let d = 0;
+    for (let k = i; k < s.length; k++) {
+      const c = s[k];
+      if (c === '\\') { k++; continue; }
+      if (c === '{') d++;
+      else if (c === '}') { d--; if (d === 0) return k + 1; }
+    }
+    return -1;
+  }
+  function mtArgEnd(s, i) {              // 명령어 뒤 인자 하나의 끝 위치
+    while (s[i] === ' ') i++;
+    if (i >= s.length) return s.length;
+    if (s[i] === '{') { const e = mtGroupEnd(s, i); return e < 0 ? s.length : e; }
+    if (s[i] === '\\') { const m = /^\\([a-zA-Z]+|.)/.exec(s.slice(i, i + 24)); return i + (m ? m[0].length : 1); }
+    return i + 1;
+  }
+  function mtSingleTip(str) {            // 문자열 전체가 \htmlData 하나뿐인지
+    if (!str.startsWith('\\htmlData{')) return false;
+    const e1 = mtGroupEnd(str, 9);
+    if (e1 < 0 || str[e1] !== '{') return false;
+    return mtGroupEnd(str, e1) === str.length;
+  }
+  function mtAtom(id, raw, j, s) {       // 기호 + 뒤따르는 위/아래 첨자를 한 덩어리로 감쌈
+    let inner = raw, e = j;
+    while (s[e] === '^' || s[e] === '_') {
+      const op = s[e], ae = mtArgEnd(s, e + 1);
+      let arg = s.slice(e + 1, ae).trim();
+      if (arg[0] === '{') arg = arg.slice(1, -1);
+      inner += op + '{' + mtProcess(arg) + '}';
+      e = ae;
+    }
+    return [mtTip(id, inner), e];
+  }
+  function mtSkipParen(s, k) {           // 괄호 세기용: 명령어(\left 등)는 통째로 건너뜀
+    const m = /^\\([a-zA-Z]+|.)/.exec(s.slice(k, k + 14));
+    return m ? m[0].length : 1;
+  }
+  function mtCall(c, s, i) {             // N(..), B(..), U(..) 처럼 괄호 안 값마다 역할을 알려 줌
+    let o = i + 1;
+    if (s.startsWith('\\left', o)) o += 5;
+    while (s[o] === ' ') o++;
+    if (s[o] !== '(') return null;
+    let d = 0, k = o;
+    for (; k < s.length; k++) {
+      const ch = s[k];
+      if (ch === '\\') { k += mtSkipParen(s, k) - 1; continue; }
+      if (ch === '(') d++;
+      else if (ch === ')') { d--; if (d === 0) break; }
+    }
+    if (k >= s.length) return null;
+    let inner = s.slice(o + 1, k), right = '';
+    const rm = /\s*\\right\s*$/.exec(inner);
+    if (rm) { right = rm[0].trim(); inner = inner.slice(0, rm.index); }
+    const args = []; let dep = 0, st = 0;
+    for (let q = 0; q < inner.length; q++) {
+      const ch = inner[q];
+      if (ch === '\\') { q += mtSkipParen(inner, q) - 1; continue; }
+      if ('{(['.includes(ch)) dep++;
+      else if ('})]'.includes(ch)) dep--;
+      else if (ch === ',' && dep === 0) { args.push(inner.slice(st, q)); st = q + 1; }
+    }
+    args.push(inner.slice(st));
+    const head = mtTip(c, c) + s.slice(i + 1, o + 1);
+    if (args.length !== 2) return [head + mtProcess(inner) + right + ')', k + 1];
+    const out = args.map((a, idx) => {
+      const t = a.trim(), pr = mtProcess(t);
+      if (mtSingleTip(pr)) return pr;
+      if (c === 'N' && idx === 1) {
+        const mm = /^(\d+(?:\.\d+)?)\s*\^\s*(?:\{\s*2\s*\}|2)$/.exec(t);
+        if (mm) return mtTip('N_var', mtTip('N_sd', mm[1]) + '^{2}');
+      }
+      return mtTip(MT_ROLES[c][idx], pr);
+    });
+    return [head + out.join(', ') + right + ')', k + 1];
+  }
+
+  function mtProcess(s) {
+    let out = '', i = 0;
+    const n = s.length;
+    while (i < n) {
+      const c = s[i];
+      if (c === '\\') {
+        const m = /^\\([a-zA-Z]+)/.exec(s.slice(i, i + 24));
+        if (!m) { out += s.slice(i, i + 2); i += 2; continue; }
+        const cmd = m[1], j = i + m[0].length;
+        if (cmd === 'htmlData') {
+          let e = j;
+          for (let g = 0; g < 2; g++) { while (s[e] === ' ') e++; const ge = s[e] === '{' ? mtGroupEnd(s, e) : -1; if (ge < 0) { e = n; break; } e = ge; }
+          out += s.slice(i, e); i = e; continue;
+        }
+        if (MT_RAWCMDS.includes(cmd)) {
+          let e = j; while (s[e] === ' ') e++;
+          const ge = s[e] === '{' ? mtGroupEnd(s, e) : -1;
+          if (ge < 0) { out += s.slice(i, j); i = j; continue; }
+          out += s.slice(i, ge); i = ge; continue;
+        }
+        if (cmd === 'sigma') {
+          const m2 = /^\^\s*(?:\{\s*2\s*\}|2)/.exec(s.slice(j, j + 14));
+          if (m2) { const e = j + m2[0].length; out += mtTip('sigma2', s.slice(i, e)); i = e; continue; }
+        }
+        if (cmd === 'bar' || cmd === 'hat') {
+          const e = mtArgEnd(s, j), arg = s.slice(j, e).replace(/[{}\s]/g, '');
+          const id = (cmd === 'bar' && arg === 'X') ? 'xbar' : (cmd === 'hat' && arg === 'p') ? 'phat' : null;
+          if (id) { const [str, e2] = mtAtom(id, s.slice(i, e), e, s); out += str; i = e2; }
+          else { out += s.slice(i, e); i = e; }
+          continue;
+        }
+        if (cmd === 'binom' || cmd === 'dbinom' || cmd === 'tbinom') {
+          const e1 = mtArgEnd(s, j), e2 = mtArgEnd(s, e1);
+          out += mtTip('binom', s.slice(i, e2)); i = e2; continue;
+        }
+        if (MT_SYMS[cmd]) { const [str, e] = mtAtom(MT_SYMS[cmd], s.slice(i, j), j, s); out += str; i = e; continue; }
+        out += s.slice(i, j); i = j; continue;
+      }
+      if (c === '(') {
+        const m = /^\(\s*1\s*-\s*p\s*\)/.exec(s.slice(i, i + 16));
+        if (m) { const [str, e] = mtAtom('q', m[0], i + m[0].length, s); out += str; i = e; continue; }
+      }
+      if (mtIsL(c)) {
+        if (!mtIsL(s[i - 1])) {
+          const w = /^(Var|SE)(?![A-Za-z])/.exec(s.slice(i, i + 4));
+          if (w) { const [str, e] = mtAtom(w[1], w[1], i + w[1].length, s); out += str; i = e; continue; }
+        }
+        const nx = s[i + 1];
+        if (c === 'N' || c === 'B' || c === 'U') {
+          const r = mtCall(c, s, i);
+          if (r) { out += r[0]; i = r[1]; continue; }
+        }
+        let id = null;
+        if ((c === 'E' || c === 'P' || c === 'V' || c === 'f') && nx === '(') id = c;
+        else if (c === 'e' && nx === '^') id = 'e';
+        else if (MT_LETTERS[c]) id = MT_LETTERS[c];
+        if (id) { const [str, e] = mtAtom(id, c, i + 1, s); out += str; i = e; continue; }
+      }
+      out += c; i++;
+    }
+    return out;
+  }
+
+  const MT_TRUST = ctx => ctx.command === '\\htmlData';
+  const mtCache = new Map();
+  function mtSafe(src) {                  // 변환 결과가 렌더링 오류를 내면 원래 수식을 그대로 사용
+    if (mtCache.has(src)) return mtCache.get(src);
+    let res = src;
+    try {
+      const t = mtProcess(src);
+      if (t !== src) { katex.renderToString(t, { throwOnError: true, trust: MT_TRUST, strict: 'ignore' }); res = t; }
+    } catch (e) { res = src; }
+    mtCache.set(src, res);
+    return res;
+  }
+  function tipifyMath(root) {
+    if (!root || !root.nodeType) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(nd) {
+        if (nd.nodeValue.indexOf('$') < 0) return NodeFilter.FILTER_REJECT;
+        const p = nd.parentElement;
+        if (!p || p.closest('script,style,textarea,pre,code,.katex,.no-tip')) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(nd => {
+      nd.nodeValue = nd.nodeValue.replace(/\$\$([\s\S]+?)\$\$|\$([\s\S]+?)\$/g,
+        (m, a, b) => a !== undefined ? '$$' + mtSafe(a) + '$$' : '$' + mtSafe(b) + '$');
+    });
+  }
+
   // 같은 카드 안에서는 처음 나오는 용어에만 표시해 화면이 지저분해지지 않게 함
   function applyGloss(root) {
     if (!root || !root.nodeType) return;
@@ -2205,13 +2479,15 @@
 
   let glossTarget = null;
   function showGloss(el) {
-    const meaning = GLOSSARY[el.dataset.g];
+    let title, meaning;
+    if (el.dataset.t) { const mt = MATH_TIPS[el.dataset.t]; if (mt) { title = mt[0]; meaning = mt[1]; } }
+    else { title = el.dataset.g; meaning = GLOSSARY[title]; }
     const tip = document.getElementById('gloss-tip');
     if (!meaning || !tip) return;
     if (glossTarget) glossTarget.classList.remove('on');
     glossTarget = el;
     el.classList.add('on');
-    tip.innerHTML = `<b>${el.dataset.g}</b>${meaning}`;
+    tip.innerHTML = `<b>${title}</b>${meaning}`;
     tip.classList.add('show');
     const r = el.getBoundingClientRect();
     const tw = tip.offsetWidth, th = tip.offsetHeight;
@@ -2229,18 +2505,16 @@
     glossTarget = null;
   }
   const canHover = () => window.matchMedia && window.matchMedia('(hover: hover)').matches;
+  const tipTarget = t => (t && t.closest) ? t.closest('.gloss, .katex [data-t]') : null;
   document.addEventListener('mouseover', e => {
     if (!canHover()) return;
-    const el = e.target.closest && e.target.closest('.gloss');
-    if (el) showGloss(el);
+    const el = tipTarget(e.target);
+    if (el) { if (el !== glossTarget) showGloss(el); }
+    else if (glossTarget) hideGloss();
   });
-  document.addEventListener('mouseout', e => {
-    if (!canHover()) return;
-    const el = e.target.closest && e.target.closest('.gloss');
-    if (el && !(e.relatedTarget && el.contains(e.relatedTarget))) hideGloss();
-  });
+  document.documentElement.addEventListener('mouseleave', hideGloss);
   document.addEventListener('click', e => {
-    const el = e.target.closest && e.target.closest('.gloss');
+    const el = tipTarget(e.target);
     if (!el) { hideGloss(); return; }
     if (glossTarget === el && document.getElementById('gloss-tip').classList.contains('show') && !canHover()) hideGloss();
     else showGloss(el);
@@ -2454,6 +2728,115 @@
     renderMath(box);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+  // =========================================================================
+  // 앱 설치(홈 화면에 추가) + 새 버전 알림
+  // =========================================================================
+  let deferredInstall = null, swReg = null, updateRequested = false, updateShown = false, reloading = false, pageBaseHash = null;
+
+  function isStandalone() {
+    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+  }
+  function isIOS() {
+    const ua = navigator.userAgent || '';
+    return /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+  function isInAppBrowser() {
+    return /KAKAOTALK|NAVER\(|Line\/|FBAN|FBAV|Instagram|DaumApps|; wv\)/i.test(navigator.userAgent || '');
+  }
+  function updateInstallUI() {
+    const card = document.getElementById('install-card');
+    if (!card) return;
+    if (isStandalone()) { card.classList.add('hidden'); return; }
+    card.classList.remove('hidden');
+    document.getElementById('install-label').textContent = deferredInstall ? '설치하기' : '설치 방법 보기';
+  }
+  function installGuideHTML() {
+    const step = (n, t) => `<div class="flex gap-2 items-start"><span class="w-5 h-5 rounded-full text-[11px] font-extrabold flex items-center justify-center flex-shrink-0 tint-blue">${n}</span><span>${t}</span></div>`;
+    if (location.protocol === 'file:') return '<div>파일로 직접 연 상태에서는 설치할 수 없어요. 웹 주소(https)로 접속한 뒤 다시 시도해 주세요.</div>';
+    if (isInAppBrowser()) return `<div>지금 보는 앱 안의 브라우저에서는 설치할 수 없어요. 메뉴(⋮ 또는 ⋯)에서 <b>다른 브라우저로 열기</b>를 눌러 ${isIOS() ? '<b>Safari</b>' : '<b>Chrome</b>'}로 열어 주세요.</div>`;
+    if (isIOS()) return step(1, '<b>Safari</b>로 이 페이지를 열어요.') + step(2, '화면 아래쪽(아이패드는 위쪽)의 <b>공유 버튼</b>(네모에 화살표 모양)을 눌러요.') + step(3, '목록에서 <b>홈 화면에 추가</b>를 누르고, 오른쪽 위 <b>추가</b>를 눌러요.');
+    return step(1, '<b>Chrome</b> 오른쪽 위 <b>⋮ 메뉴</b>를 눌러요.') + step(2, '<b>홈 화면에 추가</b> 또는 <b>앱 설치</b>를 눌러요.') + step(3, '삼성 인터넷은 아래쪽 메뉴 → <b>현재 페이지 추가</b> → <b>홈 화면</b>을 눌러요.');
+  }
+  async function onInstallClick() {
+    if (deferredInstall) {
+      const p = deferredInstall; deferredInstall = null;
+      try {
+        p.prompt();
+        const r = await p.userChoice;
+        if (r && r.outcome === 'accepted') toast('설치 중이에요! 홈 화면을 확인해 보세요');
+      } catch (e) {}
+      updateInstallUI();
+      return;
+    }
+    const g = document.getElementById('install-guide');
+    g.innerHTML = installGuideHTML();
+    g.classList.toggle('hidden');
+  }
+
+  function showUpdate() {
+    if (updateShown) return;
+    updateShown = true;
+    const b = document.getElementById('update-banner');
+    if (b) b.classList.remove('hidden');
+  }
+  function dismissUpdate() {
+    const b = document.getElementById('update-banner');
+    if (b) b.classList.add('hidden');
+  }
+  function reloadOnce() { if (reloading) return; reloading = true; location.reload(); }
+  function applyUpdate() {
+    updateRequested = true;
+    const w = swReg && swReg.waiting;
+    if (w) { w.postMessage({ type: 'SKIP_WAITING' }); setTimeout(reloadOnce, 1500); }
+    else reloadOnce();
+  }
+
+  // 앱을 열어 둔 채로 새 버전이 배포됐는지 확인 (index.html 내용이 바뀌었는지 비교)
+  async function pageHash() {
+    const r = await fetch('./index.html', { cache: 'no-store' });
+    if (!r.ok) throw new Error('fetch failed');
+    const t = await r.text();
+    let h = 5381;
+    for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0;
+    return h;
+  }
+  async function checkPageUpdate() {
+    try {
+      const h = await pageHash();
+      if (pageBaseHash === null) { pageBaseHash = h; return; }
+      if (h !== pageBaseHash) showUpdate();
+    } catch (e) {}
+  }
+
+  function initPWA() {
+    const card = document.getElementById('install-card');
+    if (!card) return;
+    updateInstallUI();
+    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; updateInstallUI(); });
+    window.addEventListener('appinstalled', () => { deferredInstall = null; card.classList.add('hidden'); toast('설치됐어요! 홈 화면에서 열어 보세요'); });
+
+    const secure = location.protocol === 'https:' || location.hostname === 'localhost';
+    if (!secure) return;
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(reg => {
+        swReg = reg;
+        if (reg.waiting && navigator.serviceWorker.controller) showUpdate();
+        reg.addEventListener('updatefound', () => {
+          const nw = reg.installing;
+          if (nw) nw.addEventListener('statechange', () => {
+            if (nw.state === 'installed' && navigator.serviceWorker.controller) showUpdate();
+          });
+        });
+      }).catch(() => {});
+      navigator.serviceWorker.addEventListener('controllerchange', () => { if (updateRequested) reloadOnce(); });
+    }
+    const check = () => { if (swReg) swReg.update().catch(() => {}); checkPageUpdate(); };
+    checkPageUpdate();
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) check(); });
+    setInterval(check, 30 * 60 * 1000);
+  }
+  initPWA();
 
   window.addEventListener('DOMContentLoaded', () => {
     updateTestSetup();
