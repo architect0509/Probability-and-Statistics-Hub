@@ -54,7 +54,7 @@ const GLOSS_BY = Object.fromEntries(GLOSS.map(g => [g.id, g]));
 function glossify(root) {
   if (!root) return;
   const seen = new Set(), walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), nodes = [];
-  while (walker.nextNode()) { const n = walker.currentNode; if (n.parentElement && n.parentElement.closest('.term, code, button')) continue; nodes.push(n); }
+  while (walker.nextNode()) { const n = walker.currentNode; if (n.parentElement && n.parentElement.closest('.term, code, button, .symleg')) continue; nodes.push(n); }
   nodes.forEach(node => {
     const txt = node.nodeValue; GLOSS_RE.re.lastIndex = 0;
     let m, last = 0, frag = null;

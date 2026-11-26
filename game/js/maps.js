@@ -47,7 +47,8 @@ function buildTown() {
     { id: 'smithy', name: '자유도 대장간', x: 21, y: 50, w: 8, h: 6, roof: 'I', dx: 3, icon: 'sword' },
     { id: 'temple', name: '스토카 신전', x: 49, y: 46, w: 10, h: 7, roof: 'G', dx: 5, icon: 'star' },
     { id: 'alch1', name: '카이제곱 공방', x: 63, y: 39, w: 8, h: 6, roof: 'J', dx: 4, icon: 'potion' },
-    { id: 'house', name: '수상한 민가', x: 54, y: 56, w: 6, h: 5, roof: 'R', dx: 2, icon: null }
+    { id: 'house', name: '수상한 민가', x: 54, y: 56, w: 6, h: 5, roof: 'R', dx: 2, icon: null },
+    { id: 'advguild', name: '모험가 길드', x: 23, y: 24, w: 7, h: 6, roof: 'G', dx: 3, icon: 'sword' }
   ];
   const placeBuilding = (b, doorCh) => {
     for (let j = 0; j < b.h; j++) for (let i = 0; i < b.w; i++) {
@@ -466,6 +467,7 @@ function buildAllMaps() {
   MAPS.cave = buildCave();
   MAPS.dun1 = buildDun1();
   MAPS.forest = buildForest();
+  if (typeof buildExtraMaps === 'function') buildExtraMaps();
   // 방 크기에 따라 기본 줌 (작은 방일수록 크게)
   for (const id in MAPS) { const m = MAPS[id]; if (!m.fit) m.fit = m.id === 'forest' ? 20 : m.id === 'cave' || m.id === 'dun1' ? 15 : Math.max(m.w, m.h * 1.4) + 1; }
   return MAPS;

@@ -605,7 +605,23 @@ function gridToCanvas(g, outline = true, flip = false) {
     ctx.fillStyle = OUT;
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (!get(x, y)) { const nb = get(x, y + 1) || get(x - 1, y) || get(x + 1, y) || get(x, y - 1); if (!nb || String(nb).startsWith('rgba')) continue; ctx.fillStyle = OUTC[nb] || (OUTC[nb] = mix(shade(nb, -0.62), OUT, .55)); ctx.fillRect(flip ? w - 1 - x : x, y, 1, 1); }
   }
-  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const c = g[y][x]; if (c) { ctx.fillStyle = c; ctx.fillRect(flip ? w - 1 - x : x, y, 1, 1); } }
+  // 입체감: 위쪽 가장자리 하이라이트 + 오른쪽/아래 가장자리 그늘 + 아래로 갈수록 살짝 어둡게 (빛은 왼쪽 위)
+  const SHC = gridToCanvas._c || (gridToCanvas._c = {});
+  const tone = (c, k) => { const key = c + k; return SHC[key] || (SHC[key] = shade(c, k)); };
+  const hex = c => typeof c === 'string' && c[0] === '#' && c.length === 7;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    let c = g[y][x]; if (!c) continue;
+    if (outline && hex(c)) {
+      const sx = flip ? -1 : 1; // 화면 기준 오른쪽
+      const up = get(x, y - 1), dn = get(x, y + 1), rt = get(x + sx, y), lf = get(x - sx, y);
+      let k = 0;
+      if (!up) k += .16; else if (!lf) k += .08;
+      if (!rt) k -= .13; if (!dn) k -= .1;
+      if (y > h * .62) k -= .05;
+      if (k) c = tone(c, Math.max(-.3, Math.min(.25, k)));
+    }
+    ctx.fillStyle = c; ctx.fillRect(flip ? w - 1 - x : x, y, 1, 1);
+  }
   return cv;
 }
 
