@@ -1,0 +1,5 @@
+이 폴더에 「아이디.png」(또는 .jpg, .webp) 이름으로 그림을 넣으면 게임 대화창 초상화가 바뀝니다.
+예) daisy.png, outlier.png, player.png(내 캐릭터)
+권장 크기 400×480 (세로 5:6). 얼굴이 위쪽에 오게.
+표정별로 넣고 싶으면 daisy_happy.png 처럼 「아이디_표정.png」 (neutral, happy, angry, sad, sly, surprise). 없으면 daisy.png를 씀.
+아이디 목록은 캐릭터_목록.md 참고.
