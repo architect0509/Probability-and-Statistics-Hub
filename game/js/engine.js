@@ -883,10 +883,27 @@ function arrivalFor(mapId, from) {
   const d = find('D'); if (d) return adj(d, 'up');
   return [Math.floor(m.w / 2), Math.floor(m.h / 2), 0];
 }
+// 발밑 바닥 재질 (발소리용)
+function floorKind(x, y) {
+  const c = MAP.g[y][x], th = MAP.theme;
+  if (c === ',') return 'grass';
+  if ('=pM^v'.includes(c)) return 'stone';
+  if (c === 's') return 'dirt';
+  if (c === 'r') return 'carpet';
+  if (c === 'l') return 'wood';
+  if (c === '~') return 'water';
+  if (c === '.' || c === '_' || 'moj'.includes(c)) {
+    if (th === 'interior') return MAP.under && MAP.under[c] === 'M' ? 'stone' : 'wood';
+    if (th === 'cave') return 'cave';
+    if (th === 'dungeon') return 'cave';
+    return 'grass';
+  }
+  return th === 'interior' ? 'wood' : th === 'cave' || th === 'dungeon' ? 'cave' : 'grass';
+}
 function onArrive() {
   const x = PLAYER.x, y = PLAYER.y, c = MAP.g[y][x];
   S.steps++;
-  if (S.steps % 2 === 0) AudioSys.sfx('step');
+  if (S.footOn !== false) AudioSys.sfx('step_' + floorKind(x, y));
   if (S.steps % 25 === 0) { tickStatus(1); syncHUD(); }
   if (S.status.출혈 && S.steps % 10 === 0) { S.hp = Math.max(1, S.hp - 1); syncHUD(); floatText('-1', '#ff5d7a'); }
   // 출입
@@ -1351,6 +1368,7 @@ function openPanel(kind) {
       <label class="row"><span>배경음악</span><input type="range" id="set-mu" min="0" max="1" step="0.05" value="${AudioSys.vol.music}"></label>
       <label class="row"><span>효과음</span><input type="range" id="set-sf" min="0" max="1" step="0.05" value="${AudioSys.vol.sfx}"></label>
       <label class="row"><span>돌발 퀴즈 빈도</span><select id="set-qf"><option value="often">자주</option><option value="normal">보통</option><option value="off">끔</option></select></label>
+      <label class="row"><span>발소리</span><input type="checkbox" id="set-foot" ${S.footOn === false ? '' : 'checked'}></label>
       <label class="row"><span>돌발 이벤트 (투다다닷!)</span><input type="checkbox" id="set-ev" ${S.evOn === false ? '' : 'checked'}></label>
       <label class="row"><span>📍 길 안내 표시</span><input type="checkbox" id="set-gd" ${S.guide === 'off' ? '' : 'checked'}></label>
       <label class="row"><span>화면 확대</span><input type="range" id="set-zm" min="0.55" max="2.4" step="0.05" value="${S.zoomMul}"></label>
@@ -1362,6 +1380,7 @@ function openPanel(kind) {
     $('#set-zm').oninput = e => setZoomMul(+e.target.value);
     $('#set-qf').value = S.quizFreq || 'often'; $('#set-qf').onchange = e => { S.quizFreq = e.target.value; S.qzNext = undefined; save(); };
     $('#set-ev').onchange = e => { S.evOn = e.target.checked; save(); };
+    $('#set-foot').onchange = e => { S.footOn = e.target.checked; save(); };
     $('#set-gd').onchange = e => { S.guide = e.target.checked ? 'auto' : 'off'; save(); };
     $('#set-tut').onclick = () => { closePanel(); showTutorial(0); };
     $('#set-save').onclick = () => { save(); toast('저장했다'); };

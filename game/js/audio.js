@@ -240,6 +240,16 @@ const AudioSys = (() => {
     }
   }
   // 미리 듣기 · 점검용: 곡을 오프라인으로 렌더링
+  // 발소리 미리듣기용: 재질별로 걸음 n번씩 오프라인 렌더
+  async function renderFoot(kinds, n, gap) {
+    const live = { ctx, master, musicBus, sfxBus, delay, delayFb, dry, verbIn, noiseBuf, cur, step, nextT };
+    const sec = kinds.length * (n * gap + 0.6) + 0.5, off = new OfflineAudioContext(2, Math.floor(44100 * sec), 44100);
+    noiseBuf = null; makeGraph(off); sfxBus.gain.value = 0.35;
+    let t = 0.2; kinds.forEach(k => { for (let i = 0; i < n; i++) { foot(k, t); t += gap; } t += 0.6; });
+    const buf = await off.startRendering();
+    ({ ctx, master, musicBus, sfxBus, delay, delayFb, dry, verbIn, noiseBuf, cur, step, nextT } = live);
+    return buf;
+  }
   async function renderOffline(name, sec) {
     const live = { ctx, master, musicBus, sfxBus, delay, delayFb, dry, verbIn, noiseBuf, cur, step, nextT };
     const off = new OfflineAudioContext(2, Math.floor(44100 * sec), 44100);
@@ -262,7 +272,9 @@ const AudioSys = (() => {
   }
 
   const SFX = {
-    step: () => noise(ctx.currentTime, 0.025, 0.05, 2500, sfxBus),
+    step: () => foot('stone'),
+    step_grass: () => foot('grass'), step_stone: () => foot('stone'), step_wood: () => foot('wood'), step_dirt: () => foot('dirt'),
+    step_carpet: () => foot('carpet'), step_water: () => foot('water'), step_cave: () => foot('cave'),
     blip: () => tone(520 + Math.random() * 120, ctx.currentTime, 0.04, 'square', 0.05, sfxBus),
     select: () => { const t = ctx.currentTime; tone(660, t, 0.06, 'square', 0.12, sfxBus); tone(990, t + 0.05, 0.08, 'square', 0.1, sfxBus); },
     open: () => { const t = ctx.currentTime; tone(440, t, 0.08, 'triangle', 0.2, sfxBus); tone(660, t + 0.06, 0.1, 'triangle', 0.2, sfxBus); },
@@ -278,11 +290,39 @@ const AudioSys = (() => {
     meow: () => { const t = ctx.currentTime; if (!ctx) return; const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'triangle'; o.frequency.setValueAtTime(700, t); o.frequency.linearRampToValueAtTime(1100, t + 0.12); o.frequency.linearRampToValueAtTime(600, t + 0.35); g.gain.setValueAtTime(0.15, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.4); o.connect(g); g.connect(sfxBus); o.start(t); o.stop(t + 0.42); },
     secret: () => { const t = ctx.currentTime; [784, 740, 622, 440, 415, 659, 831, 1046].forEach((f, i) => tone(f, t + i * 0.09, 0.15, 'square', 0.1, sfxBus)); }
   };
+  // ---- 발소리: 바닥 재질마다 다르게, 왼발·오른발 높낮이를 살짝 다르게 ----
+  let footLR = 0;
+  function fnoise(t, dur, gain, type, f0, q, att) {
+    ensureNoise();
+    const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    s.buffer = noiseBuf; s.playbackRate.value = 0.8 + Math.random() * 0.4;
+    f.type = type; f.frequency.value = f0; f.Q.value = q || 0.8;
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(gain, t + (att || 0.004)); g.gain.exponentialRampToValueAtTime(0.0006, t + dur);
+    s.connect(f); f.connect(g); g.connect(sfxBus); s.start(t, Math.random() * 0.3); s.stop(t + dur + 0.03);
+  }
+  function thump(t, f1, f2, dur, gain, wave) {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = wave || 'sine'; o.frequency.setValueAtTime(f1, t); o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(0.0006, t + dur);
+    o.connect(g); g.connect(sfxBus); o.start(t); o.stop(t + dur + 0.02);
+  }
+  function foot(kind, at) {
+    const t = (at !== undefined ? at : ctx.currentTime) + 0.005, lr = (footLR ^= 1) ? 1.06 : 0.94, v = (0.85 + Math.random() * 0.3) * ({ grass: 2.2, stone: 1.1, wood: 1.8, dirt: 3.6, carpet: 3.4, water: 2.6, cave: 1 }[kind] || 1);
+    if (kind === 'grass') { fnoise(t, 0.09, 0.16 * v, 'bandpass', 2600 * lr, 0.9, 0.012); fnoise(t + 0.03, 0.06, 0.07 * v, 'highpass', 5000, 0.7); }
+    else if (kind === 'wood') { thump(t, 230 * lr, 150, 0.07, 0.16 * v, 'triangle'); fnoise(t, 0.05, 0.1 * v, 'bandpass', 900 * lr, 1.4); }
+    else if (kind === 'dirt') { fnoise(t, 0.05, 0.14 * v, 'lowpass', 1400 * lr, 0.7); fnoise(t + 0.025, 0.06, 0.1 * v, 'bandpass', 2200, 1.2); }
+    else if (kind === 'carpet') { fnoise(t, 0.07, 0.12 * v, 'lowpass', 700 * lr, 0.7, 0.01); }
+    else if (kind === 'water') { fnoise(t, 0.14, 0.15 * v, 'bandpass', 1500 * lr, 1.1, 0.01); thump(t + 0.02, 520 * lr, 260, 0.09, 0.05 * v); }
+    else { // stone · cave
+      thump(t, 150 * lr, 70, 0.06, 0.2 * v); fnoise(t, 0.03, 0.12 * v, 'highpass', 3200 * lr, 0.7);
+      if (kind === 'cave') { thump(t + 0.13, 150 * lr, 70, 0.06, 0.06 * v); fnoise(t + 0.13, 0.03, 0.04 * v, 'highpass', 3200, 0.7); }
+    }
+  }
   function sfx(name) { if (!ctx || !vol.on) return; try { SFX[name] && SFX[name](); } catch (e) {} }
 
   function save() { try { localStorage.setItem('belesta_audio', JSON.stringify(vol)); } catch (e) {} }
   function setOn(on) { vol.on = on; if (master) master.gain.value = on ? 1 : 0; save(); }
   function setMusic(v) { vol.music = v; if (musicBus) musicBus.gain.value = v * MUSIC_GAIN; save(); }
   function setSfx(v) { vol.sfx = v; if (sfxBus) sfxBus.gain.value = v * 0.35; save(); }
-  return { play, sfx, resume, vol, setOn, setMusic, setSfx, current: () => cur, renderOffline, songs: () => Object.keys(SONGS) };
+  return { play, sfx, resume, vol, setOn, setMusic, setSfx, current: () => cur, renderOffline, renderFoot, songs: () => Object.keys(SONGS) };
 })();
