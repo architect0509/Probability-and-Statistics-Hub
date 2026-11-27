@@ -153,6 +153,7 @@ function fmtText(s) { return String(s).split('\n').map(fmtLine).join('<br>'); }
 
 function openTurn(turn) {
   if (!turn) { closeDlg(); return; }
+  const prevDesc = curTurn && dlgOpen ? curTurn.desc || '' : null;
   curTurn = turn; dlgOpen = true; clearHeld();
   const d = $('#dlg'); d.classList.add('open');
   // 초상화
@@ -171,9 +172,21 @@ function openTurn(turn) {
   // 본문
   const descEl = $('#dlg-desc');
   const full = (turn.roll ? `<div class="roll">${turn.roll}</div>` : '') + `<div class="txt">${fmtText(turn.desc || '')}</div>` + (turn.fx && turn.fx.length ? `<div class="fx">${turn.fx.map(esc).join('<br>')}</div>` : '');
+  // 힌트·풀이 보기: 이미 보이던 내용은 그대로 두고, 새로 붙은 부분만 이어서 출력
+  const keep = turn.keepPrefix && prevDesc && (turn.desc || '').startsWith(prevDesc) && (turn.desc || '').length > prevDesc.length;
+  if (keep) {
+    const prevTxt = descEl.querySelector('.txt'); if (prevTxt && prevTxt._finish) prevTxt._finish();
+    descEl.innerHTML = (turn.roll ? `<div class="roll">${turn.roll}</div>` : '') + `<div class="txt"><div class="txt-old">${fmtText(prevDesc)}</div><div class="txt-add">${fmtText(turn.desc.slice(prevDesc.length))}</div></div>`;
+    const old = descEl.querySelector('.txt-old'), add = descEl.querySelector('.txt-add');
+    if (typeof symbolize === 'function') symbolize(old); if (typeof glossify === 'function') glossify(old);
+    typewrite(add);
+    descEl.querySelector('.txt')._finish = add._finish;
+    setTimeout(() => { try { add.scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (err) {} }, 30);
+  } else {
   descEl.innerHTML = full;
   { const dr = document.querySelector('.dlg-right'); if (dr) dr.scrollTop = 0; }
   typewrite(descEl.querySelector('.txt'));
+  }
   $('#dlg-status').innerHTML = statusHTML();
   // 선택지 3개
   const ch = (turn.choices || []).slice(0, 3);
@@ -215,7 +228,7 @@ function typewrite(el) {
 }
 function pick(i) {
   const box = $('#dlg-choices'); const c = box._choices && box._choices[i]; if (!c) return;
-  const t = $('#dlg-desc .txt'); if (t && t.classList.contains('typing')) { t._finish(); return; }
+  const t = $('#dlg-desc .typing'); if (t && t._finish) { t._finish(); return; }
   AudioSys.sfx('select');
   const next = c.run();
   afterRun(next);
@@ -339,8 +352,8 @@ function quizTurn(o) {
     choices: opts.map(op => ({ t: op.t, tag: '답 제출', run: () => done(op.ok, op.t) })),
     freeHint: '숫자로 답하거나 「공식」, 「풀이」, 「모르겠다」라고 입력',
     free: txt => {
-      if (/공식/.test(txt)) return quizTurn(Object.assign({}, o, { q, showF: true }));
-      if (/풀이|모르겠|몰라|해설|답\s*알려/.test(txt)) return quizTurn(Object.assign({}, o, { q, showF: true, peeked: true }));
+      if (/공식/.test(txt)) return Object.assign(quizTurn(Object.assign({}, o, { q, showF: true })), { keepPrefix: true });
+      if (/풀이|모르겠|몰라|해설|답\s*알려/.test(txt)) return Object.assign(quizTurn(Object.assign({}, o, { q, showF: true, peeked: true })), { keepPrefix: true });
       if (/힌트|hint/i.test(txt)) {
         if (S.focus <= 0) return Object.assign(quizTurn(Object.assign({}, o, { q })), { roll: '🎯 집중력이 없다. 머리가 멍하다.' });
         S.focus--; syncHUD();
@@ -625,15 +638,69 @@ function endingTurn(extra) {
 // 물체와 표지판
 // =========================================================================
 function objectTurnBoard() { return { title: '광장 게시판', sub: '오웬이 관리함', obj: 'sign', desc: '빼곡한 의뢰서. 「고양이 찾음」, 「대분산 해결해 주실 분」, 「우리 집 동전이 옆으로 섬」, 「p값 0.051 살려 주세요」.', choices: [{ t: '의뢰 하나를 떼어 간다 (문제)', tag: '📝 보상 12G', run: () => quizTurn({ title: '게시판 의뢰', obj: 'sign', ch: 0, head: '의뢰서를 떼어 읽는다.', after: (ok, q) => ({ title: '게시판', obj: 'sign', fx: applyFx(ok ? { gold: 12, dailyInc: 1 } : { status: { 혼란: 1 } }), desc: (ok ? '⭕ 해결! 의뢰비가 게시판 옆 통에 들어 있다.' : '❌ 의뢰인이 항의 쪽지를 붙였다.') + `\n<span class="ex">해설: ${esc(q.ex)}</span>`, choices: [] }) }) }, { t: '소문 쪽지를 읽는다', run: () => { const l = LORE[Math.floor(Math.random() * LORE.length)]; return simple('소문', 'sign', `<b>${l[0]}</b>\n${l[1]}`); } }, { t: '「p값 0.051」 의뢰를 읽는다', run: () => simple('p값 0.051 살려 주세요', 'sign', '「제 실험 p값이 0.051인데요… 반올림하면 0.05 아닌가요? 기각해도 되죠?」\n\n아래에 오웬 글씨: 「안 됩니다.」\n그 아래 다른 글씨: 「ㅋㅋㅋㅋ」') }] }; }
-function lessonTurn(id) {
+// =========================================================================
+// 표지판 개념은 「어느 표지판이든 읽은 순서대로」 학습 순서를 따른다.
+//  · 개념 표지판(7~9장)은 처음 읽는 순간 아직 안 배운 다음 개념이 배정되고, 그 뒤로는 늘 같은 내용
+//  · 이정표·경고문·여관 메뉴판처럼 장소 자체에 대한 글은 원래 자리에 고정
+// =========================================================================
+const LEARN_ORDER = [
+  // 7장 추정
+  'sym_1', 'sign_plaza1', 'sign_t1a', 'f_ci_z', 'f_table', 'sign_t1b', 'sign_t2', 'f_ci_t', 'f_ci_p', 'sign_lib1', 'f_n', 'f_ci_diff', 'd_w1', 'd_w2', 'sign_libB', 'f_var',
+  // 8장 검정
+  'sign_plaza2', 'sym_2', 'd_s1', 'sign_c1', 'f_err', 'sign_c2', 'd_s2', 'sym_3', 'f_z_test', 'f_p_test', 'sign_smith', 'f_two', 'sign_tem2', 'sign_dun1',
+  // 9장 카이제곱
+  'sign_plaza3', 'd_e1', 'f_chi', 'sign_alch', 'sign_g1', 'd_e2', 'sign_cave1', 'f_indep', 'sym_4'
+];
+const FIXED_SIGNS = new Set(['sign_inn', 'sign_inn2', 'g_rule']);
+// 장소에 붙은 덧글 (어떤 개념이 배정되든 그 표지판에서만 보임)
+const SIGN_EXTRA = { sign_libB: '판 뒤에 손글씨: 「오른쪽 다섯 번째 책장, 책 한 권이 덜 들어가 있다」' };
+function isConceptSign(id) { const L = LESSONS[id]; return !!L && [7, 8, 9].includes(L.ch) && !FIXED_SIGNS.has(id); }
+function learnOrder() { const extra = Object.keys(LESSONS).filter(id => isConceptSign(id) && !LEARN_ORDER.includes(id)); return LEARN_ORDER.filter(id => LESSONS[id]).concat(extra); }
+function signKey(mid, x, y) { return mid + ':' + x + ',' + y; }
+// 이 자리 표지판을 읽었는가
+function signReadAt(mid, id, x, y) {
+  S.signMap = S.signMap || {};
+  if (x === undefined) { const m = MAPS[mid]; if (m && m.signs) for (const k in m.signs) if (m.signs[k] === id) { [x, y] = k.split(',').map(Number); break; } }
+  if (!isConceptSign(id)) return !!S.read[id];
+  return !!S.signMap[signKey(mid, x, y)];
+}
+// 이 자리 표지판에 배정된 개념 (처음 읽을 때 배정)
+function signLesson(mid, x, y, id) {
+  if (!isConceptSign(id)) return id;
+  S.signMap = S.signMap || {};
+  const k = signKey(mid, x, y);
+  if (S.signMap[k]) return S.signMap[k];
+  let pick = null;
+  if (S.read[id]) pick = id; // 예전 저장: 이미 읽은 표지판은 원래 내용 그대로
+  if (!pick) { const used = new Set(Object.values(S.signMap)); pick = learnOrder().find(l => !S.read[l] && !used.has(l)) || id; }
+  S.signMap[k] = pick;
+  return pick;
+}
+// 읽은 표지판 위에 작은 확인 표시
+function drawSignMarks(ctx, t, vx0, vy0, vx1, vy1) {
+  if (!MAP.signs) return;
+  for (const k in MAP.signs) {
+    const [x, y] = k.split(',').map(Number);
+    if (x < vx0 || x > vx1 || y < vy0 || y > vy1) continue;
+    const id = MAP.signs[k]; if (!LESSONS[id] || !signReadAt(MAP.id, id, x, y)) continue;
+    const px = x * TS + 8, py = y * TS - 6 + Math.round(Math.sin(t / 500 + x) * 0.7);
+    ctx.fillStyle = '#2a1d2b'; ctx.fillRect(px + 1, py, 8, 10); ctx.fillRect(px, py + 1, 10, 8);
+    ctx.fillStyle = '#3fae5a'; ctx.fillRect(px + 1, py + 1, 8, 8);
+    ctx.fillStyle = '#6fd88a'; ctx.fillRect(px + 1, py + 1, 8, 2);
+    ctx.fillStyle = '#ffffff';
+    ['.......W', '......WW', '.W...WW.', '.WW.WW..', '..WWW...', '...W....'].forEach((r, j) => { for (let i = 0; i < 8; i++) if (r[i] === 'W') ctx.fillRect(px + 1 + i, py + 2 + j, 1, 1); });
+  }
+}
+function lessonTurn(id, slot) {
   const L = LESSONS[id]; if (!L) return null;
+  const place = slot ? (MAPS[slot.split(':')[0]] || {}).signs && MAPS[slot.split(':')[0]].signs[slot.split(':')[1]] : null;
   const first = !S.read[id]; S.read[id] = true;
   const cnt = Object.keys(S.read).length, total = Object.keys(LESSONS).length;
   const fx = [];
   if (first) { fx.push(`📖 도감 기록 ${cnt}/${total}`); if (cnt === 1) fx.push(setQ('s_signs', 0)); if (cnt >= 15 && qStep('s_signs') === 0) { fx.push(setQ('s_signs', 1)); fx.push(...applyFx({ gold: 30, item: 'potion' })); } if (cnt === total) { fx.push(doneQ('s_signs')); fx.push(...applyFx({ item: 'coin', focus: 3 })); } }
   const build = pre => ({
-    title: L.t, sub: L.ch ? `${L.ch}장` : '벨레스타', obj: 'sign',
-    desc: (pre ? pre + '\n\n' : '') + `<div class="lesson">${esc(L.x).replace(/\n/g, '<br>')}</div>`,
+    title: place && place !== id ? L.t.replace(/^.*? · /, '') : L.t, sub: (place && place !== id ? LESSONS[place].t.split(' · ')[0] + ' · ' : '') + (L.ch ? `${L.ch}장` : '벨레스타'), obj: 'sign',
+    desc: (pre ? pre + '\n\n' : '') + `<div class="lesson">${esc(L.x).replace(/\n/g, '<br>')}</div>` + (place && SIGN_EXTRA[place] ? `<div class="hint">${esc(SIGN_EXTRA[place])}</div>` : ''),
     choices: [
       { t: '내용을 소리 내어 외워 본다', tag: '지능 11 · 성공 시 집중력+1', run: () => { const r = check('지능', 11); const f = applyFx(r.ok ? { focus: 1 } : { status: { 혼란: 1 } }); const t = build(r.ok ? '세 번 읽자 머릿속에 딱 붙는다.' : '읽을수록 글자가 춤을 춘다.'); t.roll = r.line; t.fx = f; t.choices = t.choices.slice(1).concat([{ t: '떠난다', run: () => null }]); return t; } },
       { t: '아래 적힌 확인 문제를 푼다', tag: `📝 ${L.ch ? L.ch + '장' : '문제'} · 정답 시 🪙+5`, run: () => quizTurn({ title: L.t, sub: '확인 문제', obj: 'sign', ch: [7, 8, 9].includes(L.ch) ? L.ch : 0, head: '표지판 아래 작은 글씨로 문제가 새겨져 있다.', after: (ok, q) => { const t = build((ok ? '⭕ 정답! 받침대 틈에서 동전이 굴러 나온다.' : '❌ 틀렸다. 표지판을 다시 읽어 보자.') + `\n<span class="ex">해설: ${esc(q.ex)}</span>`); t.fx = applyFx(ok ? { gold: 5 } : {}); return t; } }) },
@@ -689,7 +756,7 @@ function objectTurn(ch, x, y) {
   const key = MAP.id + ':' + x + ',' + y;
   const simple = (title, obj, desc, choices) => ({ title, obj, desc, choices: choices || [] });
   switch (ch) {
-    case 'S': { const id = MAP.signs && MAP.signs[x + ',' + y]; if (id && SPECIAL_SIGNS[id]) return SPECIAL_SIGNS[id](); return id ? lessonTurn(id) : simple('표지판', 'sign', '글씨가 다 지워졌다. 누가 「ㅋ」만 남겨 놨다.'); }
+    case 'S': { const id = MAP.signs && MAP.signs[x + ',' + y]; if (id && SPECIAL_SIGNS[id]) return SPECIAL_SIGNS[id](); return id ? lessonTurn(signLesson(MAP.id, x, y, id), MAP.id + ':' + x + ',' + y) : simple('표지판', 'sign', '글씨가 다 지워졌다. 누가 「ㅋ」만 남겨 놨다.'); }
     case 'N': if (MAP.id === 'town' && typeof decreeTurn === 'function') return decreeTurn(() => objectTurnBoard()); return objectTurnBoard();
     case 'C': {
       const id = MAP.chests && MAP.chests[x + ',' + y];
@@ -721,7 +788,7 @@ function objectTurn(ch, x, y) {
     }
     case 'B': {
       if (MAP.secret && MAP.secret[0] === x && MAP.secret[1] === y && !flag('secret_open')) {
-        const dc = flag('hint_secret') || S.read.sign_libB ? 8 : 15;
+        const dc = flag('hint_secret') || signReadAt('libB', 'sign_libB') ? 8 : 15;
         return simple('책장', 'book', '이 책장만 책 한 권이 덜 꽂혀 있다. 빈자리에 손가락이 딱 들어갈 만한 틈.', [{ t: '빈자리를 눌러 본다', tag: `지능 ${dc}`, run: () => { const r = check('지능', dc); if (r.ok) { MAP.g[y][x] = '_'; setFlag('secret_open'); renderMapDirty = true; AudioSys.sfx('secret'); return Object.assign(simple('책장', 'book', '딸깍. 책장이 옆으로 미끄러진다. 안쪽에서 쿠키 냄새가 난다.'), { roll: r.line }); } return Object.assign(simple('책장', 'book', '아무 일도 없다. 다른 방법이 있을 것 같다.'), { roll: r.line }); } }, { t: '책을 한 권 꺼내 본다', tag: '운 13', run: () => { const r = check('운', 13); if (r.ok) { MAP.g[y][x] = '_'; setFlag('secret_open'); renderMapDirty = true; AudioSys.sfx('secret'); } return Object.assign(simple('책장', 'book', r.ok ? '「비밀의 문을 여는 법」이라는 책을 당기자 책장이 열렸다. 너무 직설적이다.' : '「p-hacking 하는 법」. 금서다. 얼른 꽂아 놓는다.'), { roll: r.line }); } }]);
       }
       const books = ['「신뢰구간 입문 · 95%만 이해해도 합격」', '「검정력을 높이는 7가지 습관」', '「카이제곱 요리책 · 기대도수만큼 넣으세요」', '「표본이 작을 때 우는 법」', '「자유도 n−1의 비밀 (스포: 평균)」', '「나는 왜 제2종 오류를 범했나 · 베타 자서전」'];
@@ -833,6 +900,7 @@ function spawnActors() {
     const n = NPCS[id]; if (n.map !== MAP.id) continue;
     if (id === 'outlier' && qDone('main') && flag('ending_seen')) continue;
     if (n.guard && flag('g_' + id)) continue;
+    if (n.when && !n.when()) continue;
     if (id === 'mimic' && flag('mimic_done') && !flag('mimic_friend')) continue;
     let pos = null;
     if (n.at) pos = n.at; else if (n.rel) pos = [MAP.cx + n.rel[0], MAP.cy + n.rel[1]]; else if (MAP.slots && MAP.npcSlots) { const i = MAP.npcSlots.indexOf(id); if (i >= 0 && MAP.slots[i]) pos = MAP.slots[i]; }
@@ -905,9 +973,12 @@ function onArrive() {
   S.steps++;
   if (S.footOn !== false) AudioSys.sfx('step_' + floorKind(x, y));
   if (S.steps % 25 === 0) { tickStatus(1); syncHUD(); }
+  if (typeof hauntStep === 'function') hauntStep();
   if (S.status.출혈 && S.steps % 10 === 0) { S.hp = Math.max(1, S.hp - 1); syncHUD(); floatText('-1', '#ff5d7a'); }
   // 출입
   if (c === 'D') {
+    if (MAP.doors && MAP.doors[x + ',' + y]) return warpTo(MAP.doors[x + ',' + y], null, null);
+    if (MAP.exitTo) return warpTo(MAP.exitTo, null, null);
     if (MAP.id === 'town') { const b = BUILDINGS.find(b => b.door[0] === x && b.door[1] === y); if (b) return warpTo(b.map, null, null); }
     else if (MAP.id === 'forest') return warpTo('cave', null, null);
     else if (MAP.id === 'cave') return warpTo('forest', null, null);
@@ -1201,6 +1272,7 @@ function render(t) {
   for (const k in S.opened) { const [mid, pos] = k.split(':'); if (mid !== MAP.id) continue; const [x, y] = pos.split(',').map(Number); drawChest(ctx, x * TS, y * TS, true); }
   if (typeof drawDecreeBoard === 'function') drawDecreeBoard(ctx, t);
   if (typeof drawGuideWorld === 'function') drawGuideWorld(ctx, t);
+  drawSignMarks(ctx, t, vx0, vy0, vx1, vy1);
   // 개체 (y 정렬)
   const ents = ACTORS.concat([PLAYER]).sort((a, b) => a.py - b.py);
   ents.forEach(a => {
@@ -1423,7 +1495,7 @@ function onKey(e) {
     if (inInput) { if (e.key === 'Enter') submitFree(); if (e.key === 'Escape') document.activeElement.blur(); return; }
     if (['1', '2', '3'].includes(e.key)) pick(+e.key - 1);
     if (e.key === 'Escape') closeDlg();
-    if (e.key === 'Enter' || e.key === ' ') { const t = $('#dlg-desc .txt'); if (t && t.classList.contains('typing')) { t._finish(); e.preventDefault(); } }
+    if (e.key === 'Enter' || e.key === ' ') { const t = $('#dlg-desc .typing'); if (t && t._finish) { t._finish(); e.preventDefault(); } }
     return;
   }
   if (panelOpen) { if (e.key === 'Escape' || ['q', 'Q', 'i', 'I', 'b', 'B', 'm', 'M'].includes(e.key)) closePanel(); return; }
@@ -1587,8 +1659,8 @@ function renderHelp(turn) {
   const mk = (txt, cls, fn) => { const b = document.createElement('button'); b.textContent = txt; if (cls) b.className = cls; b.onclick = fn; box.appendChild(b); };
   if (h.after) { mk('📖 자세한 풀이 다시 보기', 'sol', () => { const d = $('#dlg-desc'); if (!d.querySelector('.sol')) d.insertAdjacentHTML('beforeend', solutionHTML(h.q, false)); d.scrollTop = d.scrollHeight; }); return; }
   if (!h.o) return;
-  mk('📐 공식 힌트 (무료)', '', () => openTurn(quizTurn(Object.assign({}, h.o, { q: h.q, showF: true, peeked: h.o.peeked }))));
-  mk('📖 자세한 풀이 보기 (보상 절반)', 'sol', () => openTurn(quizTurn(Object.assign({}, h.o, { q: h.q, showF: true, peeked: true }))));
+  mk('📐 공식 힌트 (무료)', '', () => openTurn(Object.assign(quizTurn(Object.assign({}, h.o, { q: h.q, showF: true, peeked: h.o.peeked })), { keepPrefix: true })));
+  mk('📖 자세한 풀이 보기 (보상 절반)', 'sol', () => openTurn(Object.assign(quizTurn(Object.assign({}, h.o, { q: h.q, showF: true, peeked: true })), { keepPrefix: true })));
 }
 
 // 공식 표지판 자동 배치 (근처 빈 땅을 찾아서)

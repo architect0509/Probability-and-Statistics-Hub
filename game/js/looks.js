@@ -63,7 +63,7 @@ const PORTRAIT_LOOKS = {
 
 (function applyPortraitLooks() {
   const fit = (id, o) => {
-    if (!o) return;
+    if (!o || o.keepLook) return;
     const pid = o.pic || id, pl = PORTRAIT_LOOKS[pid];
     if (!pl) return;
     // 같은 종류의 괴물이면 기존 색(보라 슬라임 등)을 살린다

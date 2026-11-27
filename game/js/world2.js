@@ -152,6 +152,7 @@ function buildExtraMaps() {
   F.edgeWarps = (F.edgeWarps || []).concat([{ side: 'E', y0: 16, y1: 17, to: 'dunE', need: DUNGEON_INFO.dunE.need }]);
   F.arrive = Object.assign(F.arrive || {}, { dunE: [F.w - 2, 16, 1] });
   F.labels = (F.labels || []).concat([{ x: F.w - 5, y: 15, text: `${DUNGEON_INFO.dunE.n} ▶` }]);
+  if (typeof buildHauntExtras === 'function') buildHauntExtras();
 }
 
 // -------------------------------------------------------------------------
@@ -476,7 +477,7 @@ function questGoal(qid) {
 }
 function nearestUnreadSign() {
   const order = [MAP.id, 'town', 'castle'].concat(Object.keys(MAPS));
-  for (const mid of order) { const m = MAPS[mid]; if (!m || !m.signs) continue; let best = null, bd = 1e9; for (const k in m.signs) { const id = m.signs[k]; if (S.read[id] || !LESSONS[id]) continue; const [x, y] = k.split(',').map(Number); const d = mid === MAP.id ? Math.abs(x - PLAYER.x) + Math.abs(y - PLAYER.y) : 0; if (d < bd) { bd = d; best = { map: mid, x, y, label: `안 읽은 표지판 · ${LESSONS[id].t}` }; } } if (best) return best; }
+  for (const mid of order) { const m = MAPS[mid]; if (!m || !m.signs) continue; let best = null, bd = 1e9; for (const k in m.signs) { const id = m.signs[k]; if (!LESSONS[id]) continue; const [x, y] = k.split(',').map(Number); if (signReadAt(mid, id, x, y)) continue; const d = mid === MAP.id ? Math.abs(x - PLAYER.x) + Math.abs(y - PLAYER.y) : 0; if (d < bd) { bd = d; best = { map: mid, x, y, label: isConceptSign(id) ? `안 읽은 표지판 · 다음 개념` : `안 읽은 표지판 · ${LESSONS[id].t}` }; } } if (best) return best; }
   return null;
 }
 function storyGoal() {
@@ -695,7 +696,7 @@ function updateEvents(dt) {
 }
 // 그 자리에서 벌어지는 이벤트 (달려오는 사람 없이)
 // 돌발 이벤트 결과 화면 (제목·그림·설명 + 계속하기)
-function simple(title, obj, desc) { return { title, obj, desc, choices: [{ t: '계속 간다', run: () => null }] }; }
+function simple(title, obj, desc, choices) { return { title, obj, desc, choices: choices || [{ t: '계속 간다', run: () => null }] }; }
 function popEvent(words, turnFn, fxShake) {
   clearHeld();
   const [px, py] = playerScreenPct();
