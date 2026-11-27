@@ -751,7 +751,33 @@ function humanoid(p, dir, fr) {
     if (hat === 'flower') { tp.y = '#ffe066'; }
     const t = HAT_T[hat]; stamp(g, t[V] || t.all, tp, 0, bob);
   }
+  if (p.beast) beastParts(g, p, side, up, fr, bob, hr);
   return g;
+}
+// 수인: 머리 위 뾰족한 귀 + 엉덩이 뒤 복슬 꼬리 (털색 = 머리색, 꼬리 끝은 밝게)
+function beastParts(g, p, side, up, fr, bob, hr) {
+  const fur = p.fur || hr, pal = { H: fur, h: shade(fur, -0.32), p: '#ffb3c6', W: p.tailTip || '#fff4e6', l: shade(fur, 0.25) };
+  const hatTall = p.hat === 'wizard' || p.hat === 'helmet' || p.hat === 'hood';
+  const oy = hatTall ? 2 : 0; // 큰 모자는 귀가 모자 옆으로 삐져나옴
+  const ears = side ? { 0: '.......H........', 1: '.......HH.......', 2: '......HpH.......', 3: '......HpHh......' }
+    : up ? { 0: '..h..........h..', 1: '..Hh........hH..', 2: '..HHh......hHH..', 3: '...HH......HH...' }
+    : { 0: '..H..........H..', 1: '..HH........HH..', 2: '..HpH......HpH..', 3: '..HppH....HppH..' };
+  stamp(g, ears, pal, 0, bob + oy + (p.earDrop || 0));
+  const sway = fr === 1 ? -1 : fr === 2 ? 1 : 0, thin = p.beast === 'cat';
+  const put = (rows, under) => { for (const k in rows) { const y = +k + bob; if (y < 0 || y >= g.length) continue; const row = rows[k]; for (let x = 0; x < 16; x++) { const ch = row[x]; if (!ch || ch === '.') continue; const xx = x; if (xx < 0 || xx > 15) continue; if (under && g[y][xx]) continue; g[y][xx] = pal[ch]; } } };
+  const sh = (row, d) => d > 0 ? '.'.repeat(d) + row.slice(0, 16 - d) : d < 0 ? row.slice(-d) + '.'.repeat(-d) : row;
+  if (up) { // 뒷모습: 꼬리가 몸 앞에 보인다
+    const t = thin ? { 17: '.......HH.......', 18: '.......Hh.......', 19: '......Hh........', 20: '......WW........' }
+      : { 16: '.......Hh.......', 17: '......HHHh......', 18: '......HlHHh.....', 19: '.......HHHh.....', 20: '.......WWW......', 21: '........W.......' };
+    const tt = {}; for (const k in t) tt[k] = sh(t[k], sway); put(tt, false);
+  } else if (side) { // 옆모습(왼쪽 보기): 꼬리는 오른쪽 뒤로
+    const t = thin ? { 15: '............HH..', 16: '...........HH...', 17: '..........HH....', 18: '...........W....' }
+      : { 14: '.............HH.', 15: '............HHHh', 16: '...........HlHHh', 17: '..........HHHHh.', 18: '...........HHW..', 19: '.............WW.' };
+    const tt = {}; for (const k in t) tt[+k + (fr ? (fr === 1 ? -1 : 0) : 0)] = t[k]; put(tt, true);
+  } else { // 앞모습: 다리 옆으로 꼬리 끝이 살짝
+    const t = thin ? { 17: '.............HH.', 18: '..............W.' } : { 16: '.............HH.', 17: '............HHHh', 18: '.............HWW', 19: '..............W.' };
+    const tt = {}; for (const k in t) tt[k] = sh(t[k], sway < 0 ? 0 : 0); put(tt, true);
+  }
 }
 
 function creature(kind, p, dir, fr) {
@@ -859,6 +885,12 @@ function portraitSVG(p, mood = 'neutral') {
   const bok = rng((hr + cl).split('').reduce((a, c) => a + c.charCodeAt(0), 0));
   for (let i = 0; i < 7; i++) o.push(`<circle cx="${(bok() * 200) | 0}" cy="${(bok() * 160) | 0}" r="${8 + bok() * 20}" fill="${bok() < .5 ? '#ffffff' : shade(bg1, .3)}" opacity="${.18 + bok() * .25}" filter="url(#${uid}blur)"/>`);
   for (let i = 0; i < 10; i++) o.push(`<circle cx="${(bok() * 200) | 0}" cy="${(bok() * 200) | 0}" r="${1 + bok() * 1.6}" fill="#fff" opacity="${.5 + bok() * .4}"/>`);
+  if (p.beast) { // 꼬리 (몸 뒤, 오른쪽 아래에서 솟아오름)
+    const fur = p.fur || hr, tip = p.tailTip || '#fff4e6';
+    o.push(p.beast === 'cat'
+      ? `<path d="M150,240 C178,214 196,186 184,150 C178,134 168,138 172,152 C180,184 164,210 140,236 Z" fill="${fur}" stroke="${LN}" stroke-width="${lw}" stroke-linejoin="round"/>`
+      : `<path d="M128,240 C150,206 196,206 198,160 C200,128 182,112 170,124 C186,150 162,176 136,200 C122,214 116,230 116,240 Z" fill="${fur}" stroke="${LN}" stroke-width="${lw}" stroke-linejoin="round"/><path d="M198,160 C200,128 182,112 170,124 C176,140 178,152 190,166 Z" fill="${tip}" stroke="${LN}" stroke-width="${lw * .8}" stroke-linejoin="round"/>`);
+  }
   const H = `fill="url(#${uid}hair)" stroke="${LN}" stroke-width="${lw}" stroke-linejoin="round"`;
   const HB = `fill="url(#${uid}hairB)" stroke="${LN}" stroke-width="${lw}" stroke-linejoin="round"`;
   // 뒷머리
@@ -959,6 +991,11 @@ function portraitSVG(p, mood = 'neutral') {
   // 소품
   const hc = p.hatColor || '#5b3fa0', hcD = shade(hc, -0.3), hcL = shade(hc, 0.3);
   if (p.glasses) o.push(`<rect x="60" y="104" width="36" height="30" rx="10" fill="#cfe8ff" fill-opacity=".14" stroke="#4a3a4a" stroke-width="2.4"/><rect x="104" y="104" width="36" height="30" rx="10" fill="#cfe8ff" fill-opacity=".14" stroke="#4a3a4a" stroke-width="2.4"/><path d="M96,116 L104,116" stroke="#4a3a4a" stroke-width="2.4"/><path d="M66,110 l8,-4" stroke="#fff" stroke-width="2" opacity=".8"/>`);
+  if (p.beast) { // 귀 (모자보다 먼저 그려서 큰 모자 밑으로 귀 끝만 보이게)
+    const fur = p.fur || hr, fx = p.hat === 'wizard' ? 22 : 0;
+    o.push(`<path d="M${60 - fx},70 L${38 - fx},${p.beast === 'cat' ? 14 : 2} L${90 - fx * .4},44 Z" fill="${fur}" stroke="${LN}" stroke-width="${lw}" stroke-linejoin="round"/><path d="M${63 - fx},62 L${46 - fx},${p.beast === 'cat' ? 26 : 16} L${80 - fx * .4},46 Z" fill="#ffc2d1"/>`);
+    o.push(`<path d="M${140 + fx},70 L${162 + fx},${p.beast === 'cat' ? 14 : 2} L${110 + fx * .4},44 Z" fill="${fur}" stroke="${LN}" stroke-width="${lw}" stroke-linejoin="round"/><path d="M${137 + fx},62 L${154 + fx},${p.beast === 'cat' ? 26 : 16} L${120 + fx * .4},46 Z" fill="#ffc2d1"/>`);
+  }
   if (p.hat === 'wizard') o.push(`<path d="M22,74 Q100,50 178,74 Q100,96 22,74 Z" fill="${hc}" stroke="${LN}" stroke-width="${lw}"/><path d="M54,68 C70,40 92,10 112,-2 C116,14 124,20 132,22 C136,40 140,54 146,68 Q100,78 54,68 Z" fill="${hc}" stroke="${LN}" stroke-width="${lw}" stroke-linejoin="round"/><path d="M56,64 Q100,74 144,64 L142,54 Q100,64 58,54 Z" fill="${p.hatBand || ac}" stroke="${LN}" stroke-width="1.4"/><path d="M70,48 Q86,28 104,10" stroke="${hcL}" stroke-width="4" fill="none" opacity=".6"/><path d="M128,22 l4,8 l8,1 l-6,5 l2,8 l-7,-4 l-7,4 l2,-8 l-6,-5 l8,-1 Z" fill="#ffe066" stroke="${LN}" stroke-width="1.2"/>`);
   if (p.hat === 'crown') o.push(`<path d="M68,42 L70,18 L84,32 L100,12 L116,32 L130,18 L132,42 Z" fill="#f0c33c" stroke="${LN}" stroke-width="${lw}" stroke-linejoin="round"/><circle cx="100" cy="32" r="5" fill="#ff5d7a" stroke="${LN}" stroke-width="1.4"/><path d="M74,38 L126,38" stroke="#fff3c4" stroke-width="2" opacity=".7"/>`);
   if (p.hat === 'helmet') o.push(`<path d="M40,106 C36,46 70,24 100,24 C130,24 164,46 160,106 L146,106 C146,72 128,56 100,56 C72,56 54,72 54,106 Z" fill="#b7bfcf" stroke="${LN}" stroke-width="${lw}"/><path d="M100,24 L100,56" stroke="${p.accent || '#e04040'}" stroke-width="8"/><path d="M58,52 Q78,34 100,32" stroke="#fff" stroke-width="4" opacity=".6" fill="none"/>`);

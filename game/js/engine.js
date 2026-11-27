@@ -730,10 +730,10 @@ function objectTurn(ch, x, y) {
 // 오프닝
 // =========================================================================
 const ORIGINS = {
-  mage: { t: '학원 낙제생 마법사', st: { 지능: 7, 정신: 6, 힘: 3, 민첩: 4, 설득: 4, 운: 5 }, hp: 24, gold: 25, items: { potion: 1 }, look: { hair: '#4a3a6a', cloth: '#5b3fa0', type: 'robe', hat: 'wizard', hatColor: '#3e2766', accent: '#ffd84d', hairStyle: 'short', eye: '#7a5ad0' } },
-  merc: { t: '떠돌이 용병', st: { 힘: 7, 민첩: 6, 지능: 3, 정신: 5, 설득: 3, 운: 4 }, hp: 34, gold: 15, items: { potion: 2 }, look: { hair: '#2a2a2a', cloth: '#6a5a4a', type: 'armor', hat: 'bandana', hatColor: '#8a2a2a', accent: '#c0392b', hairStyle: 'spiky', eye: '#3a3a3a', scar: true, skin: SKIN[2] } },
-  noble: { t: '몰락 귀족 상인', st: { 설득: 7, 운: 6, 지능: 5, 힘: 3, 민첩: 4, 정신: 3 }, hp: 26, gold: 80, items: { potion: 1, bread: 1 }, look: { hair: '#e8c26a', cloth: '#2a6a5a', type: 'tunic', hat: 'cap', hatColor: '#1f4a40', accent: '#e1b13d', hairStyle: 'bob', eye: '#2a7a6a' } },
-  free: { t: '정체불명의 여행자', st: { 힘: 5, 민첩: 5, 지능: 5, 정신: 5, 설득: 5, 운: 5 }, hp: 28, gold: 30, items: { potion: 1 }, look: { hair: '#5a3a2a', cloth: '#4f7fd6', type: 'tunic', hairStyle: 'short', eye: '#3a2a4a' } }
+  mage: { t: '학원 낙제생 마법사', st: { 지능: 7, 정신: 6, 힘: 3, 민첩: 4, 설득: 4, 운: 5 }, hp: 24, gold: 25, items: { potion: 1 }, look: { hair: '#4a3a6a', cloth: '#5b3fa0', type: 'robe', hat: 'wizard', hatColor: '#3e2766', accent: '#ffd84d', hairStyle: 'short', eye: '#7a5ad0', beast: 'fox', fur: '#6a4a8a', tailTip: '#f4ecff' } },
+  merc: { t: '떠돌이 용병', st: { 힘: 7, 민첩: 6, 지능: 3, 정신: 5, 설득: 3, 운: 4 }, hp: 34, gold: 15, items: { potion: 2 }, look: { hair: '#2a2a2a', cloth: '#6a5a4a', type: 'armor', hat: 'bandana', hatColor: '#8a2a2a', accent: '#c0392b', hairStyle: 'spiky', eye: '#3a3a3a', beast: 'wolf', fur: '#6a6a72', tailTip: '#d8d8de', scar: true, skin: SKIN[2] } },
+  noble: { t: '몰락 귀족 상인', st: { 설득: 7, 운: 6, 지능: 5, 힘: 3, 민첩: 4, 정신: 3 }, hp: 26, gold: 80, items: { potion: 1, bread: 1 }, look: { hair: '#e8c26a', cloth: '#2a6a5a', type: 'tunic', hat: 'cap', hatColor: '#1f4a40', accent: '#e1b13d', hairStyle: 'bob', eye: '#2a7a6a', beast: 'cat', fur: '#e8c26a', tailTip: '#fff4d6' } },
+  free: { t: '정체불명의 여행자', st: { 힘: 5, 민첩: 5, 지능: 5, 정신: 5, 설득: 5, 운: 5 }, hp: 28, gold: 30, items: { potion: 1 }, look: { hair: '#5a3a2a', cloth: '#4f7fd6', type: 'tunic', hairStyle: 'short', eye: '#c98a2a', beast: 'fox', fur: '#c8642a', tailTip: '#fff4e6' } }
 };
 function setOrigin(key, customText) {
   const o = ORIGINS[key];
@@ -754,7 +754,7 @@ function setOrigin(key, customText) {
   PLAYER.spr = playerSprite();
 }
 function openingTurn() {
-  const pre = '삐걱— 나무 천장. 낯선 이불. 창문 틈으로 빵 굽는 냄새(조금 탄)가 스며든다.\n여기는… 여관 ‘신뢰구간 95%’의 2층 객실이다.\n\n문이 벌컥 열리고 앞치마를 두른 여관 주인이 쟁반을 들고 들어온다.\n「아, 깼어? 어젯밤 성문 앞에 쓰러져 있던 걸 경비대장 브루노가 업고 왔어. 무겁다고 투덜대면서.」\n「그래서, 뭐 하던 사람이야? 요즘 도시가 이상해서 다들 하나하나 묻거든.」';
+  const pre = '삐걱— 나무 천장. 낯선 이불. 창문 틈으로 빵 굽는 냄새(조금 탄)가 스며든다.\n여기는… 여관 ‘신뢰구간 95%’의 2층 객실이다.\n\n문이 벌컥 열리고 앞치마를 두른 여관 주인이 쟁반을 들고 들어온다.\n「아, 깼어? 어젯밤 성문 앞에 쓰러져 있던 걸 경비대장 브루노가 업고 왔어. 무겁다고 투덜대면서.」\n마르타가 당신의 쫑긋한 귀와 이불 밖으로 삐져나온 꼬리를 보고 웃는다.\n「수인 손님은 오랜만이네. 꼬리 털 빠지는 건 숙박비에 포함이야.」\n「그래서, 뭐 하던 사람이야? 요즘 도시가 이상해서 다들 하나하나 묻거든.」';
   const pickO = k => () => { setOrigin(k); const o = ORIGINS[k]; const t = gateFeeTurn(`「${o.t}…라. 흠.」 마르타가 당신을 위아래로 훑는다.`); t.fx = [`능력치 — ${STATS.map(s => `${s} ${S.stats[s]}`).join(' · ')}`, `HP ${S.maxHp} · 골드 ${S.gold}`]; return t; };
   return {
     who: 'marta', mood: 'smile', desc: pre,
@@ -1283,7 +1283,7 @@ function openPanel(kind) {
   if (kind === 'info') {
     title.textContent = '🧭 내 정보';
     const read = Object.keys(S.read);
-    body.innerHTML = `<div class="me"><div class="me-p">${portraitHTML('player', Object.assign({ skin: SKIN[0], bg: '#ffe9a8' }, S.look || ORIGINS.free.look), 'smile')}</div><div><b class="big">${esc(S.name)}</b><br><small>${esc(S.originText || '')}</small><br>HP ${S.hp}/${S.maxHp}<div class="stats">${STATS.map(s => { const v = statVal(s); return `<span>${s} <b>${S.stats[s]}</b>${v !== S.stats[s] ? `<em>→${v}</em>` : ''}</span>`; }).join('')}</div></div></div>
+    body.innerHTML = `<div class="me"><div class="me-p">${portraitHTML('player', Object.assign(playerLook(), { bg: '#ffe9a8' }), 'smile')}</div><div><b class="big">${esc(S.name)}</b><br><small>${esc(S.originText || '')}</small><br>HP ${S.hp}/${S.maxHp}<div class="stats">${STATS.map(s => { const v = statVal(s); return `<span>${s} <b>${S.stats[s]}</b>${v !== S.stats[s] ? `<em>→${v}</em>` : ''}</span>`; }).join('')}</div></div></div>
       <h4>상태이상</h4>${Object.keys(S.status).map(k => `<div class="muted">${k}(${S.status[k]}) — ${STATUS_DESC[k]}</div>`).join('') || '<p class="muted">없음</p>'}
       <h4>판정 규칙</h4><p class="muted">d20 + (능력치 − 5) ≥ 난이도면 성공. 20은 무조건 성공, 1은 무조건 실패. 「집중 사용」을 켜면 다음 판정 +3 (집중력 1 소모).</p>
       <h4>📖 도감 · 표지판 ${read.length}/${Object.keys(LESSONS).length}</h4><div class="dex">${Object.keys(LESSONS).map(id => `<div class="${S.read[id] ? 'on' : ''}" ${S.read[id] ? `data-l="${id}"` : ''}>${S.read[id] ? LESSONS[id].t : '???'}</div>`).join('')}</div>
@@ -1478,7 +1478,8 @@ async function boot() {
   $('#title').addEventListener('pointerdown', () => { AudioSys.resume(); AudioSys.play('title'); }, { once: true });
   requestAnimationFrame(loop);
 }
-function playerSprite() { return PLAYER_OVR || buildSprite(Object.assign({ skin: SKIN[0] }, S.look || ORIGINS.free.look)); }
+function playerLook() { const base = Object.assign({ skin: SKIN[0] }, S.look || ORIGINS.free.look); if (!base.beast) Object.assign(base, { beast: 'fox', fur: base.hair || '#c8642a', tailTip: '#fff4e6' }); return base; }
+function playerSprite() { return PLAYER_OVR || buildSprite(playerLook()); }
 let PLAYER_OVR = null;
 function startGame(state, fresh) {
   S = state; titleMode = false;

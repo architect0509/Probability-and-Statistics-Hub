@@ -244,6 +244,31 @@
   .dark .quote-link { color: #a5a4ff; border-bottom-color: rgba(165,164,255,.55); }
   .quote-link:hover { background: rgba(94,92,230,.14); }
   .quote-link:active { background: rgba(94,92,230,.26); }
+  /* ===== 게임 입장 배너 ===== */
+  .game-banner { position: relative; display: block; overflow: hidden; border-radius: 26px; text-decoration: none; color: #fff; min-height: 168px;
+    box-shadow: 0 0 0 1px rgba(255,216,77,.35), 0 18px 40px rgba(40,10,60,.35); transition: transform .2s ease, box-shadow .2s ease; isolation: isolate; }
+  .game-banner:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(255,216,77,.6), 0 24px 50px rgba(40,10,60,.45); }
+  .game-banner .gb-bg { position: absolute; inset: 0; z-index: -2; background: url(./game/banner.jpg) center bottom / cover no-repeat; transform: scale(1.04); transition: transform 6s ease; }
+  .game-banner:hover .gb-bg { transform: scale(1.1); }
+  .game-banner::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(20,8,32,.94) 0%, rgba(30,12,44,.82) 45%, rgba(30,12,44,.35) 100%); }
+  .game-banner::after { content: ''; position: absolute; top: 0; bottom: 0; width: 28%; left: -40%; background: linear-gradient(100deg, transparent, rgba(255,233,168,.22), transparent); transform: skewX(-18deg); animation: gbshine 5s ease-in-out infinite; }
+  @keyframes gbshine { 0%, 70% { left: -40%; } 100% { left: 130%; } }
+  .gb-body { display: flex; align-items: center; gap: 18px; padding: 22px 24px; }
+  .gb-ico { width: 64px; height: 64px; border-radius: 18px; flex-shrink: 0; box-shadow: 0 8px 20px rgba(0,0,0,.4); }
+  .gb-txt { flex: 1; min-width: 0; }
+  .gb-tag { display: inline-block; font-size: 11.5px; font-weight: 800; color: #2a1d2b; background: #ffd84d; border-radius: 999px; padding: 3px 10px; }
+  .gb-title { margin-top: 6px; font-size: 28px; font-weight: 900; letter-spacing: -.5px; color: #ffe9a8; text-shadow: 0 2px 0 #7a2a3a, 0 0 18px rgba(255,216,77,.35); }
+  .gb-sub { margin-top: 4px; font-size: 13.5px; font-weight: 500; line-height: 1.6; color: rgba(255,247,230,.88); max-width: 520px; }
+  .gb-btn { box-sizing: border-box; flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; font-weight: 900; font-size: 15px; color: #2a1d2b; padding: 12px 20px; border-radius: 999px;
+    background: linear-gradient(135deg, #ffe27a, #f2a930); box-shadow: 0 4px 0 #a66d16, 0 10px 22px rgba(0,0,0,.35); }
+  .game-banner:hover .gb-btn { filter: brightness(1.06); }
+  @media (max-width: 639px) {
+    .gb-body { flex-wrap: wrap; padding: 18px; gap: 12px; }
+    .gb-ico { width: 52px; height: 52px; border-radius: 15px; }
+    .gb-title { font-size: 23px; }
+    .gb-btn { width: 100%; justify-content: center; }
+    .game-banner::before { background: linear-gradient(180deg, rgba(20,8,32,.7) 0%, rgba(30,12,44,.92) 60%); }
+  }
   .seg-quest { display: inline-flex; align-items: center; gap: 5px; text-decoration: none; position: relative; color: #fff !important; font-weight: 700;
     background: linear-gradient(135deg, #f7b733 0%, #fc4a1a 100%) !important;
     box-shadow: 0 2px 10px rgba(238, 90, 82, .35), inset 0 1px 0 rgba(255,255,255,.35); overflow: hidden; margin-left: 4px; }
@@ -281,7 +306,6 @@
         <button onclick="switchTab('favs')" id="nav-favs" class="seg-btn"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 즐겨찾기 <span id="fav-count" class="opacity-70"></span></button>
         <button onclick="switchTab('test')" id="nav-test" class="seg-btn"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg> 모의 테스트</button>
         <button onclick="switchTab('flow')" id="nav-flow" class="seg-btn"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg> 흐름잡기</button>
-        <a href="./game/index.html" class="seg-btn seg-quest" title="벨레스타 연대기 · 2학기 내용으로 모험하는 중세 RPG"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/></svg> 모험 입장<span class="new-dot"></span></a>
       </div>
       </div>
       <div class="flex items-center gap-2 order-2 sm:order-3">
@@ -326,6 +350,20 @@
       </div>
       <div id="install-guide" class="hidden mt-3 soft rounded-2xl p-4 text-[13px] leading-relaxed space-y-2"></div>
     </div>
+
+    <!-- 게임 입장 배너: 벨레스타 연대기 -->
+    <a href="./game/index.html" class="game-banner fade-in" aria-label="벨레스타 연대기 모험 입장">
+      <div class="gb-bg"></div>
+      <div class="gb-body">
+        <img src="./favicon.svg" alt="" class="gb-ico">
+        <div class="gb-txt">
+          <div class="gb-tag">⚔ 확통 RPG · 2학기 7~9장</div>
+          <div class="gb-title">벨레스타 연대기</div>
+          <p class="gb-sub">표지판을 모아 던전의 결계를 열고, 문제로 수호자를 쓰러뜨려라. 추정 · 검정 · 범주형 자료분석을 모험하며 익혀요.</p>
+        </div>
+        <span class="gb-btn">모험 입장 <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+      </div>
+    </a>
 
     <div class="space-y-3">
       <div class="flex flex-wrap items-center justify-between gap-2 px-1">

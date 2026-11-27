@@ -73,17 +73,108 @@ const AudioSys = (() => {
   // 밤 버전이 따로 없으면: 느리고 부드럽게, 타악기 빼고, 메아리 넣어서 자동 편곡
   function nightOf(name) { const k = name + '_night'; if (SONGS[k]) return k; const b = SONGS[name]; if (!b) return name; SONGS[k] = Object.assign({}, b, { bpm: Math.round(b.bpm * .8), wave: b.wave === 'sine' ? 'sine' : 'triangle', perc: b.perc ? b.perc.replace(/[ks]/g, '.') : '', echo: true }); return k; }
 
+  // ---------------- 오디오 그래프 (홀 잔향 + 컴프레서) ----------------
+  let dry = null, verbIn = null;
+  const MUSIC_GAIN = 0.8; // 피아노/현악은 칩튠보다 조용해서 음악 버스를 키움
+  function impulse(c, sec, decay) {
+    const len = Math.floor(c.sampleRate * sec), b = c.createBuffer(2, len, c.sampleRate);
+    for (let ch = 0; ch < 2; ch++) { const d = b.getChannelData(ch); for (let i = 0; i < len; i++) { const x = i / len; d[i] = (Math.random() * 2 - 1) * Math.pow(1 - x, decay) * (i < c.sampleRate * .012 ? i / (c.sampleRate * .012) : 1); } }
+    return b;
+  }
+  function makeGraph(c) {
+    ctx = c;
+    master = c.createGain(); master.gain.value = vol.on ? 1 : 0; master.connect(c.destination);
+    const comp = c.createDynamicsCompressor(); comp.threshold.value = -16; comp.knee.value = 12; comp.ratio.value = 3.5; comp.attack.value = 0.006; comp.release.value = 0.25;
+    musicBus = c.createGain(); musicBus.gain.value = vol.music * MUSIC_GAIN; musicBus.connect(comp); comp.connect(master);
+    sfxBus = c.createGain(); sfxBus.gain.value = vol.sfx * 0.35; sfxBus.connect(master);
+    dry = c.createGain(); dry.gain.value = 1; dry.connect(musicBus);
+    const verb = c.createConvolver(); verb.buffer = impulse(c, 3.4, 2.8);
+    verbIn = c.createGain(); verbIn.gain.value = 1;
+    const vHp = c.createBiquadFilter(); vHp.type = 'highpass'; vHp.frequency.value = 220; verbIn.connect(vHp); vHp.connect(verb); // 저음은 잔향에서 빼서 먹먹하지 않게
+    const vOut = c.createGain(); vOut.gain.value = 0.6; verb.connect(vOut); vOut.connect(musicBus);
+    delay = c.createDelay(1); delay.delayTime.value = 0.36; delayFb = c.createGain(); delayFb.gain.value = 0.3;
+    delay.connect(delayFb); delayFb.connect(delay); const dOut = c.createGain(); dOut.gain.value = 0.35; delay.connect(dOut); dOut.connect(verbIn);
+  }
   function init() {
     if (ctx) return;
     const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
-    ctx = new AC();
-    master = ctx.createGain(); master.gain.value = vol.on ? 1 : 0; master.connect(ctx.destination);
-    musicBus = ctx.createGain(); musicBus.gain.value = vol.music * 0.22; musicBus.connect(master);
-    sfxBus = ctx.createGain(); sfxBus.gain.value = vol.sfx * 0.35; sfxBus.connect(master);
-    delay = ctx.createDelay(1); delay.delayTime.value = 0.32; delayFb = ctx.createGain(); delayFb.gain.value = 0.35;
-    delay.connect(delayFb); delayFb.connect(delay); const dOut = ctx.createGain(); dOut.gain.value = 0.5; delay.connect(dOut); dOut.connect(musicBus);
+    makeGraph(new AC());
   }
   function resume() { init(); if (ctx && ctx.state === 'suspended') ctx.resume(); }
+
+  // ---------------- 악기 ----------------
+  // 피아노: 배음 6개 + 해머 소리 + 음높이에 따라 다른 울림 길이
+  const PH = [1, 2, 3, 4, 5, 6], PA = [1, .45, .24, .14, .08, .045];
+  function piano(f, t, dur, vel, wet, echo) {
+    if (!ctx || !f) return;
+    const out = ctx.createGain(), lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass'; lp.Q.value = 0.4;
+    lp.frequency.setValueAtTime(Math.min(11000, f * 9 + 1800), t);
+    lp.frequency.exponentialRampToValueAtTime(Math.max(500, f * 2.6), t + 1.4);
+    const ring = Math.max(0.7, 3.6 - Math.log2(f / 110) * 0.62);      // 낮은 음일수록 길게
+    const end = Math.min(ring, Math.max(dur + 0.45, 0.6));             // 건반을 떼면 0.45초 안에 사라짐
+    out.gain.setValueAtTime(0, t); out.gain.linearRampToValueAtTime(vel, t + 0.004);
+    out.gain.exponentialRampToValueAtTime(vel * 0.42, t + 0.28);
+    out.gain.setTargetAtTime(vel * 0.0001, t + Math.max(0.3, end - 0.4), 0.12);
+    PH.forEach((h, i) => {
+      const fh = f * h * (1 + 0.00035 * h * h); if (fh > 15000) return;
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = fh; o.detune.value = i % 2 ? 2.5 : -2.5;
+      g.gain.setValueAtTime(PA[i], t); g.gain.exponentialRampToValueAtTime(PA[i] * 0.04 + 1e-4, t + Math.max(0.18, ring / (1 + i * 0.9)));
+      o.connect(g); g.connect(lp); o.start(t); o.stop(t + end + 0.1);
+    });
+    // 해머 타격음
+    if (noiseBuf) { const s = ctx.createBufferSource(), nf = ctx.createBiquadFilter(), ng = ctx.createGain(); s.buffer = noiseBuf; nf.type = 'bandpass'; nf.frequency.value = Math.min(6000, f * 4); nf.Q.value = 0.8; ng.gain.setValueAtTime(vel * 0.25, t); ng.gain.exponentialRampToValueAtTime(1e-4, t + 0.03); s.connect(nf); nf.connect(ng); ng.connect(lp); s.start(t); s.stop(t + 0.05); }
+    lp.connect(out); out.connect(dry);
+    const sd = ctx.createGain(); sd.gain.value = wet; out.connect(sd); sd.connect(verbIn);
+    if (echo) { const e = ctx.createGain(); e.gain.value = 0.5; out.connect(e); e.connect(delay); }
+  }
+  // 현악 패드: 근음 · 5도 · 옥타브, 톱니파 두 겹을 살짝 어긋나게 + 천천히 차오름
+  function strings(root, t, dur, vel, bright) {
+    if (!ctx || !root) return;
+    const lp = ctx.createBiquadFilter(), out = ctx.createGain();
+    lp.type = 'lowpass'; lp.frequency.value = bright || 1100; lp.Q.value = 0.6;
+    const att = Math.min(0.9, dur * 0.35), rel = 0.9;
+    out.gain.setValueAtTime(0, t); out.gain.linearRampToValueAtTime(vel, t + att); out.gain.setValueAtTime(vel, t + Math.max(att, dur - 0.1)); out.gain.linearRampToValueAtTime(0, t + dur + rel);
+    [root, root * 1.5, root * 2].forEach(f => [-7, 7].forEach(dt => {
+      const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = dt;
+      o.connect(lp); o.start(t); o.stop(t + dur + rel + 0.05);
+    }));
+    lp.connect(out); const d = ctx.createGain(); d.gain.value = 0.55; out.connect(d); d.connect(dry);
+    const w = ctx.createGain(); w.gain.value = 0.9; out.connect(w); w.connect(verbIn);
+  }
+  // 낮은 금관 (보스곡 등 힘찬 곡)
+  function brass(f, t, dur, vel) {
+    if (!ctx || !f) return;
+    const o = ctx.createOscillator(), o2 = ctx.createOscillator(), lp = ctx.createBiquadFilter(), g = ctx.createGain();
+    o.type = 'sawtooth'; o2.type = 'sawtooth'; o.frequency.value = f; o2.frequency.value = f; o2.detune.value = 9;
+    lp.type = 'lowpass'; lp.frequency.setValueAtTime(400, t); lp.frequency.linearRampToValueAtTime(1500, t + 0.08); lp.frequency.linearRampToValueAtTime(900, t + dur);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vel, t + 0.05); g.gain.setValueAtTime(vel, t + dur * 0.8); g.gain.linearRampToValueAtTime(0, t + dur + 0.15);
+    o.connect(lp); o2.connect(lp); lp.connect(g); g.connect(dry); const w = ctx.createGain(); w.gain.value = 0.5; g.connect(w); w.connect(verbIn);
+    o.start(t); o2.start(t); o.stop(t + dur + 0.2); o2.stop(t + dur + 0.2);
+  }
+  // 반짝이는 벨 (빠른 곡의 멜로디 위에 살짝)
+  function bell(f, t, vel) {
+    if (!ctx || !f) return;
+    [[2, 1], [5.4, .35]].forEach(([m, a]) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = f * m; g.gain.setValueAtTime(vel * a, t); g.gain.exponentialRampToValueAtTime(1e-4, t + 1.1); o.connect(g); g.connect(verbIn); const d = ctx.createGain(); d.gain.value = .4; g.connect(d); d.connect(dry); o.start(t); o.stop(t + 1.2); });
+  }
+  // 팀파니
+  function timpani(t, vel) {
+    if (!ctx) return;
+    const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine';
+    o.frequency.setValueAtTime(98, t); o.frequency.exponentialRampToValueAtTime(58, t + 0.35);
+    g.gain.setValueAtTime(vel, t); g.gain.exponentialRampToValueAtTime(1e-4, t + 0.9);
+    o.connect(g); g.connect(dry); const w = ctx.createGain(); w.gain.value = 0.6; g.connect(w); w.connect(verbIn); o.start(t); o.stop(t + 1);
+    if (noiseBuf) { const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), ng = ctx.createGain(); s.buffer = noiseBuf; f.type = 'lowpass'; f.frequency.value = 500; ng.gain.setValueAtTime(vel * 0.5, t); ng.gain.exponentialRampToValueAtTime(1e-4, t + 0.25); s.connect(f); f.connect(ng); ng.connect(dry); s.start(t); s.stop(t + 0.3); }
+  }
+  function brushNoise(t, dur, gain, freq, q, wet) {
+    if (!ctx || !noiseBuf) return;
+    const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    s.buffer = noiseBuf; f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q;
+    g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(1e-4, t + dur);
+    s.connect(f); f.connect(g); g.connect(dry); const w = ctx.createGain(); w.gain.value = wet; g.connect(w); w.connect(verbIn); s.start(t); s.stop(t + dur + 0.02);
+  }
+  function ensureNoise() { if (!noiseBuf && ctx) { noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; } }
 
   function tone(f, t, dur, wave, gain, bus, echo) {
     if (!ctx || !f) return;
@@ -96,26 +187,64 @@ const AudioSys = (() => {
   let noiseBuf = null;
   function noise(t, dur, gain, hp, bus) {
     if (!ctx) return;
-    if (!noiseBuf) { noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+    ensureNoise();
     const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
     s.buffer = noiseBuf; f.type = 'highpass'; f.frequency.value = hp; g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
     s.connect(f); f.connect(g); g.connect(bus); s.start(t); s.stop(t + dur + 0.02);
   }
   function kick(t) { if (!ctx) return; const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.12); g.gain.setValueAtTime(0.7, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.15); o.connect(g); g.connect(musicBus); o.start(t); o.stop(t + 0.16); }
 
-  function schedule() {
+  // 곡 성격: 빠르고 힘찬 곡(사각파·톱니파) / 잔잔한 곡(삼각파·사인파)
+  function styleOf(song) {
+    const energetic = song.wave === 'square' || song.wave === 'sawtooth';
+    return { energetic, epic: song.wave === 'sawtooth', wet: song.echo ? 0.55 : energetic ? 0.3 : 0.45, padVel: energetic ? 0.016 : 0.022 };
+  }
+  function schedule(horizon) {
     if (!ctx || !cur) return;
-    const song = SONGS[cur], spb = 60 / song.bpm / 2;
-    while (nextT < ctx.currentTime + 0.25) {
+    ensureNoise();
+    const song = SONGS[cur], spb = 60 / song.bpm / 2, st = styleOf(song);
+    const until = horizon !== undefined ? horizon : ctx.currentTime + 0.3;
+    while (nextT < until) {
       const L = song.lead, B = song.bass, Pp = song.perc;
       const li = step % L.length, bi = step % B.length;
+      const bar = step % 8 === 0, hum = 0.9 + Math.random() * 0.2;
+      // 멜로디: 피아노 (마디 첫 박은 살짝 세게)
       const n = L[li];
-      if (n !== '.' && n !== '-') { let len = 1; while (L[(li + len) % L.length] === '-' && len < 8) len++; tone(freq(n), nextT, spb * len * 0.95, song.wave, song.wave === 'square' || song.wave === 'sawtooth' ? 0.09 : 0.16, musicBus, song.echo); }
+      if (n !== '.' && n !== '-') {
+        let len = 1; while (L[(li + len) % L.length] === '-' && len < 8) len++;
+        const f = freq(n), v = (st.energetic ? 0.13 : 0.15) * hum * (bar ? 1.15 : 1);
+        piano(f, nextT, spb * len, v, st.wet, song.echo);
+        if (st.energetic && bar) bell(f, nextT, 0.018);
+        if (st.epic) brass(f / 2, nextT, spb * len * 0.95, 0.022);
+      }
+      // 베이스: 낮은 피아노 + 부드러운 저음
       const b = B[bi];
-      if (b !== '.' && b !== '-') { let len = 1; while (B[(bi + len) % B.length] === '-' && len < 8) len++; tone(freq(b), nextT, spb * len * 0.9, 'triangle', 0.22, musicBus, false); }
-      if (Pp) { const c = Pp[step % Pp.length]; if (c === 'k') kick(nextT); if (c === 's') noise(nextT, 0.1, 0.22, 1800, musicBus); if (c === 'h') noise(nextT, 0.03, 0.08, 7000, musicBus); }
+      if (b !== '.' && b !== '-') {
+        let len = 1; while (B[(bi + len) % B.length] === '-' && len < 8) len++;
+        const f = freq(b);
+        piano(f, nextT, spb * len, 0.12 * hum, st.wet * 0.7, false);
+        tone(f, nextT, Math.max(0.25, spb * len * 0.95), 'sine', 0.045, dry, false);
+      }
+      // 현악 패드: 마디마다 그 마디의 베이스 음으로 화음을 깐다
+      if (bar) {
+        let root = 0; for (let k = 0; k < 8 && !root; k++) { const x = B[(bi + k) % B.length]; if (x !== '.' && x !== '-') root = freq(x); }
+        while (root > 140) root /= 2; while (root && root < 65) root *= 2;
+        if (root) strings(root * 2, nextT, spb * 8, st.padVel, st.energetic ? 1500 : 1000);
+      }
+      // 타악기: 팀파니 · 오케스트라 스네어 · 셰이커
+      if (Pp) { const c = Pp[step % Pp.length]; if (c === 'k') timpani(nextT, 0.45); if (c === 's') brushNoise(nextT, 0.16, 0.13, 1700, 0.7, 0.5); if (c === 'h') brushNoise(nextT, 0.05, 0.035, 7500, 1.2, 0.2); }
       step++; nextT += spb;
     }
+  }
+  // 미리 듣기 · 점검용: 곡을 오프라인으로 렌더링
+  async function renderOffline(name, sec) {
+    const live = { ctx, master, musicBus, sfxBus, delay, delayFb, dry, verbIn, noiseBuf, cur, step, nextT };
+    const off = new OfflineAudioContext(2, Math.floor(44100 * sec), 44100);
+    noiseBuf = null; makeGraph(off); cur = name; step = 0; nextT = 0.05;
+    schedule(sec - 0.5);
+    const buf = await off.startRendering();
+    ({ ctx, master, musicBus, sfxBus, delay, delayFb, dry, verbIn, noiseBuf, cur, step, nextT } = live);
+    return buf;
   }
   function play(name, night) {
     name = ALIAS[name] || name;
@@ -124,9 +253,9 @@ const AudioSys = (() => {
     resume(); if (!ctx) return;
     // 부드러운 전환
     const g = musicBus.gain; const now = ctx.currentTime;
-    g.cancelScheduledValues(now); g.setValueAtTime(g.value, now); g.linearRampToValueAtTime(0.0001, now + 0.25);
-    setTimeout(() => { cur = name; step = 0; nextT = ctx.currentTime + 0.05; g.cancelScheduledValues(ctx.currentTime); g.linearRampToValueAtTime(vol.music * 0.22, ctx.currentTime + 0.6); }, 260);
-    if (!timer) timer = setInterval(schedule, 60);
+    g.cancelScheduledValues(now); g.setValueAtTime(g.value, now); g.linearRampToValueAtTime(0.0001, now + 0.25); // 곡 사이 부드럽게
+    setTimeout(() => { cur = name; step = 0; nextT = ctx.currentTime + 0.05; g.cancelScheduledValues(ctx.currentTime); g.linearRampToValueAtTime(vol.music * MUSIC_GAIN, ctx.currentTime + 0.9); }, 260);
+    if (!timer) timer = setInterval(() => schedule(), 60);
   }
 
   const SFX = {
@@ -150,7 +279,7 @@ const AudioSys = (() => {
 
   function save() { try { localStorage.setItem('belesta_audio', JSON.stringify(vol)); } catch (e) {} }
   function setOn(on) { vol.on = on; if (master) master.gain.value = on ? 1 : 0; save(); }
-  function setMusic(v) { vol.music = v; if (musicBus) musicBus.gain.value = v * 0.22; save(); }
+  function setMusic(v) { vol.music = v; if (musicBus) musicBus.gain.value = v * MUSIC_GAIN; save(); }
   function setSfx(v) { vol.sfx = v; if (sfxBus) sfxBus.gain.value = v * 0.35; save(); }
-  return { play, sfx, resume, vol, setOn, setMusic, setSfx, current: () => cur };
+  return { play, sfx, resume, vol, setOn, setMusic, setSfx, current: () => cur, renderOffline, songs: () => Object.keys(SONGS) };
 })();
