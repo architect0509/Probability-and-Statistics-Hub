@@ -1402,11 +1402,12 @@ const HUD_ICON = {
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600); }
 function banner(name) { const b = $('#banner'); b.textContent = name; b.classList.remove('on'); void b.offsetWidth; b.classList.add('on'); }
 
+let BAG_SEL = null;
 function openPanel(kind) {
   if (dlgOpen) return;
   panelOpen = true; clearHeld();
   const p = $('#panel'), body = $('#panel-body'), title = $('#panel-title');
-  p.classList.add('open'); AudioSys.sfx('open');
+  if (!p.classList.contains('open')) AudioSys.sfx('open'); p.classList.add('open');
   if (kind === 'quest') {
     title.textContent = '📜 퀘스트';
     const ids = Object.keys(QUESTS);
@@ -1429,8 +1430,19 @@ function openPanel(kind) {
   if (kind === 'wardrobe' && typeof renderWardrobePanel === 'function') renderWardrobePanel(title, body);
   if (kind === 'bag') {
     title.textContent = '🎒 가방';
-    const ids = Object.keys(S.items).filter(k => S.items[k] > 0);
-    body.innerHTML = `<div class="gold">🪙 ${S.gold} · 🎯 집중력 ${S.focus}</div>` + (typeof CARDS !== 'undefined' ? `<button class="cc-open" data-cards="1"><span class="cc-oe">🃏</span><span><b>카드 컬렉션</b><small>주운 마법카드 ${cardCount()}/${CARDS.length}장 · 다시 보기</small></span><span class="cc-arrow">›</span></button>` : '') + (typeof COSTUMES !== 'undefined' ? `<button class="cc-open wd-open" data-wardrobe="1"><span class="cc-oe"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg></span><span><b>옷장</b><small>의상 ${COSTUMES.filter(c => wardrobe()[c.id]).length}/${COSTUMES.length}벌 · 갈아입기 · 외모 꾸미기</small></span><span class="cc-arrow">›</span></button>` : '') + (ids.map(id => { const it = ITEMS[id]; return `<div class="item"><span class="ie">${it.e}</span><div><b>${it.n}</b> ×${S.items[id]}<br><small>${it.d}</small></div>${it.use ? `<button data-use="${id}">사용</button>` : ''}</div>`; }).join('') || '<p class="muted">텅 비었다.</p>');
+    const ids = Object.keys(S.items).filter(k => S.items[k] > 0 && ITEMS[k]);
+    if (!ids.includes(BAG_SEL)) BAG_SEL = ids[0] || null;
+    const WD_IC = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg>';
+    const CD_IC = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="12" height="16" rx="2"/><path d="M9 3h10a2 2 0 0 1 2 2v12"/><path d="m9 10 1 2 2 .5-1.5 1.5.5 2-2-1-2 1 .5-2L6 12.5 8 12z"/></svg>';
+    const special = (typeof CARDS !== 'undefined' ? `<button class="bg-cell bg-sp bg-cards" data-cards="1"><span class="bg-ic">${CD_IC}</span><span class="bg-n">카드 컬렉션</span><span class="bg-c">${cardCount()}/${CARDS.length}</span></button>` : '')
+      + (typeof COSTUMES !== 'undefined' ? `<button class="bg-cell bg-sp bg-wd" data-wardrobe="1"><span class="bg-ic">${WD_IC}</span><span class="bg-n">옷장</span><span class="bg-c">${COSTUMES.filter(c => wardrobe()[c.id]).length}/${COSTUMES.length}</span></button>` : '');
+    const cells = ids.map(id => { const it = ITEMS[id]; return `<button class="bg-cell${id === BAG_SEL ? ' on' : ''}${it.use ? ' usable' : ''}" data-sel="${id}" title="${esc(it.n)}"><span class="bg-e">${it.e}</span><span class="bg-n">${esc(it.n)}</span>${S.items[id] > 1 ? `<span class="bg-c">×${S.items[id]}</span>` : ''}</button>`; });
+    const filled = (special ? 2 : 0) + cells.length, total = Math.max(24, Math.ceil((filled + 1) / 12) * 12);
+    const empty = Array.from({ length: total - filled }, () => '<div class="bg-cell bg-empty"></div>').join('');
+    const it = BAG_SEL && ITEMS[BAG_SEL];
+    const detail = it ? `<div class="bg-detail"><span class="bg-de">${it.e}</span><div class="bg-dt"><b>${esc(it.n)}</b> <small>×${S.items[BAG_SEL]}</small><p>${esc(it.d)}</p></div>${it.use ? `<button class="bg-use" data-use="${BAG_SEL}">사용</button>` : ''}</div>` : `<div class="bg-detail bg-none">아직 가방이 텅 비었다. 칸을 누르면 여기에 설명이 나온다.</div>`;
+    body.innerHTML = `<div class="bg-top"><span class="bg-chip">🪙 ${S.gold}</span><span class="bg-chip">🎯 집중력 ${S.focus}</span><span class="bg-chip bg-cnt">${ids.length}종</span></div><div class="bg-grid">${special}${cells.join('')}${empty}</div>${detail}`;
+    body.querySelectorAll('[data-sel]').forEach(b => b.onclick = () => { BAG_SEL = b.dataset.sel; AudioSys.sfx('select'); openPanel('bag'); });
     body.querySelectorAll('[data-use]').forEach(b => b.onclick = () => { useItem(b.dataset.use); openPanel('bag'); });
     { const cb = body.querySelector('[data-cards]'); if (cb) cb.onclick = () => openPanel('cards'); }
     { const wb = body.querySelector('[data-wardrobe]'); if (wb) wb.onclick = () => openPanel('wardrobe'); }

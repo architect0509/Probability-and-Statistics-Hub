@@ -4,7 +4,7 @@
  * - 외부 라이브러리(Tailwind, KaTeX 등)와 이미지는 한 번 받으면 저장해 두고 오프라인에서도 써요.
  * - 이 파일(sw.js)이 바뀌면 브라우저가 새 서비스 워커로 인식해 '새 버전' 알림이 떠요.
  */
-const VERSION = '2026.11.27-29';
+const VERSION = '2026.11.27-31';
 const CORE = 'hub-core-' + VERSION;
 const RUNTIME = 'hub-runtime-v1';
 const PRECACHE = [
