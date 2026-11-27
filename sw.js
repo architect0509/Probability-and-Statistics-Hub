@@ -3,11 +3,11 @@
  * - 외부 라이브러리(Tailwind, KaTeX 등)와 이미지는 한 번 받으면 저장해 두고 오프라인에서도 써요.
  * - 이 파일(sw.js)이 바뀌면 브라우저가 새 서비스 워커로 인식해 '새 버전' 알림이 떠요.
  */
-const VERSION = '2026.11.27-12';
+const VERSION = '2026.11.27-15';
 const CORE = 'hub-core-' + VERSION;
 const RUNTIME = 'hub-runtime-v1';
 const PRECACHE = [
-  './', './index.html', './manifest.webmanifest',
+  './', './index.html', './thaniya-intro.js', './manifest.webmanifest',
   './favicon.svg', './favicon.ico', './apple-touch-icon.png',
   './icon-192.png', './icon-512.png', './icon-maskable-512.png', './logo.png',
   // 벨레스타 연대기 (game/)

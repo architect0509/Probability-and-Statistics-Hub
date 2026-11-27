@@ -406,6 +406,24 @@
   #dlg-desc .sol { border: none; border-radius: 12px; box-shadow: inset 0 0 0 1.5px #9cc98a; }
   #dlg-desc .fhint { border: none; border-radius: 12px; box-shadow: inset 0 0 0 1.5px #9db8ea; }
   #dlg-desc .lesson { border: none; border-radius: 12px; box-shadow: inset 0 0 0 1.5px #e3c48a; }
+
+  /* 상단·하단 HUD: 이모지 대신 선 아이콘 */
+  .ic { width: 1em; height: 1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0; }
+  .ib i { display: flex; align-items: center; justify-content: center; height: 22px; font-size: 21px; color: #ffe9a8; filter: drop-shadow(0 2px 0 rgba(0,0,0,.45)); }
+  .ib:hover i { color: #ffd84d; }
+  #hud-time { display: inline-flex; color: #ffd84d; font-size: 15px; } #hud-time.night { color: #c9b8ff; } #hud-time.dusk { color: #ffb070; }
+  .goldbox { display: inline-flex; align-items: center; gap: 6px; }
+  .locbox .g2 { align-items: center; gap: 5px; }
+  @media (max-width: 640px) { .locbox .g2 { display: inline-flex; } }
+  .goldbox .ic, .locbox .g2 .ic { font-size: 16px; color: #ffd84d; }
+  .rb .ic { font-size: 1em; color: #fff7e0; filter: drop-shadow(0 2px 0 rgba(42,29,43,.6)); }
+  .rb .ic { stroke-width: 2.2; }
+  #hud-guide .ic { color: #ffd84d; margin-right: 3px; font-size: 13px; }
+  /* 체력바: 그림자 없이 깔끔하게 */
+  .hpbar { box-shadow: none !important; }
+  #hud-hp { box-shadow: none !important; background: linear-gradient(90deg, #ff6b8f, #e0284f) !important; }
+  #hud-hptxt, .st-hp em { text-shadow: none !important; }
+  .st-hp { box-shadow: none !important; }
   /* 모바일: 오른쪽 아래 버튼 크게 */
   @media (pointer: coarse) {
     .abtns { gap: 18px; right: calc(18px + env(safe-area-inset-right)); bottom: calc(20px + env(safe-area-inset-bottom)); }
@@ -456,25 +474,25 @@
 <div id="hud">
   <div class="topbar">
     <div class="locbox">
-      <div class="l1"><span id="hud-time">☀</span><span id="loc-name">벨레스타</span><span class="g2">🪙 <span id="hud-gold2">0</span></span></div>
+      <div class="l1"><span id="hud-time"><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></span><span id="loc-name">벨레스타</span><span class="g2"><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg><span id="hud-gold2">0</span></span></div>
       <div class="hpbar"><div id="hud-hp"></div><span id="hud-hptxt"></span></div>
       <div id="hud-status"></div>
       <div id="hud-guide"></div>
     </div>
     <div class="icons">
-      <button class="ib" data-panel="map"><i>🗺</i>지도</button>
-      <button class="ib" data-panel="info"><i>📖</i>내 정보</button>
-      <button class="ib" data-panel="quest"><i>📜</i>퀘스트<span id="hud-qn"></span></button>
-      <button class="ib" data-panel="bag"><i>🎒</i>가방</button>
-      <div class="goldbox">🪙 <span id="hud-gold">0</span></div>
-      <button class="ib" data-panel="settings"><i>⚙</i>설정</button>
+      <button class="ib" data-panel="map"><i><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.1 5.55a2 2 0 0 0 1.8 0l3.66-1.83A1 1 0 0 1 21 4.62v12.76a1 1 0 0 1-.55.9l-4.56 2.27a2 2 0 0 1-1.78 0l-4.22-2.1a2 2 0 0 0-1.78 0l-3.66 1.83A1 1 0 0 1 3 19.38V6.62a1 1 0 0 1 .55-.9l4.56-2.27a2 2 0 0 1 1.78 0z"/><path d="M15 5.76v15"/><path d="M9 3.24v15"/></svg></i>지도</button>
+      <button class="ib" data-panel="info"><i><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg></i>내 정보</button>
+      <button class="ib" data-panel="quest"><i><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg></i>퀘스트<span id="hud-qn"></span></button>
+      <button class="ib" data-panel="bag"><i><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M8 10h8"/><path d="M8 18h8"/><path d="M8 22v-6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></i>가방</button>
+      <div class="goldbox"><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg><span id="hud-gold">0</span></div>
+      <button class="ib" data-panel="settings"><i><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></i>설정</button>
     </div>
   </div>
   <div class="zoombox"><button id="zoom-in" aria-label="확대">+</button><button id="zoom-out" aria-label="축소">−</button></div>
   <div id="joyzone"><div id="joy" class="joy"><div id="joy-knob"></div></div></div>
   <div class="abtns">
-    <button class="rb small" id="btn-q" aria-label="퀘스트">📜</button>
-    <button class="rb" id="btn-a" aria-label="상호작용">⚔</button>
+    <button class="rb small" id="btn-q" aria-label="퀘스트"><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg></button>
+    <button class="rb" id="btn-a" aria-label="상호작용"><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/></svg></button>
   </div>
   <div class="kbhint">WASD 이동 · E 대화 · Q 퀘스트 · M 지도 · 휠 줌</div>
 </div>

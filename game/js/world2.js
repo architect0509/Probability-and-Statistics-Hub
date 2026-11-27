@@ -547,14 +547,14 @@ function updateGuide(dt) {
   if (!g) { if (el) el.textContent = ''; return; }
   let goals = null, note = '';
   if (g.map === MAP.id) {
-    if (g.enter) { if (el) el.innerHTML = `📍 ${esc(g.label)} <em>도착!</em>`; return; }
+    if (g.enter) { if (el) el.innerHTML = `${HUD_ICON.pin}${esc(g.label.replace(/^📖\s*/, ''))} <em>도착!</em>`; return; }
     let tx = g.x, ty = g.y;
     if (g.npc) { const a = ACTORS.find(a2 => a2.id === g.npc); if (a) { tx = a.x; ty = a.y; } }
     GUIDE.dest = [tx, ty];
     goals = [[tx, ty], [tx + 1, ty], [tx - 1, ty], [tx, ty + 1], [tx, ty - 1]].filter(([x, y]) => x >= 0 && y >= 0 && x < MAP.w && y < MAP.h);
   } else {
     const route = mapRoute(MAP.id, g.map);
-    if (!route || route.length < 2) { if (el) el.innerHTML = `📍 ${esc(g.label)}`; return; }
+    if (!route || route.length < 2) { if (el) el.innerHTML = `${HUD_ICON.pin}${esc(g.label.replace(/^📖\s*/, ''))}`; return; }
     const nxt = route[1], ex = exitsOf(MAP.id).filter(e => e.to === nxt);
     goals = ex.map(e => [e.x, e.y]); GUIDE.dest = goals[0];
     note = ` · ${MAPS[nxt].name} 쪽으로`;
@@ -562,7 +562,7 @@ function updateGuide(dt) {
   }
   const p = goals.length ? tilePath(goals) : null;
   GUIDE.path = p || [];
-  if (el) el.innerHTML = `📍 ${esc(g.label)}${note}${p ? ` <em>${p.length}칸</em>` : ''}`;
+  if (el) el.innerHTML = `${HUD_ICON.pin}${esc(g.label.replace(/^📖\s*/, ''))}${note}${p ? ` <em>${p.length}칸</em>` : ''}`;
 }
 function drawGuideWorld(ctx, t) {
   if (S.guide === 'off' || !GUIDE.path || !GUIDE.path.length || dlgOpen || cutOpen) return;

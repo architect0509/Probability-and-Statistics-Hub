@@ -1243,11 +1243,21 @@ function syncHUD() {
   $('#hud-gold').textContent = S.gold; const g2 = $('#hud-gold2'); if (g2) g2.textContent = S.gold;
   $('#hud-hp').style.width = Math.round(S.hp / S.maxHp * 100) + '%';
   $('#hud-hptxt').textContent = `${S.hp}/${S.maxHp}`;
-  const p = dayPhase(); $('#hud-time').textContent = p < .5 ? '☀' : p < .65 ? '🌇' : p < .92 ? '🌙' : '🌅';
+  const p = dayPhase(), ph = p < .5 ? 'day' : p < .65 ? 'dusk' : p < .92 ? 'night' : 'dawn', te = $('#hud-time');
+  if (te && te.dataset.ph !== ph) { te.dataset.ph = ph; te.className = ph; te.innerHTML = HUD_ICON[ph]; }
   const st = Object.keys(S.status); $('#hud-status').innerHTML = st.map(k => `<b class="${['고양', '축복'].includes(k) ? 'buff' : 'debuff'}">${k}</b>`).join('');
   const qn = Object.keys(S.quests).filter(k => !S.quests[k].done).length; $('#hud-qn').textContent = qn || '';
 }
 let toastT = null;
+// 상단 시간 아이콘 (해 · 노을 · 달 · 새벽)
+const _ic = b => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${b}</svg>`;
+const HUD_ICON = {
+  day: _ic('<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>'),
+  dusk: _ic('<path d="M12 10V2"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m16 6-4 4-4-4"/><path d="M16 18a4 4 0 0 0-8 0"/>'),
+  night: _ic('<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>'),
+  dawn: _ic('<path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/>'),
+  pin: _ic('<path d="M20 10c0 4.99-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 14.99 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>')
+};
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600); }
 function banner(name) { const b = $('#banner'); b.textContent = name; b.classList.remove('on'); void b.offsetWidth; b.classList.add('on'); }
 
