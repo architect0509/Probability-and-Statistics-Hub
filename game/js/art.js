@@ -654,7 +654,23 @@ const HAIR_T = {
   bob: { F: { 10: '.HH..........HH.', 11: '.HH..........HH.', 12: '.Hh..........hH.', 13: '.hh..........hh.' },
     B: { 13: '..HHHHHHHHHHHH..', 14: '..hhhhhhhhhhhh..' },
     S: { 12: '........HHHHHh..', 13: '........HHHHhh..', 14: '.........hhhh...' } },
-  spiky: { F: { 1: '....H..H...H....', 2: '....HH.HH.HHH...' }, B: { 1: '....H..H...H....', 2: '....HH.HH.HHH...' }, S: { 1: '......H..H..H...', 2: '.....HH.HH.HH...' } }
+  spiky: { F: { 1: '....H..H...H....', 2: '....HH.HH.HHH...' }, B: { 1: '....H..H...H....', 2: '....HH.HH.HHH...' }, S: { 1: '......H..H..H...', 2: '.....HH.HH.HH...' } },
+  // ---- 캐릭터 디자인용 추가 머리 ----
+  buzz: { noBase: true, F: { 3: '.....hhhhhh.....', 4: '....hHHlHHHh....', 5: '...hHHHHHHHHh...', 6: '...hHhHhHhHhh...' }, B: { 3: '.....hhhhhh.....', 4: '....hHHHHHHh....', 5: '...hHHHHHHHHh...', 6: '...hHHHHHHHHh...', 7: '...hHHHHHHHHh...', 8: '...hHhHHhHHhh...', 9: '...hHHHHHHHHh...', 10: '...hHHhHHHhHh...', 11: '...hhHHHHHHhh...', 12: '....hhhhhhhh....' }, S: { 3: '.....hhhhhh.....', 4: '....hHHlHHHh....', 5: '...hHHHHHHHHh...', 6: '....hHHHHHHHh...', 7: '.......hHHHHh...', 8: '........hHHHh...', 9: '........hHHHh...', 10: '.........hHhh...', 11: '..........hh....' } },
+  twoblock: { noBase: true, F: { 2: '.....HHHHHH.....', 3: '....HHHllHHH....', 4: '...HHHlHHHHHH...', 5: '..HHHHHHHHHHHH..', 6: '..hHHHHHHHHHHh..', 7: '...HHhHHHHhHH...', 8: '...h.hH..Hh.h...', 9: '...s........s...', 10: '...s........s...' }, B: { 2: '.....HHHHHH.....', 3: '....HHHHHHHH....', 4: '...HHHHHHHHHH...', 5: '..HHHHHHHHHHHH..', 6: '..HHHHHHHHHHHH..', 7: '..hHHHHHHHHHHh..', 8: '...hhhhhhhhhh...', 9: '...hshshshshs...', 10: '...shshshshsh...', 11: '...hshshshshs...', 12: '....ssssssss....' }, S: { 2: '.....HHHHHH.....', 3: '....HHHllHHH....', 4: '...HHlHHHHHHH...', 5: '..HHHHHHHHHHHH..', 6: '...HHHHHHHHHHh..', 7: '...H..HHhhhhh...', 8: '........hshsh...', 9: '........shshs...', 10: '.........hshs...', 11: '..........ss....' } },
+  sidetail: { F: { 7: 'r...............', 8: 'HH..............', 9: 'HH..............', 10: 'HH..............', 11: 'Hh..............', 12: 'Hh..............', 13: 'hh..............', 14: '.h..............' }, B: { 7: '...............r', 8: '..............HH', 9: '..............HH', 10: '..............HH', 11: '..............hH', 12: '..............hH', 13: '..............hh', 14: '..............h.' }, S: { 8: '.............r..', 9: '............HHH.', 10: '............HhH.', 11: '............Hh..', 12: '............hh..' } },
+  bun: { F: { 0: '......HHHH......', 1: '.....HHlHHH.....', 2: '......hHHh......' }, B: { 0: '......HHHH......', 1: '.....HHHHHH.....', 2: '......hrrh......' }, S: { 0: '........HHHH....', 1: '.......HHHHHH...', 2: '........hrrh....' } },
+  dbun: { F: { 1: '..HHH......HHH..', 2: '.HHlHH....HHlHH.', 3: '..hrh......hrh..' }, B: { 1: '..HHH......HHH..', 2: '.HHHHH....HHHHH.', 3: '..hrh......hrh..' }, S: { 1: '..........HHH...', 2: '.........HHHHH..', 3: '..........hrh...' } },
+  ahoge: { F: { 0: '.........H......', 1: '........H.......', 2: '........HH......' }, B: { 0: '......H.........', 1: '.......H........', 2: '......HH........' }, S: { 0: '.........H......', 1: '........H.......', 2: '........HH......' } },
+  mohawk: { F: { 0: '.......HH.......', 1: '......HllH......', 2: '......HHHH......' }, B: { 0: '.......HH.......', 1: '......HHHH......', 2: '......HHHH......' }, S: { 0: '......HHHHH.....', 1: '.....HHlHHHH....', 2: '.....HHHHHHH....' } },
+  afro: { F: { 1: '....HHHHHHHH....', 2: '..HHHHHlHHHHHH..', 3: '.HHHlHHHHHHHHHH.', 4: 'HHHHHHHHHHHHlHHH', 5: 'HHHHHHHHHHHHHHHH', 6: 'HH.............H', 7: 'HH............HH', 8: 'Hh............hH', 9: '.h............h.' }, B: { 1: '....HHHHHHHH....', 2: '..HHHHHHHHHHHH..', 3: '.HHHHHHHHHHHHHH.', 4: 'HHHHHHHHHHHHHHHH', 5: 'HHHHHHHHHHHHHHHH', 6: 'HHHHHHHHHHHHHHHH', 7: 'HHHHHHHHHHHHHHHH', 8: 'hHHHHHHHHHHHHHHh', 9: '.hhHHHHHHHHHHhh.', 10: '...hhhhhhhhhh...' }, S: { 1: '....HHHHHHHH....', 2: '..HHHHHlHHHHHH..', 3: '.HHHlHHHHHHHHHH.', 4: '.HHHHHHHHHHHHHHH', 5: '.HHHHHHHHHHHHHHH', 6: '..H.....HHHHHHHH', 7: '........HHHHHHHH', 8: '........hHHHHHHh', 9: '.........hhhhhh.' } },
+  braid: { F: { 11: '............HH..', 12: '............hH..', 13: '............Hh..', 14: '............hH..', 15: '............Hh..', 16: '............rr..', 17: '............h...' }, B: { 13: '.......HH.......', 14: '.......hH.......', 15: '.......Hh.......', 16: '.......hH.......', 17: '.......Hh.......', 18: '.......rr.......', 19: '.......hh.......' }, S: { 12: '..........HH....', 13: '..........hH....', 14: '..........Hh....', 15: '..........hH....', 16: '..........rr....', 17: '..........h.....' } },
+  hime: { F: { 10: '.HHH........HHH.', 11: '.HHH........HHH.', 12: '.HHh........hHH.', 13: '.Hh..........hH.', 14: '.hh..........hh.', 15: '.hh..........hh.', 16: '.hh..........hh.', 17: '.hh..........hh.' }, B: { 13: '..HHHHHHHHHHHH..', 14: '..HHHHHHHHHHHH..', 15: '..HHHHHHHHHHHH..', 16: '..HHHHHHHHHHHH..', 17: '..hhhhhhhhhhhh..' }, S: { 10: '....HH..........', 11: '....HH...HHHHH..', 12: '....Hh...HHHHH..', 13: '.........HHHhH..', 14: '..........HHhH..', 15: '..........HHhh..', 16: '..........hhhh..' } },
+  wavy: { F: { 10: '.HH..........HH.', 11: 'HH............HH', 12: '.HH..........HH.', 13: 'HH............HH', 14: '.Hh..........hH.', 15: 'hh............hh', 16: '.h............h.' }, B: { 13: '..HHHHHHHHHHHH..', 14: '.HHHHHHHHHHHHHH.', 15: '..HHHhHHHHhHHH..', 16: '.HHHHHHHHHHHHHH.', 17: '..hHhHhHhHhHhh..' }, S: { 12: '.........HHHHH..', 13: '..........HHHHH.', 14: '.........HHHhH..', 15: '..........HHhHh.', 16: '.........hhhhh..' } },
+  messy: { F: { 2: '...H.H....H.H...', 3: '..H...........H.', 9: '.H............H.', 10: '.h............h.' }, B: { 2: '...H.H....H.H...', 3: '..H...........H.', 13: '..H.h.H..H.h.H..' }, S: { 2: '....H.H...H.....', 3: '...H..........H.', 11: '..............H.' } },
+  hipony: { F: { 1: '.............HH.', 2: '.............HHH', 3: '..............Hh', 4: '..............hh' }, B: { 1: '.......HH.......', 2: '......rrrr......', 3: '.......HH.......', 13: '.......HH.......', 14: '.......Hh.......', 15: '.......hh.......' }, S: { 1: '..........rr....', 2: '..........HHHH..', 3: '...........HHHH.', 4: '............HHHh', 5: '.............HHh', 6: '.............Hhh', 7: '..............hh', 8: '..............h.' } },
+  mekakure: { F: { 8: '........HHHH....', 9: '........HHHHh...', 10: '........HHHHh...', 11: '.........HHh....' }, B: {}, S: {} },
+  shortbob: { F: { 10: '.HH..........HH.', 11: '.hh..........hh.' }, B: { 12: '..HHHHHHHHHHHH..', 13: '..hhhhhhhhhhhh..' }, S: { 11: '........HHHHHh..', 12: '.........hhhh...' } }
 };
 const HAT_T = {
   wizard: { all: { 0: '.........hh.....', 1: '........HHH.....', 2: '.......HHHH.....', 3: '......HlHHH.....', 4: '.....HlHHHHH....', 5: '.....AAAAAAA....', 6: '..HHHHHHHHHHHH..', 7: '.hHHHHHHHHHHHHh.' } },
@@ -734,7 +750,7 @@ function humanoid(p, dir, fr) {
   }
   // 머리카락
   if (hs !== 'bald' && hat !== 'hood' && hat !== 'helmet') {
-    stamp(g, HAIR_T.base[V], hpal, 0, bob);
+    if (!(HAIR_T[hs] && HAIR_T[hs].noBase)) stamp(g, HAIR_T.base[V], hpal, 0, bob);
     if (HAIR_T[hs] && HAIR_T[hs][V]) stamp(g, HAIR_T[hs][V], hpal, 0, bob);
   } else if (hs === 'bald' && !hat) {
     stamp(g, { 5: '....SlS.........', 6: '...Sl...........' }, { S: shade(sk, .2), l: shade(sk, .4) }, 0, bob);
@@ -771,11 +787,24 @@ const EYE_SHAPES = {
   closed:  [['SS', 'EE', 'SS'], ['SS', 'EE', 'SS']],
   sparkle: [['Ew', 'ww', 'fe'], ['wE', 'ww', 'ef']],
   dot:     [['SS', 'SE', 'SS'], ['SS', 'ES', 'SS']],
-  droopy:  [['SS', 'Ee', 'fE'], ['SS', 'eE', 'Ef']]
+  droopy:  [['SS', 'Ee', 'fE'], ['SS', 'eE', 'Ef']],
+  big:     [['EE', 'we', 'ee', 'ff'], ['EE', 'ew', 'ee', 'ff']],
+  smile:   [['SS', 'EE', 'ES'], ['SS', 'EE', 'SE']],
+  wink:    [['EE', 'we', 'ff'], ['SS', 'EE', 'SS']],
+  teary:   [['EE', 'we', 'TT'], ['EE', 'ew', 'TT']],
+  tired:   [['SS', 'EE', 'DD'], ['SS', 'EE', 'DD']],
+  cat:     [['eE', 'eE', 'ef'], ['Ee', 'Ee', 'fe']],
+  heart:   [['RR', 'RR', 'SR'], ['RR', 'RR', 'RS']],
+  star:    [['EE', 'Yw', 'fY'], ['EE', 'wY', 'Yf']],
+  dizzy:   [['ES', 'SE', 'ES'], ['SE', 'ES', 'SE']],
+  blank:   [['EE', 'ww', 'ww'], ['EE', 'ww', 'ww']],
+  angry:   [['ES', 'Ee', 'ff'], ['SE', 'eE', 'ff']],
+  focus:   [['EE', 'Ef', 'SS'], ['EE', 'fE', 'SS']]
 };
 function drawEyeShape(g, shape, side, pal, bob) {
   const s = EYE_SHAPES[shape]; if (!s) return;
-  const put = (x0, rows) => rows.forEach((r, j) => { for (let i = 0; i < 2; i++) { const y = 10 + j + bob; if (g[y]) g[y][x0 + i] = pal[r[i]] || g[y][x0 + i]; } });
+  const xp = Object.assign({ T: '#7ec8ff', D: shade(pal.S, -0.22), R: '#e8405a', Y: '#ffd84d' }, pal);
+  const put = (x0, rows) => rows.forEach((r, j) => { for (let i = 0; i < 2; i++) { const y = (rows.length === 4 ? 9 : 10) + j + bob; if (g[y]) g[y][x0 + i] = xp[r[i]] || g[y][x0 + i]; } });
   if (side) put(4, s[0]); else { put(5, s[0]); put(9, s[1]); }
 }
 function beastParts(g, p, side, up, fr, bob, hr) {

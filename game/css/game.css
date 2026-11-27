@@ -426,7 +426,7 @@
 .lesson .l-tip.l-cont { padding-left: 2.3em; margin-top: 0; }
 
 /* ===== 저장 슬롯 (타이틀) ===== */
-.slots { display: grid; gap: 8px; max-height: min(46vh, 420px); overflow-y: auto; padding-right: 2px; margin: 4px 0 2px; }
+.slots { display: flex; flex-direction: column; gap: 8px; max-height: min(46vh, 420px); overflow-y: auto; padding-right: 2px; margin: 4px 0 2px; }
 .slot { background: rgba(255,250,240,.96); border: 2px solid #e3d3b4; border-radius: 14px; padding: 9px 11px; text-align: left; color: #3a2a2a; }
 .slot.cur { border-color: #d9a84a; box-shadow: 0 0 0 2px rgba(217,168,74,.25); }
 .slot.empty { background: rgba(255,250,240,.7); border-style: dashed; }
@@ -566,3 +566,11 @@
   .dz-rot { flex-direction: column; }
   .dz-right { overflow: visible; flex: none; }
 }
+/* 주인공 일러스트 */
+.dz-stage { position: relative; overflow: hidden; }
+.dz-stage .dz-port { position: absolute; right: 6px; bottom: 6px; width: 68px; height: 82px; object-fit: cover; object-position: top; border-radius: 10px; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.18); image-rendering: auto; }
+.slot.has-face { position: relative; padding-left: 70px; min-height: 92px; }
+.slot .sl-face { position: absolute; left: 9px; top: 9px; width: 52px; height: 62px; object-fit: cover; object-position: top; border-radius: 10px; border: 2px solid #ead8b0; background: #fff6e6; }
+@media (max-width: 560px) { .dz-stage .dz-port { width: 46px; height: 56px; } }
+.slot { flex: none; } .slot .sl-btns .pbtn { position: static; transform: none; }
+.dz-b { padding: 5px 10px; font-size: 12.5px; }

@@ -4,20 +4,23 @@
 //   · 곳곳의 「의상 상자」(한산한 곳 위주)를 열면 의상을 얻고, 가방 → 옷장에서 갈아입는다
 // =========================================================================
 const DESIGN = {
+  gender: [['m', '남자'], ['f', '여자']],
   beast: [['fox', '여우'], ['wolf', '늑대'], ['cat', '고양이']],
   fur: ['#c8642a', '#e09040', '#f2cf8a', '#8a5a3a', '#4a3a3a', '#9a9aa8', '#f4f1ea', '#2a2a30', '#e8a0b8', '#6a8ad0'],
   tip: ['#fff4e6', '#2a2a30', '#f2cf8a', '#ffb3c6'],
   hair: ['#5a3a2a', '#2a2020', '#f2cf5a', '#d8322c', '#f07a2a', '#f58ab0', '#8a6ae0', '#3a62d8', '#3a9a5a', '#e8e8f0', '#9a9aa8', '#4fd0d0'],
-  style: [['short', '짧은 머리'], ['bob', '단발'], ['spiky', '삐죽 머리'], ['pony', '포니테일'], ['twin', '양갈래'], ['long', '긴 머리']],
-  eyeShape: [['round', '동그란 눈'], ['sparkle', '반짝이는 눈'], ['droopy', '처진 눈'], ['sharp', '날카로운 눈'], ['sleepy', '졸린 눈'], ['closed', '실눈'], ['dot', '점 눈']],
+  style: [['short', '짧은 머리'], ['buzz', '스포츠머리'], ['twoblock', '투블럭'], ['spiky', '삐죽 머리'], ['messy', '부스스'], ['ahoge', '바보털'], ['mohawk', '닭벼슬'], ['afro', '뽀글 파마'], ['mekakure', '한쪽 눈 가림'],
+    ['shortbob', '짧은 단발'], ['bob', '단발'], ['hime', '히메컷'], ['long', '긴 머리'], ['wavy', '웨이브'], ['pony', '포니테일'], ['hipony', '하이 포니테일'], ['sidetail', '사이드 테일'], ['twin', '양갈래'], ['braid', '땋은 머리'], ['bun', '똥머리'], ['dbun', '양 똥머리']],
+  eyeShape: [['round', '동그란 눈'], ['big', '왕눈'], ['sparkle', '반짝이는 눈'], ['star', '별빛 눈'], ['droopy', '처진 눈'], ['sharp', '날카로운 눈'], ['angry', '화난 눈'], ['focus', '집중한 눈'], ['cat', '고양이 눈'],
+    ['sleepy', '졸린 눈'], ['tired', '피곤한 눈'], ['smile', '웃는 눈'], ['wink', '윙크'], ['closed', '실눈'], ['teary', '글썽 눈'], ['dot', '점 눈'], ['heart', '하트 눈'], ['dizzy', '어질어질'], ['blank', '멍한 눈']],
   eye: ['#c98a2a', '#3a7ad0', '#3a9a4a', '#c03030', '#8a4ac0', '#2a2a3a', '#e0b020'],
   skin: SKIN.slice(0, 5),
   cloth: ['#4f7fd6', '#c0405a', '#3f8a4a', '#8a5ad0', '#e0a030', '#3a3a46', '#f4f1ea', '#e87aa0', '#2a9a9a', '#8a5a3a']
 };
-function defaultDesign() { return { beast: 'fox', fur: '#c8642a', tailTip: '#fff4e6', hair: '#5a3a2a', hairStyle: 'short', eyeShape: 'round', eye: '#c98a2a', skin: SKIN[0], cloth: '#4f7fd6' }; }
+function defaultDesign() { return { gender: 'm', beast: 'fox', fur: '#c8642a', tailTip: '#fff4e6', hair: '#5a3a2a', hairStyle: 'short', eyeShape: 'round', eye: '#c98a2a', skin: SKIN[0], cloth: '#4f7fd6' }; }
 function randomDesign() {
   const r = a => a[Math.random() * a.length | 0];
-  return { beast: r(DESIGN.beast)[0], fur: r(DESIGN.fur), tailTip: r(DESIGN.tip), hair: r(DESIGN.hair), hairStyle: r(DESIGN.style)[0], eyeShape: r(DESIGN.eyeShape)[0], eye: r(DESIGN.eye), skin: r(DESIGN.skin), cloth: r(DESIGN.cloth) };
+  return { gender: r(DESIGN.gender)[0], beast: r(DESIGN.beast)[0], fur: r(DESIGN.fur), tailTip: r(DESIGN.tip), hair: r(DESIGN.hair), hairStyle: r(DESIGN.style)[0], eyeShape: r(DESIGN.eyeShape)[0], eye: r(DESIGN.eye), skin: r(DESIGN.skin), cloth: r(DESIGN.cloth) };
 }
 
 // ---- 의상 (look 덮어쓰기). 병맛 의상 다수 ----
@@ -175,8 +178,9 @@ function openDesigner(onDone, again) {
   let dir = 0, fr = 0;
   const render = () => {
     el.innerHTML = `<div class="dz-box"><div class="dz-h"><b>${again ? '외모 다시 꾸미기' : '나의 수인 모험가 만들기'}</b><small>${again ? '입고 있는 의상은 그대로예요' : '나중에 가방 → 옷장에서 다시 바꿀 수 있어요'}</small></div>
-      <div class="dz-body"><div class="dz-left"><div class="dz-stage"><img id="dz-img" alt=""></div><div class="dz-rot"><button data-rot="-1">‹</button><span>돌려 보기</span><button data-rot="1">›</button></div></div>
+      <div class="dz-body"><div class="dz-left"><div class="dz-stage"><img id="dz-img" alt=""><img class="dz-port" alt="" src="assets/portraits/player_${d.gender || 'm'}.webp"></div><div class="dz-rot"><button data-rot="-1">‹</button><span>돌려 보기</span><button data-rot="1">›</button></div></div>
       <div class="dz-right">
+        <label>성별</label>${ch('gender', DESIGN.gender)}
         <label>종족</label>${ch('beast', DESIGN.beast)}
         <label>털 색</label>${sw('fur', DESIGN.fur)}
         <label>꼬리 끝</label>${sw('tailTip', DESIGN.tip)}
@@ -188,7 +192,12 @@ function openDesigner(onDone, again) {
         <label>옷 색</label>${sw('cloth', DESIGN.cloth)}
       </div></div>
       <div class="dz-foot"><button class="dz-rand">랜덤</button>${again ? '<button class="dz-cancel">취소</button>' : ''}<button class="dz-ok">${again ? '이대로 저장' : '이 모습으로 시작'}</button></div></div>`;
-    el.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { d[b.dataset.k] = b.dataset.v; AudioSys.sfx('select'); render(); });
+    el.querySelectorAll('[data-k]').forEach(b => b.onclick = () => {
+      const k = b.dataset.k, v = b.dataset.v;
+      // 성별을 바꾸면 기본 머리 모양도 일러스트에 맞춰 준다
+      if (k === 'gender' && v !== d.gender) { if (v === 'f' && d.hairStyle === 'short') d.hairStyle = 'long'; if (v === 'm' && d.hairStyle === 'long') d.hairStyle = 'short'; }
+      d[k] = v; AudioSys.sfx('select'); render();
+    });
     el.querySelectorAll('[data-rot]').forEach(b => b.onclick = () => { dir = (dir + (+b.dataset.rot) + 4) % 4; paint(); });
     el.querySelector('.dz-rand').onclick = () => { d = randomDesign(); AudioSys.sfx('select'); render(); };
     const cc = el.querySelector('.dz-cancel'); if (cc) cc.onclick = () => close(false);

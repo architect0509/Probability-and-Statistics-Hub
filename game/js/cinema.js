@@ -23,6 +23,7 @@ const CINE = { on: false, phase: '', cast: {}, speaker: null, emote: null, emote
     filter: drop-shadow(0 6px 14px rgba(0,0,0,.45)) drop-shadow(0 0 1px rgba(0,0,0,.6)); }
   #cut .cut-box #cut-left.on { opacity: 1; transform: none; } #cut .cut-box #cut-left.dim { opacity: 0; }
   #cut .cut-box #cut-left img, #cut .cut-box #cut-left svg { width: 100%; height: auto; display: block; border: none; border-radius: 0; box-shadow: none; background: transparent; aspect-ratio: auto; object-fit: contain; }
+  #cut .cut-box #cut-left .cutimg { width: 100%; aspect-ratio: 5 / 6; object-fit: cover; object-position: top; display: block; }
   #cut .cut-box #cut-left .cutpic { width: 100%; aspect-ratio: 5 / 6; background: url(assets/portraits_cut.webp) no-repeat; background-size: 800% 800%; }
   #cut .cut-box > #cut-name, #cut .cut-box > #cut-text { position: relative; z-index: 1; }
   #cut .cut-box > .cut-hint { position: absolute; z-index: 1; }
@@ -53,12 +54,17 @@ const CINE = { on: false, phase: '', cast: {}, speaker: null, emote: null, emote
 // 인물 정보
 function cineCast(who) {
   if (!who) return null;
+  if (who === 'player') return { id: 'player', n: (S && S.name) || '모험가', title: '', look: {} };
   if (NPCS[who]) return { id: who, n: NPCS[who].n, title: NPCS[who].title || '', look: NPCS[who].look };
   if (typeof CUT_CAST !== 'undefined' && CUT_CAST[who]) return { id: who, n: CUT_CAST[who].n, title: CUT_CAST[who].title || '', look: CUT_CAST[who].look };
   return null;
 }
 // 컷씬용 일러스트: 배경을 지운 버전 (없으면 원본)
+// 주인공 일러스트 (성별에 따라 남/여 버전)
+function playerGender() { return (typeof S !== 'undefined' && S && S.design && S.design.gender) || 'm'; }
+function playerPicURL(cut) { return `assets/portraits/player_${playerGender()}${cut ? '_cut' : ''}.webp`; }
 function cutPortraitHTML(id, look, mood) {
+  if (id === 'player') return `<img class="cutimg" alt="" src="${playerPicURL(true)}">`;
   const pid = (NPCS[id] && NPCS[id].pic) || (typeof CUT_CAST !== 'undefined' && CUT_CAST[id] && CUT_CAST[id].pic) || id;
   // 배경을 지운 일러스트 57장은 한 장짜리 시트(assets/portraits_cut.webp, 8×8칸)에 모여 있다. 순서 = PORTRAIT_IDS
   const i = typeof PORTRAIT_IDS !== 'undefined' ? PORTRAIT_IDS.indexOf(pid) : -1;
@@ -347,5 +353,6 @@ CUTS.push({ id: 'cine_first_out', map: 'town', enter: true, music: 'epic', lines
   [null, '거꾸로 솟아오르는 분수. 끝없이 겹친 붉은 지붕들.', null, { slow: 1800, pan: [43, 30], zoom: .7 }],
   [null, '북쪽 언덕 위에는 왕성이, 동·서·남의 길 끝에는 지식을 가진 자만 들어갈 수 있는 던전이 잠들어 있다고 한다.', null, { slow: 2000, pan: [43, 12], zoom: .66 }],
   [null, '그리고 지금, 이 도시의 분포가 흔들리고 있다.', 'shake', { slow: 1600, pan: [43, 35], zoom: .8 }],
-  [null, '당신의 모험이 시작된다.', null, { slow: 900, player: true, zoom: 1.5 }]
+  [null, '당신의 모험이 시작된다.', null, { slow: 900, player: true, zoom: 1.5 }],
+  ['player', '「……좋아. 가 보자!」', null, { player: true, zoom: 1.7 }]
 ] });

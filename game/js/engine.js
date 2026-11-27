@@ -1604,6 +1604,7 @@ async function loadOverrides(ids, onProgress) {
   }));
 }
 function portraitHTML(id, look, mood) {
+  if (id === 'player' && typeof playerPicURL === 'function') return `<img class="ovr" alt="" src="${playerPicURL(false)}">`;
   // 인물 그림은 언제나 assets/portraits 의 일러스트를 쓴다 (새 인물은 pic으로 기존 일러스트를 빌림)
   const pid = PORT_OVR[id] ? id : (NPCS[id] && NPCS[id].pic) ? NPCS[id].pic : (typeof CUT_CAST !== 'undefined' && CUT_CAST[id] && CUT_CAST[id].pic) ? CUT_CAST[id].pic : id;
   if (PORT_OVR[pid]) return `<img class="ovr" alt="" src="${PORT_OVR[pid]}">`;
@@ -1660,7 +1661,8 @@ function renderSlots() {
     const s = loadSlot(i);
     if (!s) return `<div class="slot empty${i === CUR_SLOT ? ' cur' : ''}"><div class="sl-h"><b>슬롯 ${i + 1}</b><span>빈 슬롯</span></div><div class="sl-btns"><button class="pbtn alt" data-new="${i}">✦ 새 모험</button></div></div>`;
     const m = slotSummary(s);
-    return `<div class="slot${i === CUR_SLOT ? ' cur' : ''}"><div class="sl-h"><b>슬롯 ${i + 1} · ${esc(s.name || '모험가')}</b><span>${esc(m.ws)}</span></div>
+    const g = (s.design && s.design.gender) || 'm';
+    return `<div class="slot has-face${i === CUR_SLOT ? ' cur' : ''}"><img class="sl-face" alt="" src="assets/portraits/player_${g}.webp"><div class="sl-h"><b>슬롯 ${i + 1} · ${esc(s.name || '모험가')}</b><span>${esc(m.ws)}</span></div>
       <div class="sl-m">${esc(m.org)} · 📍 ${esc(m.place)}</div>
       <div class="sl-bar"><i style="width:${m.pct}%"></i></div>
       <div class="sl-m">📖 표지판 ${m.signs}/${m.total} · 🃏 카드 ${m.cards}/${typeof CARDS !== 'undefined' ? CARDS.length : 0} · 🪙 ${s.gold || 0}</div>
