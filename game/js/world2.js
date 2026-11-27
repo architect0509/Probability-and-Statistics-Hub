@@ -575,11 +575,10 @@ function drawGuideWorld(ctx, t) {
     ctx.fillRect(x * 16 + 7 + off, y * 16 + 6, 3, 4);
     ctx.fillStyle = `rgba(42,29,43,${.5 * a})`; ctx.fillRect(x * 16 + 7 + off, y * 16 + 10, 3, 1);
   }
-  const last = p[p.length - 1];
-  if (last && p.length <= 60) { const b = Math.sin(t / 160) * 2; ctx.fillStyle = '#ff5d7a'; ctx.beginPath(); ctx.moveTo(last[0] * 16 + 8, last[1] * 16 + 2 + b); ctx.lineTo(last[0] * 16 + 4, last[1] * 16 - 5 + b); ctx.lineTo(last[0] * 16 + 12, last[1] * 16 - 5 + b); ctx.fill(); }
 }
 // 화면 가장자리 화살표 (목표가 화면 밖일 때)
 function drawGuideScreen(ctx, toScreen, W, H, t, dpr) {
+  return; // 화살표 없이 발자국만 보여 준다
   if (S.guide === 'off' || !GUIDE.dest || dlgOpen || cutOpen || !GUIDE.target) return;
   const [dx, dy] = GUIDE.dest; const [x, y] = toScreen(dx * 16 + 8, dy * 16 + 8);
   const m = 40 * dpr; if (x > m && x < W - m && y > m && y < H - m) return;
@@ -756,17 +755,70 @@ const EVENTS = [
     { t: '값을 깎는다', tag: '설득 13', run: () => { const r = check('설득', 13); return Object.assign(simple('행상인', 'sign', r.ok ? '「에잇, 손님 눈빛에 졌다!」 공짜로 물약 하나를 준다.' : '「깎으면 품질도 깎여요~」 행상인이 휙 사라진다.'), { roll: r.line, fx: applyFx(r.ok ? { item: 'potion' } : {}) }); } },
     { t: '괜찮다고 한다', run: () => simple('행상인', 'sign', '「다음에 또 만나요~」 눈을 깜빡이니 행상인이 없다.') }] }), 0) }
 ];
+// ---- 돌발 이벤트 추가분 ----
+const TOWNISH = m => m.theme === 'town';
+const OUTSIDE = m => m.theme === 'town' || m.theme === 'forest';
+const DUNG = m => m.theme === 'dungeon' || m.theme === 'cave';
+const R = (t, obj, desc, ch) => ({ title: t, sub: MAP.name, obj: obj || 'sign', desc, choices: ch });
+const chk = (stat, dc, okTxt, ngTxt, okFx, ngFx, title) => () => { const r = check(stat, dc); return Object.assign(simple(title || '결과', 'sign', r.ok ? okTxt : ngTxt), { roll: r.line, fx: applyFx(r.ok ? okFx : ngFx) }); };
+EVENTS.push(
+  { w: 2, where: TOWNISH, run: () => popEvent(['다그닥다그닥—!!', '히이잉!', '(먼지 펄펄)'], () => R('폭주 마차', 'sign', '골목 끝에서 말 두 마리가 끄는 마차가 전속력으로 달려온다! 마부는 졸고 있다.', [
+    { t: '옆 골목으로 몸을 날린다', tag: '민첩 12', run: chk('민첩', 12, '휙! 아슬아슬하게 피했다. 마차에서 사과 상자가 떨어져 하나를 챙겼다.', '피하긴 했는데 진흙탕에 철푸덕.', { item: 'bread', heal: 2 }, { hp: -1, status: { 피로: 1 } }, '폭주 마차') },
+    { t: '「일어나세요!!」 하고 외친다', tag: '설득 11', run: chk('설득', 11, '마부가 화들짝 깨어 고삐를 당긴다. 「아이고 감사합니다!」 사례금을 던져 준다.', '마부는 계속 잔다. 마차는 분수를 한 바퀴 돌고 사라졌다.', { gold: 8 }, {}, '폭주 마차') },
+    { t: '말의 걸음 수로 속도를 추정해 본다', tag: '지능 13', run: chk('지능', 13, '1초에 네 걸음, 보폭 1.5m… 시속 약 21.6km. 정확한 추정에 지나가던 학자가 박수를 친다.', '계산하다가 마차가 지나갔다. 머리카락이 바람에 휘날린다.', { focus: 1 }, {}, '폭주 마차') }]), 6) },
+  { w: 2, where: TOWNISH, run: () => runnerEvent('lyra', ['♪ 띠리리리~', '♬ 랄라~', '(박수 짝짝)'], () => ({ who: 'lyra', mood: 'happy', desc: '음유시인 리라가 류트를 튕기며 다가와 당신 주위를 빙글빙글 돈다.\n「♪ 표본은 모여 종이 되고~ 평균은 웃으며 가운데 서네~ ♪」\n지나가던 사람들이 모여든다.', choices: [
+    { t: '동전을 던져 준다 (3골드)', run: () => { if (S.gold < 3) return npcTurn('lyra', '「괜찮아, 박수도 돈이야!」'); return Object.assign(npcTurn('lyra', '「고마워! 너를 위한 소절을 하나 더~」 마음이 가벼워진다.'), { fx: applyFx({ gold: -3, aff: 2, status: { 고양: 4 } }, 'lyra') }); } },
+    { t: '같이 노래한다', tag: '설득 12', run: () => { const r = check('설득', 12); return Object.assign(npcTurn('lyra', r.ok ? '화음이 딱 맞았다! 관객들이 동전을 던진다. 리라가 절반을 나눠 준다.' : '음이 반음 나갔다. 리라가 웃음을 참는다.'), { roll: r.line, fx: applyFx(r.ok ? { gold: 10, aff: 1 } : { aff: 0 }, 'lyra') }); } },
+    { t: '가사 속 통계가 맞는지 따진다', run: () => Object.assign(npcTurn('lyra', '「…평균이 꼭 가운데 있는 건 아니라고? 치우친 분포면? 으으, 가사 고쳐야겠다.」'), { fx: applyFx({ focus: 1 }, 'lyra') }) }] })) },
+  { w: 2, where: TOWNISH, run: () => popEvent(['휘이이익—', '쨍그랑!!', '(아슬아슬…)'], () => R('떨어진 화분', 'sign', '바로 발 앞에 화분이 떨어져 산산조각 났다. 2층 창문에서 할머니가 내려다본다. 「어머머! 괜찮아요?」', [
+    { t: '「괜찮아요!」 하고 손을 흔든다', run: () => Object.assign(simple('떨어진 화분', 'sign', '할머니가 미안하다며 쿠키 바구니를 내려 준다. 줄에 매달아서.'), { fx: applyFx({ heal: 4, status: { 고양: 2 } }) }) },
+    { t: '꽃을 살려서 다시 심는다', run: () => Object.assign(simple('떨어진 화분', 'sign', '흙을 모아 꽃을 다시 세웠다. 할머니가 감동해서 동전 꾸러미를 던진다. 머리에 맞았다.'), { fx: applyFx({ gold: 7, hp: -1 }) }) },
+    { t: '떨어질 확률을 계산해 본다', tag: '지능 12', run: chk('지능', 12, '하루 1번 떨어지는 화분이 지금 내 앞에 떨어질 확률… 이건 그냥 운이 나빴던 거다. 깨달음을 얻었다.', '확률이 0이 아니니까 일어났다. 그게 전부다.', { focus: 1 }, {}, '떨어진 화분') }]), 5) },
+  { w: 2, where: TOWNISH, run: () => runnerEvent('prime', ['흐에에엥—!', '(훌쩍훌쩍)', '…엄마아…'], () => ({ who: 'prime', mood: 'sad', desc: '울면서 달려오던 아이가 당신 다리에 부딪혔다. 「엄마를 잃어버렸어요… 엄마는 2, 3, 5, 7번째 골목 중 하나에 있대요…」', choices: [
+    { t: '손을 잡고 같이 찾아 준다', tag: '설득 10', run: () => { const r = check('설득', 10); return Object.assign(npcTurn('prime', r.ok ? '세 번째 골목에서 엄마를 찾았다! 아이 엄마가 몇 번이고 고개를 숙이며 사례금을 쥐여 준다.' : '한참 헤맸지만 결국 경비병이 데려다줬다. 아이가 손을 흔든다.'), { roll: r.line, fx: applyFx(r.ok ? { gold: 12, aff: 2 } : { aff: 1, status: { 피로: 1 } }, 'prime') }); } },
+    { t: '「골목이 4개면 한 곳일 확률은 1/4이야」', run: () => Object.assign(npcTurn('prime', '아이가 울음을 멈춘다. 「…4는 소수가 아닌데요.」 그리고 혼자 엄마를 찾으러 간다. 강하다.'), { fx: applyFx({ aff: -1 }, 'prime') }) },
+    { t: '사탕을 준다', run: () => Object.assign(npcTurn('prime', '아이가 사탕을 물고 웃는다. 마침 엄마가 달려온다. 다행이다.'), { fx: applyFx({ aff: 1, status: { 고양: 2 } }, 'prime') }) }] })) },
+  { w: 2, where: OUTSIDE, run: () => popEvent(['팔랑팔랑~', '(얼굴에 철썩)'], () => ({ title: '날아온 쪽지', sub: '바람에 날아왔다', obj: 'sign', desc: '바람에 날아온 쪽지가 얼굴에 철썩 붙었다. 「시험 족보 — 이거 맞히면 너도 천재」라고 적혀 있다.', choices: [
+    { t: '쪽지의 문제를 푼다', tag: '📝 정답 시 🪙+8', run: () => quizTurn({ title: '날아온 쪽지', obj: 'sign', ch: 0, head: '구겨진 쪽지를 펼친다.', after: (ok, q) => ({ title: '날아온 쪽지', obj: 'sign', fx: applyFx(ok ? { gold: 8 } : {}), desc: (ok ? '⭕ 정답! 쪽지 뒷면에 동전이 테이프로 붙어 있다.' : '❌ 족보가 틀렸던 걸로 하자.') + `\n<span class="ex">해설: ${esc(q.ex)}</span>`, choices: [{ t: '쪽지를 접어 둔다', run: () => null }] }) }) },
+    { t: '종이비행기로 접어 날린다', run: () => Object.assign(simple('날아온 쪽지', 'sign', '비행기가 멀리멀리 날아가 분수에 착지했다. 모아 할멈이 엄지를 든다.'), { fx: applyFx({ status: { 고양: 2 } }) }) }] })) },
+  { w: 2, where: TOWNISH, run: () => popEvent(['꼬꼬꼬꼬꼬꼬!!', '푸드드득!', '(깃털이 날린다)'], () => R('닭 대탈출', 'sign', '시장 닭장 문이 열렸다! 닭 열두 마리가 사방으로 흩어진다. 주인 아저씨가 비명을 지른다.', [
+    { t: '닭을 잡는다', tag: '민첩 13', run: chk('민첩', 13, '여덟 마리를 잡았다! 주인이 감격해서 달걀과 동전을 준다.', '닭 한 마리가 머리 위에 앉았다. 내려오지 않는다.', { gold: 10, heal: 3 }, { status: { 혼란: 1 } }, '닭 대탈출') },
+    { t: '닭들이 어디로 갈지 예측한다', tag: '지능 12', run: chk('지능', 12, '닭들은 모이통 근처로 모인다 — 최빈값이다! 모이통을 들고 서 있으니 닭들이 알아서 돌아왔다.', '예측은 완벽했는데 닭들이 통계를 모른다.', { gold: 8, focus: 1 }, {}, '닭 대탈출') },
+    { t: '구경한다', run: () => simple('닭 대탈출', 'sign', '열두 마리 중 열한 마리가 결국 잡혔다. 한 마리는 지금도 자유롭다고 한다.') }]), 4) },
+  { w: 2, where: m => m.theme === 'forest', run: () => popEvent(['부스럭…', '크아앙!!', '(흙먼지)'], () => R('멧돼지 돌진', 'sign', '덤불을 뚫고 멧돼지가 돌진해 온다! 엄니가 번쩍인다.', [
+    { t: '옆으로 굴러 피한다', tag: '민첩 13 · 실패 시 HP−3', run: chk('민첩', 13, '데굴! 멧돼지가 나무에 머리를 박고 비틀비틀 도망간다. 떨어진 도토리 사이에서 동전을 주웠다.', '엄니에 스쳤다. 아프다.', { gold: 6 }, { hp: -3 }, '멧돼지 돌진') },
+    { t: '정면으로 맞선다', tag: '힘 15', run: chk('힘', 15, '쿵! 멧돼지를 맨손으로 멈춰 세웠다. 멧돼지가 존경의 눈빛을 보내고 떠난다.', '튕겨 나가 철푸덕.', { status: { 고양: 4 } }, { hp: -4 }, '멧돼지 돌진') },
+    { t: '나무 위로 올라간다', run: () => Object.assign(simple('멧돼지 돌진', 'sign', '나무 위에서 멧돼지가 지나가길 기다렸다. 둥지 속에 누가 숨겨 둔 반짝이는 게 있다.'), { fx: applyFx({ gold: 4 }) }) }]), 8) },
+  { w: 1, where: m => m.theme === 'forest', run: () => popEvent(['까르르르~', '✨ 반짝반짝 ✨'], () => R('요정의 장난', 'sign', '보이지 않는 누군가가 귓가에서 킥킥 웃는다. 머리 위로 반짝이 가루가 쏟아진다.', [
+    { t: '반짝이를 털지 않고 그대로 둔다', tag: '운 11', run: chk('운', 11, '반짝이가 몸에 스며든다. 운이 좋아진 기분!', '반짝이가 코에 들어갔다. 에취! 에취!', { status: { 축복: 4 } }, { status: { 혼란: 2 } }, '요정의 장난') },
+    { t: '「피오, 너지?」', run: () => Object.assign(simple('요정의 장난', 'sign', '「들켰다!」 버섯 뒤에서 요정이 튀어나와 꽃잎 하나를 주고 사라진다.'), { fx: applyFx({ heal: 5, affs: { fairy: 1 } }) }) }]), 0) },
+  { w: 2, where: DUNG, run: () => popEvent(['딸깍…', '슈슉슉!!', '(화살 세 발)'], () => R('함정 발판', 'sign', '발밑에서 딸깍 소리가 났다. 벽에서 화살이 날아온다!', [
+    { t: '납작 엎드린다', tag: '민첩 12 · 실패 시 HP−3', run: chk('민첩', 12, '화살이 머리 위로 지나갔다. 벽에 박힌 화살에 「n=3」이라고 쓰여 있다.', '한 발이 어깨를 스쳤다.', { focus: 1 }, { hp: -3, status: { 출혈: 1 } }, '함정 발판') },
+    { t: '발을 떼지 않고 버틴다', tag: '정신 13', run: chk('정신', 13, '발을 떼지 않으니 화살이 멈췄다. 함정 설계자가 「떼는 순간 발사」로 만든 모양이다. 발판 밑에 보물이 있다.', '버티다가 다리가 저려서 떼 버렸다. 슈슉!', { gold: 12 }, { hp: -2 }, '함정 발판') }]), 6) },
+  { w: 2, where: DUNG, run: () => popEvent(['…거기…', '…누구… 있어…?', '(메아리)'], () => R('어둠 속의 목소리', 'sign', '어둠 저편에서 목소리가 메아리친다. 「…표본이… 너무 작아… 너무…」', [
+    { t: '「n을 키워!」 하고 외친다', run: () => Object.assign(simple('메아리', 'sign', '…잠시 정적. 그리고 멀리서 「…고마워…」. 발밑에 빛나는 조각이 굴러온다.'), { fx: applyFx({ focus: 2 }) }) },
+    { t: '귀를 막고 지나간다', tag: '정신 11', run: chk('정신', 11, '흔들리지 않고 지나왔다. 마음이 단단해진다.', '목소리가 머릿속에서 계속 맴돈다… 표본이… 작아…', { status: { 고양: 3 } }, { status: { 저주: 1 } }, '메아리') }]), 0) },
+  { w: 1, where: m => OUTSIDE(m) && typeof nightAmount === 'function' && nightAmount() > .3, run: () => popEvent(['슈우우우웅—', '☆ 반짝!'], () => R('별똥별', 'sign', '밤하늘을 가르며 별똥별이 떨어진다. 사람들이 일제히 하늘을 올려다본다.', [
+    { t: '소원을 빈다', tag: '운 10', run: chk('운', 10, '소원이 이루어질 것 같은 기분. 주머니가 묵직해졌다…?', '소원을 다 말하기 전에 사라졌다.', { gold: 15, status: { 축복: 3 } }, {}, '별똥별') },
+    { t: '「유성우의 시간당 개수는 포아송 분포!」', run: () => Object.assign(simple('별똥별', 'sign', '옆에 있던 천문학도가 눈을 반짝인다. 「λ는 얼마로 보세요?」 둘이서 밤새 토론했다.'), { fx: applyFx({ focus: 2, status: { 피로: 1 } }) }) }]), 0) },
+  { w: 1, where: TOWNISH, run: () => popEvent(['펑!', '펑펑!!', '✨ 와아아— ✨'], () => R('깜짝 축제', 'sign', '광장 쪽 하늘에 불꽃이 터진다! 오늘이 「중심극한정리의 날」이란다. 사람들이 종 모양으로 줄을 서서 춤춘다.', [
+    { t: '춤추는 줄에 끼어든다', run: () => Object.assign(simple('깜짝 축제', 'sign', '가운데 자리에 섰다. 가장 높이 뛰어야 하는 자리다. 신난다!'), { fx: applyFx({ status: { 고양: 5 }, heal: 4 }) }) },
+    { t: '축제 노점에서 군것질한다 (4골드)', run: () => { if (S.gold < 4) return simple('깜짝 축제', 'sign', '구경만 해도 배부르다. 아니다, 배고프다.'); return Object.assign(simple('깜짝 축제', 'sign', '종 모양 솜사탕! 가운데가 제일 두껍다.'), { fx: applyFx({ gold: -4, heal: 10 }) }); } }]), 3) },
+  { w: 1, where: m => m.id === 'lib1' || m.id === 'libB' || m.id === 'tower1', run: () => popEvent(['우르르르—', '와르르!!', '(책 산사태)'], () => R('책 산사태', 'sign', '책장 꼭대기에서 책 수십 권이 쏟아졌다! 맨 위에 펼쳐진 책: 「통계로 거짓말하는 법」.', [
+    { t: '책을 다시 꽂아 둔다', tag: '지능 11', run: chk('지능', 11, '분류 번호대로 정확히 꽂았다. 사서가 감탄하며 열람 쿠폰(동전)을 준다.', '순서가 엉망이 됐다. 「쉿…」 하는 소리가 사방에서.', { gold: 6, focus: 1 }, { status: { 혼란: 1 } }, '책 산사태') },
+    { t: '펼쳐진 책을 읽는다', run: () => Object.assign(simple('책 산사태', 'sign', '「축을 0에서 시작하지 않으면 작은 차이도 크게 보인다.」 …나쁜 지식을 얻었다. 아니, 막는 법을 배웠다.'), { fx: applyFx({ focus: 1 }) }) }]), 5) }
+);
 function maybeRandomEvent() {
   if (!S || dlgOpen || panelOpen || cutOpen || EVT || transitioning || window._tutOpen) return false;
   if (S.evOn === false) return false;
   S.evSteps = (S.evSteps || 0) + 1;
-  if (S.evNext === undefined) S.evNext = 40 + (Math.random() * 40 | 0);
+  if (S.evNext === undefined) S.evNext = 55 + (Math.random() * 45 | 0);
   if (S.evSteps < S.evNext) return false;
   const pool = EVENTS.filter(e => e.where(MAP));
   if (!pool.length) return false;
   let r = Math.random() * pool.reduce((s, e) => s + e.w, 0), ev = pool[0];
   for (const e of pool) { r -= e.w; if (r <= 0) { ev = e; break; } }
-  S.evSteps = 0; S.evNext = 45 + (Math.random() * 55 | 0);
+  S.evSteps = 0; S.evNext = 60 + (Math.random() * 70 | 0); // 돌발 이벤트: 대략 60~130걸음마다
   return ev.run();
 }
 

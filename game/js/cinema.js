@@ -133,6 +133,7 @@ playCut = function (c) {
   $('#cut').classList.add('open'); $('#hud').style.opacity = '0';
   $('#cut-name').innerHTML = ''; $('#cut-text').innerHTML = ''; $('#cut-text').classList.remove('narr');
   AudioSys.sfx('secret');
+  try { AudioSys.play(c.music || 'cinema'); } catch (e) {} // 컷씬 전용 음악
   CINE.on = true; CINE.cast = {}; CINE.speaker = null; CINE.emote = null; CINE.leaving = [];
   CINE.base = targetZoom();
   // 줌아웃으로 시작 → 인물들이 걸어 들어오면 줌인
@@ -196,6 +197,7 @@ cutEnd = function () {
   const was = cutQ;
   try { _engineCutEnd(); } catch (err) { console.error('[cutEnd]', err); cutOpen = false; cutQ = null; $('#cut').classList.remove('open'); $('#hud').style.opacity = ''; }
   cutOpen = false; document.body.classList.remove('cine');
+  try { if (MAP) AudioSys.play(MAP.music, isNightMusic()); } catch (e) {}
   if (was && was.onEnd) setTimeout(() => was.onEnd(), 350);
 };
 function cineCleanup() {
@@ -337,7 +339,7 @@ function sunBurst() {
   for (let i = 0; i < 70; i++) particles.push({ kind: 'leaf', x: cam.x + Math.random() * vw * 1.6 - vw * .3, y: cam.y + Math.random() * vh * .7 - vh * .2, vx: .3, vy: .2 + Math.random() * .35, life: 6000 + Math.random() * 5000, seed: Math.random() * 9, c: ['#ff8fb3', '#ffd84d', '#ffffff', '#9bd36a'][i % 4] });
 }
 // 처음 성 밖(마을)으로 나왔을 때
-CUTS.push({ id: 'cine_first_out', map: 'town', enter: true, lines: [
+CUTS.push({ id: 'cine_first_out', map: 'town', enter: true, music: 'epic', lines: [
   [null, '문을 열자— 눈부신 햇살이 쏟아진다.', 'flash', { sun: true, zoom: 2.6, player: true }],
   [null, '바람에 꽃잎이 흩날린다. 종탑의 종이 울리기 시작한다.', null, { slow: 1400, zoom: 1.2, player: true }],
   [null, '……', null, { slow: 2200, pan: [43, 35], zoom: .62, title: ['벨레스타', '확 률 과   분 포 의   왕 국'] }],

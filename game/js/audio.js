@@ -32,6 +32,11 @@ const AudioSys = (() => {
     ending: { bpm: 80, wave: 'triangle', lead: seq('C5 . E5 . G5 . C6 . | B5 . G5 . E5 . D5 . | A4 . C5 . E5 . A5 . | G5 . . . . . . . | F5 . A5 . C6 . F6 . | E6 . C6 . G5 . E5 . | D5 . F5 . A5 . B5 . | C6 . . . . . . .'),
       bass: seq('C3 - - - G2 - - - | A2 - - - E2 - - - | F2 - - - C3 - - - | G2 - - - C3 - - -'), perc: '' },
 
+    // ---- 컷씬 전용 ----
+    cinema: { bpm: 72, wave: 'triangle', lead: seq('E5 - - - G5 - - - | A5 - - - B5 - A5 - | G5 - - - E5 - - - | D5 - - - - - - - | C5 - - - E5 - - - | G5 - - - A5 - G5 - | F#5 - - - D5 - - - | E5 - - - - - - - | B4 - - - E5 - - - | G5 - - - F#5 - E5 - | D5 - - - C5 - B4 - | A4 - - - - - - - | C5 - - - E5 - - - | A5 - - - G5 - F#5 - | G5 - - - F#5 - D#5 - | E5 - - - - - - -'),
+      bass: seq('E2 - - - B2 - - - | C2 - - - G2 - - - | A1 - - - E2 - - - | B1 - - - F#2 - - - | E2 - - - B2 - - - | C2 - - - G2 - - - | D2 - - - A2 - - - | E2 - - - B2 - - - | G2 - - - D3 - - - | E2 - - - B2 - - - | F2 - - - C3 - - - | A1 - - - E2 - - - | C2 - - - G2 - - - | F2 - - - C3 - - - | B1 - - - F#2 - - - | E2 - - - - - - -'), perc: '', echo: true },
+    epic: { bpm: 92, wave: 'square', lead: seq('C5 . . C5 G5 - - - | F5 . E5 . D5 . C5 . | A5 - - - G5 . E5 . | G5 - - - - - - - | C5 . . C5 A5 - - - | G5 . F5 . E5 . D5 . | E5 - F5 - G5 - B5 - | C6 - - - - - - -'),
+      bass: seq('C3 . C3 . C3 . C3 . | F2 . F2 . F2 . F2 . | A2 . A2 . E2 . E2 . | G2 . G2 . G2 . G2 . | C3 . C3 . A2 . A2 . | F2 . F2 . G2 . G2 . | C3 . C3 . G2 . G2 . | C3 - - - - - - -'), perc: 'k...s...k.k.s...', echo: true },
     // ---- 장소별 곡 ----
     town_night: { bpm: 76, wave: 'triangle', lead: seq('A4 . . C5 . . E5 . | D5 . . C5 . . A4 . | G4 . . A4 . . C5 . | B4 . . . . . . . | A4 . . C5 . . E5 . | G5 . . E5 . . D5 . | C5 . . B4 . . G4 . | A4 . . . . . . .'),
       bass: seq('A2 - - - E2 - - - | F2 - - - C3 - - - | G2 - - - E2 - - - | A2 - - - E2 - - -'), perc: '.......h........', echo: true },

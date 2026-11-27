@@ -306,7 +306,7 @@ const ROOMS = {
     '#_t___________t_#',
     '#S__rrrrrrrrr__v#',
     '#___rrrrrrrrr___#',
-    '#y______1______y#',
+    '#y_1___________y#',
     '########D########'] },
   libB: { name: '도서관 지하 서고', theme: 'interior', music: 'archive', dark: true, npcs: ['thaniya'], signs: ['sign_libB'], chests: ['ch_book', 'ch_secret'], secret: [12, 5], rows: [
     '###################',

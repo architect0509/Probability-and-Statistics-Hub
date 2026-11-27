@@ -312,20 +312,20 @@ function quizTurn(o) {
   const q = o.q || pickQuiz(o.ch);
   const opts = shuffle([{ t: q.a, ok: true }, { t: q.w[0], ok: false }, { t: q.w[1], ok: false }]);
   const head = o.head || '';
-  const done = ok => {
+  const done = (ok, picked) => {
     if (ok) { S.solvedQ[q.id] = true; AudioSys.sfx('ok'); if (o.peeked) HALF_REWARD = true; } else AudioSys.sfx('fail');
     const res = o.after(ok, q);
     HALF_REWARD = false;
     const nextQ = res && res.help && res.help.q && res.help.q !== q; // 연속 문제: 다음 문제의 힌트는 그대로
-    if (res && !ok) { res.desc = (res.desc || '') + solutionHTML(q, true); if (!nextQ) res.help = null; }
+    if (res && !ok) { res.desc = (res.desc || '') + solutionHTML(q, true, picked); if (!nextQ) res.help = null; }
     else if (res && ok && QUIZ_HELP[q.id] && !nextQ) res.help = { q, after: true };
     return res;
   };
   return {
     who: o.who, obj: o.obj, title: o.title, sub: o.sub,
     help: { q, o },
-    desc: `${head}<div class="quiz"><span class="qch">${q.ch}장</span> ${esc(q.q)}</div>${o.hint ? `<div class="hint">💡 힌트: ${esc(o.hint)}</div>` : ''}${o.showF ? formulaHTML(q) : ''}${o.peeked ? solutionHTML(q, false) : ''}`,
-    choices: opts.map(op => ({ t: op.t, tag: '답 제출', run: () => done(op.ok) })),
+    desc: `${head}<div class="quiz"><span class="qch">${q.ch}장</span> ${esc(q.q).replace(/\n/g, '<br>')}</div>${o.hint ? `<div class="hint">💡 힌트: ${esc(o.hint)}</div>` : ''}${o.showF ? formulaHTML(q) : ''}${o.peeked ? solutionHTML(q, false) : ''}`,
+    choices: opts.map(op => ({ t: op.t, tag: '답 제출', run: () => done(op.ok, op.t) })),
     freeHint: '숫자로 답하거나 「공식」, 「풀이」, 「모르겠다」라고 입력',
     free: txt => {
       if (/공식/.test(txt)) return quizTurn(Object.assign({}, o, { q, showF: true }));
@@ -336,10 +336,10 @@ function quizTurn(o) {
         return quizTurn(Object.assign({}, o, { q, hint: q.ex.split(/[→=]/)[0].slice(0, 40) + '…' }));
       }
       const num = parseFloat(txt.replace(/[^0-9.\-]/g, ''));
-      if (q.num !== undefined && !isNaN(num)) return done(Math.abs(num - q.num) <= (q.tol || 0.01) || (q.num < 0 && Math.abs(-num - q.num) <= (q.tol || .01) && /-|−/.test(txt)));
+      if (q.num !== undefined && !isNaN(num)) return done(Math.abs(num - q.num) <= (q.tol || 0.01) || (q.num < 0 && Math.abs(-num - q.num) <= (q.tol || .01) && /-|−/.test(txt)), txt);
       const core = q.a.replace(/^약\s*/, '').replace(/\s/g, '');
       if (txt.replace(/\s/g, '').includes(core) || (core.length > 2 && core.includes(txt.replace(/\s/g, '')) && txt.length >= 3)) return done(true);
-      return done(false);
+      return done(false, txt);
     }
   };
 }
@@ -1512,10 +1512,13 @@ function ach(id) {
   setTimeout(() => toast(`🏆 업적 달성 · ${ACHS[id][0]}`), 400);
 }
 function formulaHTML(q) { const h = QUIZ_HELP[q.id]; return h ? `<div class="fhint">📐 공식: ${esc(h.f)}</div>` : ''; }
-function solutionHTML(q, auto) {
+function solutionHTML(q, auto, picked) {
   const h = QUIZ_HELP[q.id];
-  if (!h) return `<div class="sol"><b>📖 풀이</b><br>${esc(q.ex)}</div>`;
-  return `<div class="sol"><b>📖 ${auto ? '틀렸으니 자세한 풀이' : '자세한 풀이'}</b><br>공식: ${esc(h.f)}<ol>${h.s.map(x => `<li>${esc(x)}</li>`).join('')}</ol>정답: <b>${esc(q.a)}</b></div>`;
+  // 틀렸을 때는 원래 문제와 내가 고른 답도 같이 보여 준다
+  const recap = auto ? `<div class="qrecap"><span class="qch">${q.ch}장 · 원래 문제</span> ${esc(q.q).replace(/\n/g, '<br>')}${picked ? `<div class="qpick">❌ 내 답: ${esc(picked)} → ⭕ 정답: <b>${esc(q.a)}</b></div>` : ''}</div>` : '';
+  const cb = typeof conceptBoxHTML === 'function' ? conceptBoxHTML(q) : '';
+  if (!h) return `<div class="sol">${recap}<b>📖 풀이</b><br>${esc(q.ex)}${auto ? `<br>정답: <b>${esc(q.a)}</b>` : ''}</div>${cb}`;
+  return `<div class="sol">${recap}<b>📖 ${auto ? '틀렸으니 자세한 풀이' : '자세한 풀이'}</b><br>공식: ${esc(h.f)}<ol>${h.s.map(x => `<li>${esc(x)}</li>`).join('')}</ol>정답: <b>${esc(q.a)}</b></div>${cb}`;
 }
 function renderHelp(turn) {
   const box = $('#dlg-help'); box.innerHTML = '';

@@ -3,7 +3,7 @@
  * - 외부 라이브러리(Tailwind, KaTeX 등)와 이미지는 한 번 받으면 저장해 두고 오프라인에서도 써요.
  * - 이 파일(sw.js)이 바뀌면 브라우저가 새 서비스 워커로 인식해 '새 버전' 알림이 떠요.
  */
-const VERSION = '2026.11.27-8';
+const VERSION = '2026.11.27-9';
 const CORE = 'hub-core-' + VERSION;
 const RUNTIME = 'hub-runtime-v1';
 const PRECACHE = [
@@ -12,7 +12,7 @@ const PRECACHE = [
   './icon-192.png', './icon-512.png', './icon-maskable-512.png', './logo.png',
   // 벨레스타 연대기 (game/)
   './game/index.html', './game/js/art.js', './game/js/maps.js', './game/js/content.js', './game/js/silly.js',
-  './game/js/help.js', './game/js/glossary.js', './game/js/story.js', './game/js/audio.js', './game/js/engine.js', './game/js/world2.js', './game/js/cinema.js', './game/assets/portraits_cut.webp'
+  './game/js/help.js', './game/js/glossary.js', './game/js/story.js', './game/js/audio.js', './game/js/engine.js', './game/js/world2.js', './game/js/concepts.js', './game/js/cinema.js', './game/assets/portraits_cut.webp'
 ];
 
 self.addEventListener('install', e => {
