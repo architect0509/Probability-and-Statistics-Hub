@@ -3,7 +3,13 @@
  * ========================================================================= */
 'use strict';
 const $ = s => document.querySelector(s);
-const SAVE_KEY = 'belesta_save_v1';
+// 저장 슬롯 4개. 1번 슬롯은 예전 저장 키를 그대로 써서 기존 진행도가 이어진다.
+const SLOT_N = 4;
+function slotKey(i) { return i === 0 ? 'belesta_save_v1' : 'belesta_save_v1_s' + i; }
+let CUR_SLOT = (() => { try { const v = +localStorage.getItem('belesta_slot'); return v >= 0 && v < SLOT_N ? v : 0; } catch (e) { return 0; } })();
+let SAVE_KEY = slotKey(CUR_SLOT);
+function useSlot(i) { CUR_SLOT = i; SAVE_KEY = slotKey(i); try { localStorage.setItem('belesta_slot', String(i)); } catch (e) {} }
+function loadSlot(i) { try { const s = JSON.parse(localStorage.getItem(slotKey(i))); return s && s.v === 1 ? s : null; } catch (e) { return null; } }
 const DAY = 480; // 하루 = 8분
 let S = null, MAP = null, LAYER = null;
 const ACTORS = [];
@@ -25,7 +31,7 @@ function newState(name) {
     hp: 28, maxHp: 28, gold: 20, focus: 2, items: { potion: 1 }, status: {}, aff: {}, flags: {}, quests: {}, read: {}, solvedQ: {},
     map: 'town', x: 0, y: 0, dir: 3, time: 140, zoomMul: 1, steps: 0, fishCaught: 0, deaths: 0, daily: 0, playMs: 0, opened: {} };
 }
-function save() { if (!S) return; try { S.map = MAP ? MAP.id : S.map; localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
+function save() { if (!S) return; try { S.map = MAP ? MAP.id : S.map; S.savedAt = Date.now(); localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
 function load() { try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); return s && s.v === 1 ? s : null; } catch (e) { return null; } }
 
 const has = (id, n = 1) => (S.items[id] || 0) >= n;
@@ -212,7 +218,7 @@ function typewrite(el) {
   if (typeof symbolize === 'function') symbolize(el);
   if (typeof glossify === 'function') glossify(el);
   const html = el.innerHTML;
-  const tmp = el.cloneNode(true); tmp.querySelectorAll('br').forEach(b => b.replaceWith('\n')); tmp.querySelectorAll('div,li,ol').forEach(b => b.append('\n'));
+  const tmp = el.cloneNode(true); tmp.querySelectorAll('br').forEach(b => b.replaceWith('\n')); tmp.querySelectorAll('div,li,ol,.l-sub,.l-tip').forEach(b => b.append('\n'));
   const text = tmp.textContent;
   if (text.length < 4) return;
   el.innerHTML = ''; let i = 0;
@@ -691,6 +697,17 @@ function drawSignMarks(ctx, t, vx0, vy0, vx1, vy1) {
     ['.......W', '......WW', '.W...WW.', '.WW.WW..', '..WWW...', '...W....'].forEach((r, j) => { for (let i = 0; i < 8; i++) if (r[i] === 'W') ctx.fillRect(px + 1 + i, py + 2 + j, 1, 1); });
   }
 }
+// 표지판 본문: 「↳ 어원」·「💡 암기팁」 줄은 들여 쓰고 색을 달리한다
+function lessonHTML(x) {
+  return String(x).split('\n').map(line => {
+    const t = line.trim();
+    if (/^↳/.test(t) && /^\s/.test(line)) return `<span class="l-sub">${esc(t)}</span>`;
+    if (/^💡/.test(t) && /^\s/.test(line)) return `<span class="l-tip">${esc(t)}</span>`;
+    if (/^💡/.test(t)) return `<span class="l-tip l-big">${esc(t)}</span>`;
+    if (/^\s{3,}/.test(line)) return `<span class="l-tip l-cont">${esc(t)}</span>`;
+    return esc(line) + '<br>';
+  }).join('').replace(/(<br>)+$/, '');
+}
 function lessonTurn(id, slot) {
   const L = LESSONS[id]; if (!L) return null;
   const place = slot ? (MAPS[slot.split(':')[0]] || {}).signs && MAPS[slot.split(':')[0]].signs[slot.split(':')[1]] : null;
@@ -700,7 +717,7 @@ function lessonTurn(id, slot) {
   if (first) { fx.push(`📖 도감 기록 ${cnt}/${total}`); if (cnt === 1) fx.push(setQ('s_signs', 0)); if (cnt >= 15 && qStep('s_signs') === 0) { fx.push(setQ('s_signs', 1)); fx.push(...applyFx({ gold: 30, item: 'potion' })); } if (cnt === total) { fx.push(doneQ('s_signs')); fx.push(...applyFx({ item: 'coin', focus: 3 })); } }
   const build = pre => ({
     title: place && place !== id ? L.t.replace(/^.*? · /, '') : L.t, sub: (place && place !== id ? LESSONS[place].t.split(' · ')[0] + ' · ' : '') + (L.ch ? `${L.ch}장` : '벨레스타'), obj: 'sign',
-    desc: (pre ? pre + '\n\n' : '') + `<div class="lesson">${esc(L.x).replace(/\n/g, '<br>')}</div>` + (place && SIGN_EXTRA[place] ? `<div class="hint">${esc(SIGN_EXTRA[place])}</div>` : ''),
+    desc: (pre ? pre + '\n\n' : '') + `<div class="lesson">${lessonHTML(L.x)}</div>` + (place && SIGN_EXTRA[place] ? `<div class="hint">${esc(SIGN_EXTRA[place])}</div>` : ''),
     choices: [
       { t: '내용을 소리 내어 외워 본다', tag: '지능 11 · 성공 시 집중력+1', run: () => { const r = check('지능', 11); const f = applyFx(r.ok ? { focus: 1 } : { status: { 혼란: 1 } }); const t = build(r.ok ? '세 번 읽자 머릿속에 딱 붙는다.' : '읽을수록 글자가 춤을 춘다.'); t.roll = r.line; t.fx = f; t.choices = t.choices.slice(1).concat([{ t: '떠난다', run: () => null }]); return t; } },
       { t: '아래 적힌 확인 문제를 푼다', tag: `📝 ${L.ch ? L.ch + '장' : '문제'} · 정답 시 🪙+5`, run: () => quizTurn({ title: L.t, sub: '확인 문제', obj: 'sign', ch: [7, 8, 9].includes(L.ch) ? L.ch : 0, head: '표지판 아래 작은 글씨로 문제가 새겨져 있다.', after: (ok, q) => { const t = build((ok ? '⭕ 정답! 받침대 틈에서 동전이 굴러 나온다.' : '❌ 틀렸다. 표지판을 다시 읽어 보자.') + `\n<span class="ex">해설: ${esc(q.ex)}</span>`); t.fx = applyFx(ok ? { gold: 5 } : {}); return t; } }) },
@@ -974,6 +991,8 @@ function onArrive() {
   if (S.footOn !== false) AudioSys.sfx('step_' + floorKind(x, y));
   if (S.steps % 25 === 0) { tickStatus(1); syncHUD(); }
   if (typeof hauntStep === 'function') hauntStep();
+  if (typeof cardCheck === 'function') cardCheck();
+  if (typeof costumeCheck === 'function') { costumeCheck(); costumeStep(); }
   if (S.status.출혈 && S.steps % 10 === 0) { S.hp = Math.max(1, S.hp - 1); syncHUD(); floatText('-1', '#ff5d7a'); }
   // 출입
   if (c === 'D') {
@@ -1273,6 +1292,8 @@ function render(t) {
   if (typeof drawDecreeBoard === 'function') drawDecreeBoard(ctx, t);
   if (typeof drawGuideWorld === 'function') drawGuideWorld(ctx, t);
   drawSignMarks(ctx, t, vx0, vy0, vx1, vy1);
+  if (typeof drawCards === 'function') drawCards(ctx, t, vx0, vy0, vx1, vy1);
+  if (typeof drawCostumeBoxes === 'function') drawCostumeBoxes(ctx, t, vx0, vy0, vx1, vy1);
   // 개체 (y 정렬)
   const ents = ACTORS.concat([PLAYER]).sort((a, b) => a.py - b.py);
   ents.forEach(a => {
@@ -1404,11 +1425,15 @@ function openPanel(kind) {
     body.innerHTML = `<div class="grow"><button class="gbtn ${(S.guide || 'auto') === 'auto' ? 'on' : ''}" data-guide="auto">📍 자동 안내</button><button class="gbtn ${S.guide === 'story' ? 'on' : ''}" data-guide="story">📖 스토리 안내</button><button class="gbtn ${S.guide === 'off' ? 'on' : ''}" data-guide="off">안내 끄기</button></div>` + storyBox + `<h4>진행 중 ${active.length}</h4>${active.map(row).join('') || '<p class="muted">아직 없다. 광장의 사람들과 이야기해 보자.</p>'}<h4>완료 ${done.length}</h4>${done.map(row).join('') || '<p class="muted">-</p>'}<h4>아직 모르는 의뢰 ${none.length}</h4><p class="muted">도시 어딘가에 ${none.length}개의 이야기가 더 있다.</p>`;
     body.querySelectorAll('[data-guide]').forEach(b => b.onclick = () => { S.guide = b.dataset.guide; if (typeof GUIDE !== 'undefined') GUIDE.t = 0; save(); closePanel(); toast(S.guide === 'off' ? '길 안내를 껐다' : '📍 노란 발자국을 따라가자'); });
   }
+  if (kind === 'cards' && typeof renderCardsPanel === 'function') renderCardsPanel(title, body);
+  if (kind === 'wardrobe' && typeof renderWardrobePanel === 'function') renderWardrobePanel(title, body);
   if (kind === 'bag') {
     title.textContent = '🎒 가방';
     const ids = Object.keys(S.items).filter(k => S.items[k] > 0);
-    body.innerHTML = `<div class="gold">🪙 ${S.gold} · 🎯 집중력 ${S.focus}</div>` + (ids.map(id => { const it = ITEMS[id]; return `<div class="item"><span class="ie">${it.e}</span><div><b>${it.n}</b> ×${S.items[id]}<br><small>${it.d}</small></div>${it.use ? `<button data-use="${id}">사용</button>` : ''}</div>`; }).join('') || '<p class="muted">텅 비었다.</p>');
+    body.innerHTML = `<div class="gold">🪙 ${S.gold} · 🎯 집중력 ${S.focus}</div>` + (typeof CARDS !== 'undefined' ? `<button class="cc-open" data-cards="1"><span class="cc-oe">🃏</span><span><b>카드 컬렉션</b><small>주운 마법카드 ${cardCount()}/${CARDS.length}장 · 다시 보기</small></span><span class="cc-arrow">›</span></button>` : '') + (typeof COSTUMES !== 'undefined' ? `<button class="cc-open wd-open" data-wardrobe="1"><span class="cc-oe"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg></span><span><b>옷장</b><small>의상 ${COSTUMES.filter(c => wardrobe()[c.id]).length}/${COSTUMES.length}벌 · 갈아입기 · 외모 꾸미기</small></span><span class="cc-arrow">›</span></button>` : '') + (ids.map(id => { const it = ITEMS[id]; return `<div class="item"><span class="ie">${it.e}</span><div><b>${it.n}</b> ×${S.items[id]}<br><small>${it.d}</small></div>${it.use ? `<button data-use="${id}">사용</button>` : ''}</div>`; }).join('') || '<p class="muted">텅 비었다.</p>');
     body.querySelectorAll('[data-use]').forEach(b => b.onclick = () => { useItem(b.dataset.use); openPanel('bag'); });
+    { const cb = body.querySelector('[data-cards]'); if (cb) cb.onclick = () => openPanel('cards'); }
+    { const wb = body.querySelector('[data-wardrobe]'); if (wb) wb.onclick = () => openPanel('wardrobe'); }
   }
   if (kind === 'info') {
     title.textContent = '🧭 내 정보';
@@ -1444,20 +1469,22 @@ function openPanel(kind) {
       <label class="row"><span>돌발 이벤트 (투다다닷!)</span><input type="checkbox" id="set-ev" ${S.evOn === false ? '' : 'checked'}></label>
       <label class="row"><span>📍 길 안내 표시</span><input type="checkbox" id="set-gd" ${S.guide === 'off' ? '' : 'checked'}></label>
       <label class="row"><span>화면 확대</span><input type="range" id="set-zm" min="0.55" max="2.4" step="0.05" value="${S.zoomMul}"></label>
-      <div class="row btns"><button id="set-tut">📘 튜토리얼</button><button id="set-save">저장</button><button id="set-hub">확통허브로</button><button id="set-reset" class="danger">처음부터</button></div>
+      <div class="row btns"><button id="set-tut">📘 튜토리얼</button><button id="set-save">저장</button><button id="set-hub">확통허브로</button><button id="set-slot">🗂 슬롯 변경</button><button id="set-reset" class="danger">이 슬롯 초기화</button></div>
+      <div class="row"><small class="muted">현재 저장 슬롯: ${CUR_SLOT + 1}번 · 자동 저장됨</small></div>
       <p class="muted">자동 저장됨 (이 브라우저). 키보드: 방향키·WASD 이동, Shift 달리기, E·Space 상호작용, Q 퀘스트, I 내 정보, B 가방, M 지도, +/− 확대, Esc 닫기. 직접 입력은 키워드로 해석된다.</p>`;
     $('#set-on').onchange = e => AudioSys.setOn(e.target.checked);
     $('#set-mu').oninput = e => AudioSys.setMusic(+e.target.value);
     $('#set-sf').oninput = e => AudioSys.setSfx(+e.target.value);
     $('#set-zm').oninput = e => setZoomMul(+e.target.value);
-    $('#set-qf').value = S.quizFreq || 'often'; $('#set-qf').onchange = e => { S.quizFreq = e.target.value; S.qzNext = undefined; save(); };
+    $('#set-qf').value = S.quizFreq || 'normal'; $('#set-qf').onchange = e => { S.quizFreq = e.target.value; S.qzNext = undefined; save(); };
     $('#set-ev').onchange = e => { S.evOn = e.target.checked; save(); };
     $('#set-foot').onchange = e => { S.footOn = e.target.checked; save(); };
     $('#set-gd').onchange = e => { S.guide = e.target.checked ? 'auto' : 'off'; save(); };
     $('#set-tut').onclick = () => { closePanel(); showTutorial(0); };
     $('#set-save').onclick = () => { save(); toast('저장했다'); };
     $('#set-hub').onclick = () => { save(); location.href = '../index.html'; };
-    $('#set-reset').onclick = () => { if (confirm('정말 처음부터 시작할까요? 저장이 지워집니다.')) { localStorage.removeItem(SAVE_KEY); location.reload(); } };
+    $('#set-reset').onclick = () => { if (confirm(`${CUR_SLOT + 1}번 슬롯의 진행도를 지우고 처음부터 시작할까요?\n다른 슬롯은 그대로 남아요.`)) { localStorage.removeItem(SAVE_KEY); location.reload(); } };
+    $('#set-slot').onclick = () => { save(); location.reload(); };
   }
 }
 function closePanel() { $('#panel').classList.remove('open'); panelOpen = false; AudioSys.sfx('close'); }
@@ -1599,18 +1626,48 @@ async function boot() {
   S = newState(); PLAYER = { x: -5, y: -5, px: -80, py: -80, dir: 0, moving: 0, fr: 0, spr: null };
   resize(); loadMap('town'); titleMode = true; cam.zoom = cam.target = Math.max(1.6, Math.min(3, canvas.clientWidth / 360)); cam.x = 0; cam.y = MAPS.town.cy * TS - canvas.clientHeight / cam.zoom / 2;
   $('#loading').classList.add('done');
-  const saved = load();
-  $('#btn-continue').style.display = saved ? '' : 'none';
-  if (saved) $('#title-name').value = saved.name;
+  renderSlots();
   $('#title').classList.add('open');
   bindPad();
   resize();
-  $('#btn-new').onclick = () => { AudioSys.resume(); if (saved && !confirm('저장된 모험이 있습니다. 새로 시작할까요?')) return; startGame(newState($('#title-name').value), true); };
-  $('#btn-continue').onclick = () => { AudioSys.resume(); startGame(saved, false); };
   $('#title').addEventListener('pointerdown', () => { AudioSys.resume(); AudioSys.play('title'); }, { once: true });
   requestAnimationFrame(loop);
 }
-function playerLook() { const base = Object.assign({ skin: SKIN[0] }, S.look || ORIGINS.free.look); if (!base.beast) Object.assign(base, { beast: 'fox', fur: base.hair || '#c8642a', tailTip: '#fff4e6' }); return base; }
+// ---- 타이틀: 저장 슬롯 4개 ----
+function slotSummary(s) {
+  const signs = Object.keys(s.read || {}).length, total = Object.keys(LESSONS).length;
+  const cards = typeof CARDS !== 'undefined' ? CARDS.filter(c => s.cards && s.cards[c.id]).length : 0;
+  const when = s.savedAt ? new Date(s.savedAt) : null;
+  const ws = when ? `${when.getMonth() + 1}/${when.getDate()} ${String(when.getHours()).padStart(2, '0')}:${String(when.getMinutes()).padStart(2, '0')}` : '';
+  const org = s.origin && ORIGINS[s.origin] ? ORIGINS[s.origin].t : '출신 미정';
+  return { signs, total, cards, ws, org, place: (MAPS[s.map] || {}).name || '벨레스타', pct: Math.round(signs / total * 100) };
+}
+function renderSlots() {
+  const box = $('#slots'); if (!box) return;
+  box.innerHTML = Array.from({ length: SLOT_N }, (_, i) => {
+    const s = loadSlot(i);
+    if (!s) return `<div class="slot empty${i === CUR_SLOT ? ' cur' : ''}"><div class="sl-h"><b>슬롯 ${i + 1}</b><span>빈 슬롯</span></div><div class="sl-btns"><button class="pbtn alt" data-new="${i}">✦ 새 모험</button></div></div>`;
+    const m = slotSummary(s);
+    return `<div class="slot${i === CUR_SLOT ? ' cur' : ''}"><div class="sl-h"><b>슬롯 ${i + 1} · ${esc(s.name || '모험가')}</b><span>${esc(m.ws)}</span></div>
+      <div class="sl-m">${esc(m.org)} · 📍 ${esc(m.place)}</div>
+      <div class="sl-bar"><i style="width:${m.pct}%"></i></div>
+      <div class="sl-m">📖 표지판 ${m.signs}/${m.total} · 🃏 카드 ${m.cards}/${typeof CARDS !== 'undefined' ? CARDS.length : 0} · 🪙 ${s.gold || 0}</div>
+      <div class="sl-btns"><button class="pbtn" data-go="${i}">▶ 이어하기</button><button class="pbtn ghost sm" data-new="${i}">새로</button><button class="pbtn ghost sm danger" data-del="${i}">초기화</button></div></div>`;
+  }).join('');
+  box.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { AudioSys.resume(); const i = +b.dataset.go; useSlot(i); startGame(loadSlot(i), false); });
+  box.querySelectorAll('[data-new]').forEach(b => b.onclick = () => {
+    AudioSys.resume(); const i = +b.dataset.new;
+    if (loadSlot(i) && !confirm(`슬롯 ${i + 1}의 진행도를 지우고 새 모험을 시작할까요?`)) return;
+    useSlot(i); startGame(newState($('#title-name').value), true);
+  });
+  box.querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
+    const i = +b.dataset.del;
+    if (!confirm(`슬롯 ${i + 1}의 진행도를 초기화할까요? 되돌릴 수 없어요.`)) return;
+    try { localStorage.removeItem(slotKey(i)); } catch (e) {}
+    renderSlots(); toast(`슬롯 ${i + 1}을 비웠다`);
+  });
+}
+function playerLook() { if (typeof costumeLook === 'function') return costumeLook(S.costume || 'travel'); const base = Object.assign({ skin: SKIN[0] }, S.look || ORIGINS.free.look); if (!base.beast) Object.assign(base, { beast: 'fox', fur: base.hair || '#c8642a', tailTip: '#fff4e6' }); return base; }
 function playerSprite() { return PLAYER_OVR || buildSprite(playerLook()); }
 let PLAYER_OVR = null;
 function startGame(state, fresh) {
@@ -1629,7 +1686,7 @@ function startGame(state, fresh) {
   banner(MAP.name);
   // 위치/방향 저장용 동기화
   setInterval(() => { if (S && PLAYER) { S.x = PLAYER.x; S.y = PLAYER.y; S.dir = PLAYER.dir; syncHUD(); } }, 1000);
-  if (fresh) setTimeout(() => openTurn(openingTurn()), 900);
+  if (fresh) setTimeout(() => { if (typeof openDesigner === 'function') openDesigner(() => openTurn(openingTurn())); else openTurn(openingTurn()); }, 700);
 }
 window.addEventListener('DOMContentLoaded', boot);
 

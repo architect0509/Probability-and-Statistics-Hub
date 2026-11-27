@@ -711,6 +711,7 @@ function humanoid(p, dir, fr) {
   }
   // 머리 + 몸
   stamp(g, TPL[side ? 'headS' : up ? 'headB' : 'headF'], pal, 0, bob);
+  if (p.eyeShape && p.eyeShape !== 'round' && !up) drawEyeShape(g, p.eyeShape, side, pal, bob);
   stamp(g, TPL[side ? 'bodyS' : up ? 'bodyB' : 'bodyF'], pal, 0, bob);
   if (armor && !side) { stamp(g, { 15: '..MMM......MMM..', 16: '..mMm......mMm..' }, { M: '#dde2ec', m: '#8a91a2' }, 0, bob); }
   if (armor && side) stamp(g, { 15: '.....MMMM.......', 16: '.....mMMm.......' }, { M: '#dde2ec', m: '#8a91a2' }, 0, bob);
@@ -763,6 +764,20 @@ function humanoid(p, dir, fr) {
   return g;
 }
 // 수인: 머리 위 뾰족한 귀 + 엉덩이 뒤 복슬 꼬리 (털색 = 머리색, 꼬리 끝은 밝게)
+// 눈 모양: 눈 하나 = 가로 2칸 × 세로 3칸(10~12행). 왼눈 / 오른눈
+const EYE_SHAPES = {
+  sleepy:  [['SS', 'EE', 'ef'], ['SS', 'EE', 'fe']],
+  sharp:   [['SE', 'Ee', 'SS'], ['ES', 'eE', 'SS']],
+  closed:  [['SS', 'EE', 'SS'], ['SS', 'EE', 'SS']],
+  sparkle: [['Ew', 'ww', 'fe'], ['wE', 'ww', 'ef']],
+  dot:     [['SS', 'SE', 'SS'], ['SS', 'ES', 'SS']],
+  droopy:  [['SS', 'Ee', 'fE'], ['SS', 'eE', 'Ef']]
+};
+function drawEyeShape(g, shape, side, pal, bob) {
+  const s = EYE_SHAPES[shape]; if (!s) return;
+  const put = (x0, rows) => rows.forEach((r, j) => { for (let i = 0; i < 2; i++) { const y = 10 + j + bob; if (g[y]) g[y][x0 + i] = pal[r[i]] || g[y][x0 + i]; } });
+  if (side) put(4, s[0]); else { put(5, s[0]); put(9, s[1]); }
+}
 function beastParts(g, p, side, up, fr, bob, hr) {
   const fur = p.fur || hr, pal = { H: fur, h: shade(fur, -0.32), p: '#ffb3c6', W: p.tailTip || '#fff4e6', l: shade(fur, 0.25) };
   const hatTall = p.hat === 'wizard' || p.hat === 'helmet' || p.hat === 'hood';
