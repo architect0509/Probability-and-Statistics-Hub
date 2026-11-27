@@ -754,26 +754,30 @@ function setOrigin(key, customText) {
   PLAYER.spr = playerSprite();
 }
 function openingTurn() {
-  const pre = '남문 아치 밑. 비 온 뒤의 젖은 돌 냄새. 성벽 위에서 누가 깃발을 거꾸로 달고 있다.\n성문 너머로 붉은 지붕들이 끝도 없이 겹쳐 있다. 어디선가 분수 소리.\n\n창을 든 거구가 당신 앞을 막는다.\n「이름은 됐고. 뭐 하던 사람이야? 요즘 도시가 이상해서 하나하나 묻는 중이야.」';
-  const pickO = k => () => { setOrigin(k); const o = ORIGINS[k]; const t = gateFeeTurn(`「${o.t}…라. 흠.」 브루노가 당신을 위아래로 훑는다.`); t.fx = [`능력치 — ${STATS.map(s => `${s} ${S.stats[s]}`).join(' · ')}`, `HP ${S.maxHp} · 골드 ${S.gold}`]; return t; };
+  const pre = '삐걱— 나무 천장. 낯선 이불. 창문 틈으로 빵 굽는 냄새(조금 탄)가 스며든다.\n여기는… 여관 ‘신뢰구간 95%’의 2층 객실이다.\n\n문이 벌컥 열리고 앞치마를 두른 여관 주인이 쟁반을 들고 들어온다.\n「아, 깼어? 어젯밤 성문 앞에 쓰러져 있던 걸 경비대장 브루노가 업고 왔어. 무겁다고 투덜대면서.」\n「그래서, 뭐 하던 사람이야? 요즘 도시가 이상해서 다들 하나하나 묻거든.」';
+  const pickO = k => () => { setOrigin(k); const o = ORIGINS[k]; const t = gateFeeTurn(`「${o.t}…라. 흠.」 마르타가 당신을 위아래로 훑는다.`); t.fx = [`능력치 — ${STATS.map(s => `${s} ${S.stats[s]}`).join(' · ')}`, `HP ${S.maxHp} · 골드 ${S.gold}`]; return t; };
   return {
-    who: 'bruno', mood: 'neutral', desc: pre,
+    who: 'marta', mood: 'smile', desc: pre,
     choices: [
       { t: '「학원에서 쫓겨난 마법사다.」', tag: '지능·정신↑ 힘↓ HP 낮음', run: pickO('mage') },
       { t: '「돈 받고 싸우던 용병이다.」', tag: '힘·민첩↑ 지능↓ HP 높음', run: pickO('merc') },
       { t: '「집안은 망했지만 장사는 한다.」', tag: '설득·운↑ 골드 많음 힘↓', run: pickO('noble') }],
     freeHint: '직접 신분을 말해도 된다 (예: 떠돌이 사냥꾼)',
-    free: txt => { setOrigin('free', txt); const t = gateFeeTurn(`「${txt}…? 별 놈이 다 오네.」`); t.fx = [`능력치 — ${STATS.map(s => `${s} ${S.stats[s]}`).join(' · ')}`, `HP ${S.maxHp} · 골드 ${S.gold}`]; return t; }
+    free: txt => { setOrigin('free', txt); const t = gateFeeTurn(`「${txt}…? 별사람이 다 오네.」`); t.fx = [`능력치 — ${STATS.map(s => `${s} ${S.stats[s]}`).join(' · ')}`, `HP ${S.maxHp} · 골드 ${S.gold}`]; return t; }
   };
 }
 function gateFeeTurn(pre) {
-  const after = (txt, fx, roll) => { S.flags.met_bruno = true; const t = { who: 'bruno', desc: txt + '\n\n「광장 게시판 서기 오웬한테 가 봐. 이 도시가 왜 이 모양인지 제일 시끄럽게 떠드는 놈이야.」\n\n브루노가 옆으로 비켜선다. 성 안 골목에서 빵 굽는 냄새(조금 탄)와 종소리가 섞여 온다.', choices: [{ t: '성 안으로 들어간다', run: () => { setQ('main', 0); tutorialToast(); return null; } }, { t: '「대분산」이 뭐냐고 묻는다', run: () => { setQ('main', 0); tutorialToast(); return { who: 'bruno', desc: '「동전이 옆으로 서고 빵이 반은 생, 반은 숯이야. 석 달째. 나머진 오웬한테.」', choices: [{ t: '들어간다', run: () => null }] }; } }, { t: '성벽 위 깃발을 가리킨다', run: () => { setQ('main', 0); tutorialToast(); return { who: 'bruno', mood: 'angry', desc: '브루노가 고개를 든다. 「…또 거꾸로네.」 그가 성벽 위를 향해 소리친다. 「야! 똑바로 달라고!」\n당신을 향해서는 한 마디. 「고맙다.」', fx: applyFx({ aff: 1 }, 'bruno'), choices: [{ t: '들어간다', run: () => null }] }; } }] }; t.fx = fx; t.roll = roll; return t; };
+  const go = () => { setQ('main', 0); tutorialToast(); return null; };
+  const after = (txt, fx, roll) => { S.flags.met_bruno = true; const t = { who: 'marta', desc: txt + '\n\n「광장 게시판 서기 오웬한테 가 봐. 이 도시가 왜 이 모양인지 제일 시끄럽게 떠드는 애야. 아래층 계단으로 내려가서 문 밖으로 나가면 돼.」\n\n마르타가 문을 열어 둔 채 내려간다. 창밖에서 종소리와 사람들 웅성거림이 들려온다.', choices: [
+    { t: '계단으로 내려간다', run: go },
+    { t: '「대분산」이 뭐냐고 묻는다', run: () => { setQ('main', 0); tutorialToast(); return { who: 'marta', desc: '「동전이 옆으로 서고 빵이 반은 생, 반은 숯이야. 석 달째. 우리 여관 빵도 그래서 저 모양이고… 자세한 건 오웬한테.」', choices: [{ t: '알겠다', run: () => null }] }; } },
+    { t: '창밖을 내다본다', run: () => { setQ('main', 0); tutorialToast(); return { who: 'marta', mood: 'smile', desc: '붉은 지붕들이 끝없이 이어지고, 광장 분수의 물줄기가… 아래에서 위로 떨어진다.\n「아, 저거? 석 달째 저래. 익숙해질 거야.」', fx: applyFx({ aff: 1 }, 'marta'), choices: [{ t: '내려간다', run: () => null }] }; } }] }; t.fx = fx; t.roll = roll; return t; };
   return {
-    who: 'bruno', desc: pre + '\n\n「입성세 5골드. 대분산 때문에 성벽 수리비가 장난 아니거든.」\n브루노가 손바닥을 내민다. 굳은살이 단단하다.',
+    who: 'marta', desc: pre + '\n\n「아무튼 하룻밤 숙박비 5골드. 대분산 때문에 장작값이 장난 아니거든.」\n마르타가 손바닥을 내민다. 밀가루가 묻어 있다.',
     choices: [
-      { t: '5골드를 낸다', tag: '골드 −5 · 브루노 호감↑', run: () => after('동전이 손바닥에 떨어진다. 「현명하네.」', applyFx({ gold: -5, aff: 1 }, 'bruno')) },
-      { t: '면제해 달라고 말로 푼다', tag: '설득 13 · 실패 시 −8G·의심받음', run: () => { const r = check('설득', 13); return r.ok ? after('「…처음 온 놈한테까지 받으면 내가 나쁜 놈이지. 들어가.」', applyFx({ aff: 1 }, 'bruno'), r.line) : after('「말 많은 놈은 8골드.」 결국 더 냈다.', applyFx({ gold: -8, status: { 의심받음: 3 } }, 'bruno'), r.line); } },
-      { t: '틈을 노려 그냥 지나간다', tag: '민첩 14 · 실패 시 HP−3·벌금', run: () => { const r = check('민첩', 14); return r.ok ? after('브루노가 깃발을 보는 사이 옆으로 빠져나갔다. 등 뒤에서 「…쯧.」', applyFx({ aff: -1 }, 'bruno'), r.line) : after('창대가 정강이를 정확히 친다. 「벌금 포함 8골드.」', applyFx({ hp: -3, gold: -8, aff: -1 }, 'bruno'), r.line); } }]
+      { t: '5골드를 낸다', tag: '골드 −5 · 마르타 호감↑', run: () => after('동전이 손바닥에 떨어진다. 「고마워. 아침은 서비스야.」 탄 빵 한 조각을 쥐여 준다.', applyFx({ gold: -5, aff: 1, item: 'bread' }, 'marta')) },
+      { t: '깎아 달라고 말로 푼다', tag: '설득 13 · 실패 시 −8G·의심받음', run: () => { const r = check('설득', 13); return r.ok ? after('「…쓰러진 사람한테까지 받으면 내가 나쁜 사람이지. 이번만 공짜야.」', applyFx({ aff: 1 }, 'marta'), r.line) : after('「말 많은 손님은 8골드.」 결국 더 냈다.', applyFx({ gold: -8, status: { 의심받음: 3 } }, 'marta'), r.line); } },
+      { t: '창문으로 몰래 빠져나간다', tag: '민첩 14 · 실패 시 HP−3·벌금', run: () => { const r = check('민첩', 14); return r.ok ? after('창틀을 넘어 지붕을 타고 빠져나갔다… 가 마르타가 아래층 문 앞에 팔짱을 끼고 서 있다. 「…재주는 좋네. 다음엔 내.」', applyFx({ aff: -1 }, 'marta'), r.line) : after('창틀에 발이 걸려 철푸덕. 「벌금 포함 8골드.」', applyFx({ hp: -3, gold: -8, aff: -1 }, 'marta'), r.line); } }]
   };
 }
 function tutorialToast() {
@@ -984,9 +988,10 @@ function update(dt) {
     } else if (!a.wander && a.t <= 0) { a.t = 2500 + Math.random() * 4000; const dd = Math.abs(PLAYER.x - a.x) + Math.abs(PLAYER.y - a.y); if (dd < 4) a.dir = Math.abs(PLAYER.x - a.x) > Math.abs(PLAYER.y - a.y) ? (PLAYER.x < a.x ? 1 : 2) : (PLAYER.y < a.y ? 3 : 0); }
   });
   // 카메라
-  cam.zoom += (cam.target - cam.zoom) * Math.min(1, dt / 220);
+  const CS = (typeof CAM_SPEED !== 'undefined' && CAM_SPEED) || { pan: 120, zoom: 220 };
+  cam.zoom += (cam.target - cam.zoom) * Math.min(1, dt / CS.zoom);
   const g = camGoal();
-  cam.x += (g[0] - cam.x) * Math.min(1, dt / 120); cam.y += (g[1] - cam.y) * Math.min(1, dt / 120);
+  cam.x += (g[0] - cam.x) * Math.min(1, dt / CS.pan); cam.y += (g[1] - cam.y) * Math.min(1, dt / CS.pan);
   shakeAmt *= 0.88;
   // 파티클
   spawnParticles(dt);
@@ -1200,7 +1205,7 @@ function render(t) {
   if (typeof drawCinemaScreen === 'function' && !titleMode) { ctx.save(); drawCinemaScreen(ctx, toScreen, W, H, t, dpr); ctx.restore(); ctx.font = `800 ${fs}px "Pretendard Variable","Pretendard","Apple SD Gothic Neo","Noto Sans KR",sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; }
   const tgt = (!dlgOpen && !panelOpen && !titleMode) ? findTarget() : null;
   ACTORS.forEach(a => {
-    const n = NPCS[a.id]; const h = a.spr ? a.spr[0][0].height : 26;
+    const n = NPCS[a.id] || (typeof CUT_CAST !== 'undefined' && CUT_CAST[a.id] ? Object.assign({ acts: [] }, CUT_CAST[a.id]) : null); if (!n) return; const h = a.spr ? a.spr[0][0].height : 26;
     const [x, y] = toScreen(a.px + 8, a.py + 16 - h - 2 + (a.bob ? Math.sin(t / 300) * 2 : 0));
     if (x < -100 || x > W + 100 || y < -40 || y > H + 60) return;
     const close = Math.abs(a.x - PLAYER.x) + Math.abs(a.y - PLAYER.y) <= 6;
@@ -1221,10 +1226,12 @@ function render(t) {
 }
 function roundRect(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
 
+function loopErr(err) { if (!loop._err || performance.now() - loop._err > 5000) { loop._err = performance.now(); console.error('[loop]', err); } }
 function loop(t) {
   const dt = Math.min(50, t - lastT); lastT = t;
-  if (started) { update(dt); render(t); }
-  else if (titleMode && MAP) { cam.x += dt * 0.012; if (cam.x > MAP.w * TS - canvas.clientWidth / cam.zoom) cam.x = 0; ACTORS.forEach(a => { a.t -= dt; }); render(t); }
+  // 한 프레임에서 오류가 나도 게임이 멈추지 않게 (업데이트·그리기 따로 보호)
+  if (started) { try { update(dt); } catch (err) { loopErr(err); } try { render(t); } catch (err) { loopErr(err); } }
+  else if (titleMode && MAP) { try { cam.x += dt * 0.012; if (cam.x > MAP.w * TS - canvas.clientWidth / cam.zoom) cam.x = 0; ACTORS.forEach(a => { a.t -= dt; }); render(t); } catch (err) { loopErr(err); } }
   requestAnimationFrame(loop);
 }
 
@@ -1478,12 +1485,12 @@ function startGame(state, fresh) {
   $('#title').classList.remove('open');
   PLAYER = { x: 0, y: 0, px: 0, py: 0, dir: 3, moving: 0, fr: 0, spr: null };
   PLAYER.spr = playerSprite();
-  loadMap(fresh ? 'town' : (MAPS[S.map] ? S.map : 'town'));
-  if (fresh) { const st = MAPS.town.start; S.x = st[0]; S.y = st[1] + 1; S.dir = 3; }
+  loadMap(fresh ? 'inn2' : (MAPS[S.map] ? S.map : 'town'));
+  if (fresh) { S.x = 7; S.y = 3; S.dir = 0; } // 여관 「신뢰구간 95%」 2층 객실, 침대 옆에서 눈을 뜬다
   PLAYER.x = S.x; PLAYER.y = S.y; PLAYER.dir = S.dir;
   if (!walkable(PLAYER.x, PLAYER.y, true)) { const p = nearestFree(PLAYER.x, PLAYER.y); PLAYER.x = p[0]; PLAYER.y = p[1]; }
   PLAYER.px = PLAYER.x * TS; PLAYER.py = PLAYER.y * TS;
-  cam.target = targetZoom(); cam.zoom = cam.target * (fresh ? 0.55 : 1); snapCam();
+  cam.target = targetZoom(); cam.zoom = cam.target * (fresh ? 1.6 : 1); snapCam();
   started = true; syncHUD();
   $('#hud').classList.add('on');
   banner(MAP.name);
@@ -1677,7 +1684,7 @@ function cutEnd() {
   $('#cut').classList.remove('open'); $('#hud').style.opacity = '';
   ['#cut-left', '#cut-right'].forEach(s => { const e = $(s); e.className = 'cut-por'; e.innerHTML = ''; e.dataset.who = ''; });
   const seen = CUTS.filter(c => flag('cut_' + c.id)).length;
-  toast(`🎬 컷씬 ${seen}/${CUTS.length}`);
+  toast(`🎬 컷씬 감상 ${Math.floor(seen / CUTS.length * 100)}%`);
   if (seen === CUTS.length) ach('cuts');
   save();
 }

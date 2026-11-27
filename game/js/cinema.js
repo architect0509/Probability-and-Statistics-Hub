@@ -8,6 +8,7 @@
  * ========================================================================= */
 'use strict';
 let CAM_FOCUS = null;
+let CAM_SPEED = null; // 느린 패닝/줌 (웅장한 연출용)
 const CINE = { on: false, phase: '', cast: {}, speaker: null, emote: null, emoteT: 0, zoomK: 1.6, waitT: 0, leaving: [] };
 
 (function cineCss() {
@@ -17,12 +18,16 @@ const CINE = { on: false, phase: '', cast: {}, speaker: null, emote: null, emote
   #cut .bar { background: #000; transition: height .55s cubic-bezier(.2,.8,.2,1); z-index: 3; }
   #cut.open .bar.top { height: 9vh; } #cut.open .bar.bot { height: 7vh; }
   #cut .cut-stage { position: absolute; left: 0; right: 0; bottom: 0; top: 0; padding: 0; display: block; z-index: 1; }
-  #cut .cut-por { position: absolute; left: max(2vw, 8px); bottom: calc(7vh + 64px); width: min(40vw, 290px); opacity: 0; transform: translateX(-30px); transition: opacity .3s, transform .35s cubic-bezier(.2,1.2,.4,1); filter: drop-shadow(0 10px 24px rgba(0,0,0,.55));
-    -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent 100%); mask-image: linear-gradient(180deg, #000 72%, transparent 100%); }
-  #cut .cut-por.on { opacity: 1; transform: none; } #cut .cut-por.dim { opacity: 0; transform: translateX(-30px); filter: none; }
-  #cut .cut-por svg, #cut .cut-por img { border: none; border-radius: 22px 22px 0 0; box-shadow: none; }
+  /* 일러스트: 대사 바 위에 서 있는 느낌 (배경 투명 · 얼굴 전부 보이게 · 가슴께만 바에 겹침) */
+  #cut .cut-box #cut-left { position: absolute; left: max(3vw, 6px); bottom: calc(100% - 46px); width: min(36vw, 250px); z-index: 0; opacity: 0; transform: translateY(14px); transition: opacity .25s, transform .35s cubic-bezier(.2,1.3,.4,1); pointer-events: none;
+    filter: drop-shadow(0 6px 14px rgba(0,0,0,.45)) drop-shadow(0 0 1px rgba(0,0,0,.6)); }
+  #cut .cut-box #cut-left.on { opacity: 1; transform: none; } #cut .cut-box #cut-left.dim { opacity: 0; }
+  #cut .cut-box #cut-left img, #cut .cut-box #cut-left svg { width: 100%; height: auto; display: block; border: none; border-radius: 0; box-shadow: none; background: transparent; aspect-ratio: auto; object-fit: contain; }
+  #cut .cut-box #cut-left .cutpic { width: 100%; aspect-ratio: 5 / 6; background: url(assets/portraits_cut.webp) no-repeat; background-size: 800% 800%; }
+  #cut .cut-box > #cut-name, #cut .cut-box > #cut-text { position: relative; z-index: 1; }
+  #cut .cut-box > .cut-hint { position: absolute; z-index: 1; }
   #cut #cut-right { display: none; }
-  #cut .cut-box { left: 0; right: 0; bottom: 7vh; transform: none; width: auto; min-height: 0; border: none; border-radius: 0; z-index: 2;
+  #cut .cut-box { left: 0; right: 0; bottom: 7vh; overflow: visible; transform: none; width: auto; min-height: 0; border: none; border-radius: 0; z-index: 2;
     background: linear-gradient(180deg, rgba(14,12,16,0) 0%, rgba(14,12,16,.82) 22%, rgba(10,9,12,.94) 100%);
     padding: 34px max(6vw, 18px) 20px; color: #f1eee9; box-shadow: none; }
   #cut .cut-box::before { content: ''; position: absolute; left: max(6vw, 18px); right: max(6vw, 18px); top: 66px; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,.35), rgba(255,255,255,.08)); }
@@ -35,9 +40,13 @@ const CINE = { on: false, phase: '', cast: {}, speaker: null, emote: null, emote
   #cut .cine-tag { position: absolute; left: max(6vw, 18px); top: calc(9vh + 12px); z-index: 4; font-size: 11px; font-weight: 900; letter-spacing: 4px; color: rgba(255,255,255,.75); }
   body.cine #hud { opacity: 0 !important; pointer-events: none; transition: opacity .3s; }
   body.cine #joyzone { pointer-events: none; }
-  @media (max-width: 640px) { #cut #cut-text { font-size: 15.5px; } #cut .cut-por { width: min(46vw, 230px); } }`;
+  @media (max-width: 640px) { #cut #cut-text { font-size: 15.5px; } #cut .cut-box #cut-left { width: min(44vw, 200px); } }
+  @media (max-height: 500px) { #cut .cut-box { padding: 26px max(5vw, 18px) 14px; } #cut .cut-box::before { top: 56px; } #cut #cut-name { font-size: 17px; margin-bottom: 10px; } #cut #cut-text { font-size: 15px; min-height: 44px; line-height: 1.6; } #cut .cut-box #cut-left { width: min(30vw, 46vh); bottom: calc(100% - 38px); } #cut.open .bar.top { height: 7vh; } #cut.open .bar.bot { height: 5vh; } #cut .cut-box { bottom: 5vh; } }`;
   document.head.appendChild(st);
   const cut = document.getElementById('cut');
+  // 일러스트를 대사 바 안으로 옮겨서 바 위에 올라서게
+  const por = document.getElementById('cut-left'), box = cut && cut.querySelector('.cut-box');
+  if (por && box) box.insertBefore(por, box.firstChild);
   if (cut && !cut.querySelector('.cine-tag')) { const t = document.createElement('div'); t.className = 'cine-tag'; t.textContent = '● CUTSCENE'; cut.appendChild(t); }
 })();
 
@@ -47,6 +56,14 @@ function cineCast(who) {
   if (NPCS[who]) return { id: who, n: NPCS[who].n, title: NPCS[who].title || '', look: NPCS[who].look };
   if (typeof CUT_CAST !== 'undefined' && CUT_CAST[who]) return { id: who, n: CUT_CAST[who].n, title: CUT_CAST[who].title || '', look: CUT_CAST[who].look };
   return null;
+}
+// 컷씬용 일러스트: 배경을 지운 버전 (없으면 원본)
+function cutPortraitHTML(id, look, mood) {
+  const pid = (NPCS[id] && NPCS[id].pic) || (typeof CUT_CAST !== 'undefined' && CUT_CAST[id] && CUT_CAST[id].pic) || id;
+  // 배경을 지운 일러스트 57장은 한 장짜리 시트(assets/portraits_cut.webp, 8×8칸)에 모여 있다. 순서 = PORTRAIT_IDS
+  const i = typeof PORTRAIT_IDS !== 'undefined' ? PORTRAIT_IDS.indexOf(pid) : -1;
+  if (i >= 0) return `<div class="cutpic" role="img" style="background-position:${(i % 8) / 7 * 100}% ${Math.floor(i / 8) / 7 * 100}%"></div>`;
+  return portraitHTML(id, look, mood);
 }
 // 칸 경로 (NPC 무시, 벽만 피함)
 function cinePath(sx, sy, gx, gy) {
@@ -138,7 +155,7 @@ cutNext = function () {
   // 일러스트 (왼쪽 크게)
   const L = $('#cut-left');
   if (cast && cast.look !== null) {
-    if (L.dataset.who !== cast.id) { L.classList.remove('on'); L.dataset.who = cast.id; L.innerHTML = portraitHTML(cast.id, cast.look, /!|\?!/.test(text) ? 'surprise' : (NPCS[cast.id] ? NPCS[cast.id].mood : 'sly')); void L.offsetWidth; }
+    if (L.dataset.who !== cast.id) { L.classList.remove('on'); L.dataset.who = cast.id; L.innerHTML = cutPortraitHTML(cast.id, cast.look, /!|\?!/.test(text) ? 'surprise' : (NPCS[cast.id] ? NPCS[cast.id].mood : 'sly')); void L.offsetWidth; }
     L.classList.add('on'); L.classList.remove('dim');
   } else { L.classList.remove('on'); L.dataset.who = ''; }
   $('#cut-name').innerHTML = cast ? `${esc(cast.n)}<small>${esc(cast.title || '')}</small>` : '';
@@ -155,7 +172,7 @@ cutNext = function () {
     CAM_FOCUS = far ? [a.px + 8, a.py, .14] : [(a.px + PLAYER.px) / 2 + 8, (a.py + PLAYER.py) / 2, .14];
     cam.target = CINE.base * (far ? 1.7 : CINE.zoomK);
     Object.values(CINE.cast).forEach(o => { if (o.a !== a) faceTo(o.a, a.x, a.y); });
-  } else { CAM_FOCUS = [PLAYER.px + 8, PLAYER.py + 4, .14]; cam.target = CINE.base * 1.35; }
+  } else if (!(act && (act.pan || act.zoom || act.player))) { CAM_FOCUS = [PLAYER.px + 8, PLAYER.py + 4, .14]; cam.target = CINE.base * 1.35; }
   if (fx === 'zoom') { cam.target = CINE.base * 1.95; cam.zoom = Math.max(cam.zoom, CINE.base * 1.7); }
   else if (fx) cutFx(fx);
   AudioSys.sfx('blip');
@@ -167,8 +184,21 @@ function cineAct(act) {
   if (act.zoom) cam.target = CINE.base * act.zoom;
   if (act.focus) { const a = castActor(act.focus); if (a) CAM_FOCUS = [a.px + 8, a.py, .14]; }
   if (act.hop) { const a = castActor(act.hop); if (a) a.hop = 1.6; }
+  if (act.slow !== undefined) CAM_SPEED = act.slow ? { pan: act.slow, zoom: act.slow * 1.3 } : null;
+  if (act.pan) CAM_FOCUS = [act.pan[0] * TS + 8, act.pan[1] * TS + 8, .1];
+  if (act.player) CAM_FOCUS = [PLAYER.px + 8, PLAYER.py + 4, .14];
+  if (act.title) epicTitle(act.title[0], act.title[1]);
+  if (act.sun) sunBurst();
 }
 cutEnd = function () {
+  CAM_SPEED = null;
+  try { cineCleanup(); } catch (err) { console.error('[cine]', err); }
+  const was = cutQ;
+  try { _engineCutEnd(); } catch (err) { console.error('[cutEnd]', err); cutOpen = false; cutQ = null; $('#cut').classList.remove('open'); $('#hud').style.opacity = ''; }
+  cutOpen = false; document.body.classList.remove('cine');
+  if (was && was.onEnd) setTimeout(() => was.onEnd(), 350);
+};
+function cineCleanup() {
   document.body.classList.remove('cine');
   CINE.on = false; CINE.speaker = null; CINE.emote = null; CAM_FOCUS = null;
   cam.target = targetZoom();
@@ -181,15 +211,12 @@ cutEnd = function () {
   });
   CINE.cast = {};
   $('#cut-left').classList.remove('on'); $('#cut-left').dataset.who = '';
-  const was = cutQ;
-  _engineCutEnd();
-  if (was && was.onEnd) setTimeout(() => was.onEnd(), 350);
-};
+}
 function removeTemp(a) { const i = ACTORS.indexOf(a); if (i >= 0) ACTORS.splice(i, 1); }
 
 // ---------- 매 프레임 ----------
 function updateCinema(dt) {
-  ACTORS.slice().forEach(a => {
+  ACTORS.slice().forEach(a => { try {
     if (a.hop) a.hop = Math.max(0, a.hop - dt / 260);
     if (!a.cine) return;
     const c = a.cine;
@@ -201,7 +228,7 @@ function updateCinema(dt) {
     a.px = (a.x + (nx - a.x) * k) * TS; a.py = (a.y + (ny - a.y) * k) * TS;
     a.fr = (Math.floor(c.t / (c.dur / 2)) % 2) + 1;
     if (k >= 1) { a.x = nx; a.y = ny; c.path.shift(); c.t = 0; if (c.path.length % 2 === 0) AudioSys.sfx('step'); }
-  });
+  } catch (err) { a.cine = null; } });
   if (!CINE.on) return;
   CINE.emoteT += dt;
   if (CINE.phase === 'enter') {
@@ -273,3 +300,49 @@ CUTS.push(
     ['g_eb', '「Σ (O − E)² / E… 네 오차를 전부 더해 불태워 주마!」', 'shake'],
     [null, '미궁 깊은 곳에서 거대한 날개가 펼쳐지는 소리가 울린다.'] ] }
 );
+try { (new Image()).src = 'assets/portraits_cut.webp'; } catch (e) {}
+
+// ---------- 웅장한 연출: 큰 금빛 타이틀 · 햇살 · 꽃잎 ----------
+(function epicCss() {
+  const st = document.createElement('style');
+  st.textContent = `
+  #epic { position: fixed; inset: 0; z-index: 72; pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; }
+  #epic.on { animation: epicIn 5.2s ease forwards; }
+  @keyframes epicIn { 0% { opacity: 0; } 14% { opacity: 1; } 78% { opacity: 1; } 100% { opacity: 0; } }
+  #epic .rays { position: absolute; width: 160vmax; height: 160vmax; background: repeating-conic-gradient(from 0deg, rgba(255,233,168,.16) 0deg 6deg, transparent 6deg 18deg); -webkit-mask-image: radial-gradient(circle, #000 0%, transparent 55%); mask-image: radial-gradient(circle, #000 0%, transparent 55%); animation: rays 14s linear infinite; }
+  @keyframes rays { to { transform: rotate(360deg); } }
+  #epic .t { position: relative; font-size: clamp(54px, 13vw, 120px); font-weight: 900; letter-spacing: .12em; color: #ffd84d; text-shadow: 0 0 30px rgba(255,216,77,.65), 4px 4px 0 #7a2a3a, 8px 8px 0 #2a1d2b; animation: tIn 1.6s cubic-bezier(.2,.9,.2,1) both; font-family: "Pretendard Variable", serif; }
+  #epic .s { position: relative; margin-top: 10px; font-size: clamp(14px, 3.4vw, 22px); font-weight: 800; letter-spacing: .6em; color: #fff7e0; text-shadow: 0 2px 8px rgba(0,0,0,.7); animation: tIn 1.6s .6s cubic-bezier(.2,.9,.2,1) both; }
+  #epic .line { position: relative; width: min(70vw, 520px); height: 2px; margin: 14px 0 4px; background: linear-gradient(90deg, transparent, #ffd84d, transparent); animation: lineIn 1.4s .3s ease both; }
+  @keyframes tIn { from { opacity: 0; transform: scale(1.25); filter: blur(10px); letter-spacing: .5em; } to { opacity: 1; transform: none; filter: none; } }
+  @keyframes lineIn { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  #sunflash { position: fixed; inset: 0; z-index: 71; pointer-events: none; background: radial-gradient(circle at 50% 40%, #fffbe8 0%, rgba(255,240,190,.85) 35%, rgba(255,220,140,0) 75%); opacity: 0; }
+  #sunflash.on { animation: sun 2.2s ease-out forwards; }
+  @keyframes sun { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }`;
+  document.head.appendChild(st);
+  const e = document.createElement('div'); e.id = 'epic'; e.innerHTML = '<div class="rays"></div><div class="t"></div><div class="line"></div><div class="s"></div>'; document.body.appendChild(e);
+  const f = document.createElement('div'); f.id = 'sunflash'; document.body.appendChild(f);
+})();
+function epicTitle(t, sub) {
+  const e = document.getElementById('epic'); if (!e) return;
+  e.querySelector('.t').textContent = t; e.querySelector('.s').textContent = sub || '';
+  e.classList.remove('on'); void e.offsetWidth; e.classList.add('on');
+  AudioSys.sfx('level'); setTimeout(() => AudioSys.sfx('secret'), 500);
+}
+function sunBurst() {
+  const f = document.getElementById('sunflash'); if (f) { f.classList.remove('on'); void f.offsetWidth; f.classList.add('on'); }
+  AudioSys.sfx('door');
+  // 꽃잎 · 나뭇잎이 바람에 흩날림
+  const vw = canvas.clientWidth / cam.zoom, vh = canvas.clientHeight / cam.zoom;
+  for (let i = 0; i < 70; i++) particles.push({ kind: 'leaf', x: cam.x + Math.random() * vw * 1.6 - vw * .3, y: cam.y + Math.random() * vh * .7 - vh * .2, vx: .3, vy: .2 + Math.random() * .35, life: 6000 + Math.random() * 5000, seed: Math.random() * 9, c: ['#ff8fb3', '#ffd84d', '#ffffff', '#9bd36a'][i % 4] });
+}
+// 처음 성 밖(마을)으로 나왔을 때
+CUTS.push({ id: 'cine_first_out', map: 'town', enter: true, lines: [
+  [null, '문을 열자— 눈부신 햇살이 쏟아진다.', 'flash', { sun: true, zoom: 2.6, player: true }],
+  [null, '바람에 꽃잎이 흩날린다. 종탑의 종이 울리기 시작한다.', null, { slow: 1400, zoom: 1.2, player: true }],
+  [null, '……', null, { slow: 2200, pan: [43, 35], zoom: .62, title: ['벨레스타', '확 률 과   분 포 의   왕 국'] }],
+  [null, '거꾸로 솟아오르는 분수. 끝없이 겹친 붉은 지붕들.', null, { slow: 1800, pan: [43, 30], zoom: .7 }],
+  [null, '북쪽 언덕 위에는 왕성이, 동·서·남의 길 끝에는 지식을 가진 자만 들어갈 수 있는 던전이 잠들어 있다고 한다.', null, { slow: 2000, pan: [43, 12], zoom: .66 }],
+  [null, '그리고 지금, 이 도시의 분포가 흔들리고 있다.', 'shake', { slow: 1600, pan: [43, 35], zoom: .8 }],
+  [null, '당신의 모험이 시작된다.', null, { slow: 900, player: true, zoom: 1.5 }]
+] });

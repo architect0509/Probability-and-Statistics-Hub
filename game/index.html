@@ -7,6 +7,9 @@
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <meta name="theme-color" content="#1a1220">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="description" content="확률과 통계 2학기(추정·검정·범주형 자료분석)를 모험하며 배우는 탑다운 RPG">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="대학교 확통허브">
@@ -315,9 +318,33 @@
   .story-bar { height: 8px; background: rgba(255,255,255,.15); border-radius: 4px; margin: 7px 0; overflow: hidden; } .story-bar i { display: block; height: 100%; background: linear-gradient(90deg, #ffd84d, #ff7aa8); border-radius: 4px; }
   .story-ch { display: flex; gap: 4px; justify-content: space-between; font-size: 13px; color: rgba(255,255,255,.35); } .story-ch .on { color: #ffd84d; } .story-ch .next { color: #ff9ec0; animation: blink 1s steps(2) infinite; }
   .story-n { margin-top: 7px; font-size: 12.5px; line-height: 1.6; color: #e8dcff; } .story-n b { color: #fff; } .story-n small { color: #ff9ec0; }
+
+  /* ---------- 모바일: 가로 화면 전용 ---------- */
+  #rotate { position: fixed; inset: 0; z-index: 500; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 18px; text-align: center; padding: 24px;
+    background: radial-gradient(ellipse at 50% 35%, #3a1f4a 0%, #160d1c 65%, #0a0610 100%); color: #f5ecd8; }
+  #rotate .ph { width: 84px; height: 140px; border: 5px solid #ffd84d; border-radius: 16px; position: relative; animation: rot 2.4s ease-in-out infinite; box-shadow: 0 0 30px rgba(255,216,77,.35); }
+  #rotate .ph::after { content: ''; position: absolute; left: 50%; bottom: 8px; width: 18px; height: 4px; margin-left: -9px; border-radius: 2px; background: #ffd84d; }
+  @keyframes rot { 0%, 25% { transform: rotate(0); } 55%, 80% { transform: rotate(-90deg); } 100% { transform: rotate(0); } }
+  #rotate b { font-size: 22px; font-weight: 900; color: #ffd84d; }
+  #rotate p { margin: 0; font-size: 14px; font-weight: 600; line-height: 1.7; color: #d8cce8; }
+  #rotate button { border: 3px solid #2a1d2b; background: #ffd84d; color: #2a1d2b; font-weight: 900; padding: 11px 18px; border-radius: 999px; box-shadow: 0 4px 0 #2a1d2b; }
+  @media (orientation: portrait) and (hover: none) and (pointer: coarse) { #rotate { display: flex; } }
+  /* 가로 모바일처럼 세로가 낮은 화면 */
+  @media (max-height: 500px) {
+    #dlg { max-height: 92vh; max-height: 92dvh; bottom: 4px; }
+    .dlg-left { width: 150px; padding: 8px; }
+    #dlg-desc { font-size: 14px; line-height: 1.7; padding: 9px 12px; }
+    .sec { padding: 6px 12px; }
+    .choice { padding: 7px 10px; font-size: 13.5px; }
+    .topbar { top: calc(4px + env(safe-area-inset-top)); }
+    .rb { width: 62px; height: 62px; font-size: 25px; } .rb.small { width: 50px; height: 50px; font-size: 19px; }
+    .abtns { bottom: calc(12px + env(safe-area-inset-bottom)); }
+    #joyzone { height: 70vh; }
+  }
 </style>
 </head>
 <body>
+<div id="rotate"><div class="ph"></div><b>가로로 돌려 주세요</b><p>벨레스타 연대기는 가로 화면 전용이에요.<br>휴대폰을 옆으로 눕히면 바로 시작돼요.</p><button id="rotate-btn" type="button">⛶ 전체화면 · 가로로 고정</button></div>
 <canvas id="game"></canvas>
 <div id="fx"></div><div id="grain"></div><div id="fade"></div>
 
@@ -415,5 +442,24 @@
 <script src="js/audio.js"></script>
 <script src="js/engine.js"></script>
 <script src="js/cinema.js"></script>
+<script>
+// 모바일: 전체화면 + 가로 고정 시도 (안드로이드 크롬 등에서 동작, 아이폰은 「가로로 돌려 주세요」 안내만)
+(function () {
+  const touch = matchMedia('(hover: none) and (pointer: coarse)').matches;
+  async function lockLandscape() {
+    if (!touch) return;
+    try { if (!document.fullscreenElement && document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen({ navigationUI: 'hide' }); } catch (e) {}
+    try { if (screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape'); } catch (e) {}
+  }
+  window.lockLandscape = lockLandscape;
+  document.getElementById('rotate-btn').addEventListener('click', lockLandscape);
+  ['btn-new', 'btn-continue'].forEach(id => { const b = document.getElementById(id); if (b) b.addEventListener('click', lockLandscape); });
+  // 모바일은 항상 전체화면: 화면을 처음 누를 때, 그리고 전체화면이 풀린 뒤 다시 누를 때마다 전체화면으로
+  if (touch) document.addEventListener('pointerdown', () => { if (!document.fullscreenElement) lockLandscape(); }, true);
+  // 방향이 바뀌면 캔버스 크기 다시 맞추기
+  const re = () => setTimeout(() => window.dispatchEvent(new Event('resize')), 250);
+  if (screen.orientation) screen.orientation.addEventListener('change', re); window.addEventListener('orientationchange', re);
+})();
+</script>
 </body>
 </html>

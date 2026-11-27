@@ -1,0 +1,15 @@
+깃허브 업로드용 폴더 (바뀐 파일 + 새 파일 20개)
+
+올리는 방법
+1. GitHub 저장소 첫 화면에서 Add file → Upload files 를 누릅니다.
+2. 이 폴더 "안의" 내용(game 폴더 + 나머지 파일들)을 전부 끌어다 놓습니다.
+   이 「읽어주세요.txt」는 빼고 올리세요.
+3. 같은 이름의 파일은 자동으로 새 버전으로 바뀝니다. Commit changes 를 누르면 끝.
+
+새로 생긴 파일
+- game/js/world2.js, game/js/cinema.js
+- game/assets/portraits_cut.webp
+- og-image.jpg, game/og-image.jpg
+
+저장소에 game/assets/portraits/cut 폴더가 올라가 있다면 지워 주세요 (이제 안 씀).
+업로드가 끝나면 이 「깃허브_업로드용」 폴더는 지워도 됩니다.
