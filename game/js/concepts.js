@@ -341,21 +341,21 @@ function conceptBoxHTML(q) {
 
 // ---------- 개념 문제 자동 생성 ----------
 (function makeConceptQuiz() {
-  const mask = c => { let d = c.d; conceptKeys(c).sort((a, b) => b.length - a.length).forEach(k => { d = d.split(k).join('○○'); }); return d; };
+  const mask = c => { let d = c.d; conceptKeys(c).sort((a, b) => b.length - a.length).forEach(k => { d = d.split(k).join('［ ? ］'); }); return d; };
   const byCh = ch => HUB_CONCEPTS.filter(c => c.ch === ch);
   // 헷갈리기 쉬운 짝을 오답으로 우선
   const near = { '제1종 오류': '제2종 오류', '제2종 오류': '제1종 오류', '귀무가설': '대립가설', '대립가설': '귀무가설', '독립성 검정': '동질성 검정', '동질성 검정': '독립성 검정', '점추정': '구간추정', '구간추정': '점추정', '신뢰구간': '신뢰수준 (신뢰도)', '유의수준': '유의확률 (p값)', '유의확률 (p값)': '유의수준', '검정력': '제2종 오류', '관찰도수와 기대도수': '카이제곱 검정', '합동분산': '쌍체비교 검정', '쌍체비교 검정': '합동분산', '적합도 검정': '독립성 검정' };
   let n = 0;
   HUB_CONCEPTS.forEach((c, i) => {
     const def = mask(c);
-    if (def.length < 25 || !def.includes('○○') && def.length < 40) return;
+    if (def.length < 25 || !def.includes('［ ? ］') && def.length < 40) return;
     const pool = byCh(c.ch).filter(o => o !== c).map(o => o.t);
     const w = [];
     if (near[c.t] && pool.includes(near[c.t])) w.push(near[c.t]);
     // 이름이 서로 겹치지 않는 오답 고르기 (하루 단위로 섞이도록 i 기반)
     for (let k = 0; w.length < 2 && k < pool.length; k++) { const o = pool[(i * 7 + k * 3) % pool.length]; if (!w.includes(o)) w.push(o); }
     const id = 'cq_' + i;
-    QUIZ.push({ id, ch: c.ch, concept: c.t, q: `다음 설명에 해당하는 개념은?\n「${def}」`, a: c.t, w: w.slice(0, 2), ex: `${c.t} — ${c.d}` });
+    QUIZ.push({ id, ch: c.ch, concept: c.t, q: `다음 설명의 ［ ? ］ 자리에 들어갈 개념은?\n「${def}」\n(※ ［ ? ］는 정답 개념 이름을 가린 빈칸이에요)`, a: c.t, w: w.slice(0, 2), ex: `${c.t} — ${c.d}` });
     QUIZ_HELP[id] = { f: `개념: ${c.t}`, s: [c.d].concat(c.e ? ['예) ' + c.e] : []) };
     n++;
   });

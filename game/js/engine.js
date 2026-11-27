@@ -317,11 +317,22 @@ function quizTurn(o) {
     const res = o.after(ok, q);
     HALF_REWARD = false;
     const nextQ = res && res.help && res.help.q && res.help.q !== q; // 연속 문제: 다음 문제의 힌트는 그대로
+    if (res && !ok && res.isQuiz) {
+      // 연속 문제에서 틀리면: 먼저 해설을 보여 주고, 「다음 문제」를 눌러야 넘어간다
+      res.desc = (res.desc || '').replace(/^<span class="ex">❌ 오답[\s\S]*?<\/span>\n\n/, '');
+      const head2 = (o.head || '').replace(/ · \d+\/\d+.*$/, '');
+      const wrap = { who: o.who, obj: o.obj, title: o.title, sub: o.sub, mood: 'sly', fx: res.fx, roll: res.roll,
+        desc: `${head2 ? head2 + '\n' : ''}<b>❌ 오답이에요.</b> 해설을 확인하고 다음 문제로 넘어가세요.\n` + solutionHTML(q, true, picked),
+        choices: [{ t: '다음 문제로 넘어간다 ▶', tag: '📝 다음 문제', run: () => res }] };
+      res.fx = undefined; res.roll = undefined;
+      return wrap;
+    }
     if (res && !ok) { res.desc = (res.desc || '') + solutionHTML(q, true, picked); if (!nextQ) res.help = null; }
     else if (res && ok && QUIZ_HELP[q.id] && !nextQ) res.help = { q, after: true };
     return res;
   };
   return {
+    isQuiz: true,
     who: o.who, obj: o.obj, title: o.title, sub: o.sub,
     help: { q, o },
     desc: `${head}<div class="quiz"><span class="qch">${q.ch}장</span> ${esc(q.q).replace(/\n/g, '<br>')}</div>${o.hint ? `<div class="hint">💡 힌트: ${esc(o.hint)}</div>` : ''}${o.showF ? formulaHTML(q) : ''}${o.peeked ? solutionHTML(q, false) : ''}`,
@@ -938,6 +949,18 @@ function targetZoom() {
   return z * S.zoomMul;
 }
 function setZoomMul(m) { S.zoomMul = Math.max(0.55, Math.min(2.4, m)); cam.target = targetZoom(); }
+// 컷씬 중 화면에서 가려지지 않는 세로 구간 [위, 아래] (px). 컷씬이 아니면 null
+let _safeT = 0, _safeV = null;
+function cineSafeArea() {
+  if (typeof CINE === 'undefined' || !CINE.on || !cutOpen) return null;
+  const now = performance.now(); if (now - _safeT < 250 && _safeV) return _safeV;
+  _safeT = now;
+  const rc = canvas.getBoundingClientRect(), box = document.querySelector('#cut .cut-box'), bar = document.querySelector('#cut .bar.top');
+  if (!box || !rc.height) return (_safeV = null);
+  const b = box.getBoundingClientRect(), t = bar ? bar.getBoundingClientRect().bottom : rc.top;
+  const top = Math.max(0, t - rc.top) + 6, bot = Math.min(rc.height, b.top - rc.top - 34);
+  return (_safeV = bot - top > rc.height * 0.25 ? [top, bot] : null);
+}
 function snapCam() { const p = camGoal(); cam.x = p[0]; cam.y = p[1]; }
 function camGoal() {
   const vw = canvas.clientWidth / cam.zoom, vh = canvas.clientHeight / cam.zoom;
@@ -945,6 +968,14 @@ function camGoal() {
   let x = (fp ? fp[0] : PLAYER.px + 8) - vw / 2, y = (fp ? fp[1] + vh * (fp[2] || 0) : PLAYER.py + 4) - vh / 2;
   const W = MAP.w * TS, H = MAP.h * TS;
   x = W <= vw ? (W - vw) / 2 : Math.max(0, Math.min(W - vw, x));
+  const safe = cineSafeArea();
+  if (safe) {
+    // 컷씬: 위 검은 띠와 아래 대사창 사이의 「보이는 영역」 한가운데에 초점을 둔다. 맵 끝을 넘어도 된다.
+    const top = safe[0] / cam.zoom, bot = safe[1] / cam.zoom, vis = bot - top;
+    const fy = fp ? fp[1] : PLAYER.py + 4;
+    y = H <= vis ? (H - vis) / 2 - top : Math.max(-top - 8, Math.min(H - bot + 8, fy - top - vis / 2));
+    return [x, y];
+  }
   y = H <= vh ? (H - vh) / 2 : Math.max(-8, Math.min(H - vh + 8, y));
   return [x, y];
 }
@@ -1107,7 +1138,7 @@ function bindJoystick() {
 
 function isNightMusic() { const p = dayPhase(); return p >= .6 && p < .93; }
 let _musT = 0;
-function musicTick(dt) { _musT += dt; if (_musT < 1000) return; _musT = 0; if (!MAP || titleMode || cutOpen || MAP.music === 'boss') return; AudioSys.play(MAP.music, isNightMusic()); }
+function musicTick(dt) { _musT += dt; if (_musT < 1000) return; _musT = 0; if (!MAP || titleMode || cutOpen || MAP.music === 'boss') return; if (window.BIAS_BGM) { if (dlgOpen || cutOpen || Date.now() < (window.BIAS_HOLD || 0)) return; window.BIAS_BGM = false; } AudioSys.play(MAP.music, isNightMusic()); }
 function dayPhase() { const p = (S.time % DAY) / DAY; return p; }
 function nightAmount() { if (MAP.theme !== 'town' && MAP.theme !== 'forest') return 0; const p = dayPhase(); if (p < .55) return 0; if (p < .65) return (p - .55) / .1 * .6; if (p < .9) return .6; return (1 - (p - .9) / .1) * .6; }
 function duskAmount() { if (MAP.theme !== 'town' && MAP.theme !== 'forest') return 0; const p = dayPhase(); return p > .5 && p < .68 ? Math.sin((p - .5) / .18 * Math.PI) : 0; }

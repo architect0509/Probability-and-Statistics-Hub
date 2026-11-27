@@ -670,7 +670,12 @@ const HAT_T = {
   horns: { all: { 0: '..W..........W..', 1: '..WW........WW..', 2: '...Ww......wW...' }, S: { 0: '..........W.....', 1: '.........WW.....', 2: '.........wW.....' } },
   bandana: { F: { 6: '..HHHHHHHHHHHH..', 7: '..hlhhhhhhhhhh..', 8: '.............HH.', 9: '..............h.' }, B: { 6: '..HHHHHHHHHHHH..', 7: '..hhhhhhhhhhhh..', 8: '.......HH.......', 9: '......H..h......' }, S: { 6: '...HHHHHHHHHHH..', 7: '...hlhhhhhhhhhH.', 8: '..............Hh', 9: '...............h' } },
   flower: { F: { 3: '............p...', 4: '...........pyp..', 5: '............p...' }, B: { 3: '...p............', 4: '..pyp...........', 5: '...p............' }, S: { 3: '...........p....', 4: '..........pyp...', 5: '...........p....' } },
-  halo: { all: { 0: '.....YYYYYY.....', 1: '....Y......Y....' } }
+  halo: { all: { 0: '.....YYYYYY.....', 1: '....Y......Y....' } },
+  band: { F: { 6: '..AAAAAAAAAAAA..' }, B: { 6: '..AAAAAAAAAAAA..', 7: '.......AA.......' }, S: { 6: '...AAAAAAAAAAA..' } },
+  tiara: { F: { 3: '.......R........', 4: '......YRY.......', 5: '...YYYYYYYYYY...' }, B: { 5: '...YYYYYYYYYY...' }, S: { 4: '.....YR.........', 5: '...YYYYYYYY.....' } },
+  hunter: { F: { 1: '.............R..', 2: '.....HHHHHHRR...', 3: '....HHlHHHHRH...', 4: '...HHHHHHHHHH...', 5: '..hhhhhhhhhhhh..' }, B: { 1: '..R.............', 2: '...RRHHHHHH.....', 3: '....HRlHHHHH....', 4: '...HHHHHHHHHH...', 5: '...HHHHHHHHHH...' },
+    S: { 1: '............R...', 2: '.....HHHHHHRR...', 3: '....HHlHHHHRH...', 4: '...HHHHHHHHHH...', 5: 'hhhhhhhHHHHHH...' } },
+  brim: { all: { 3: '......HHHH......', 4: '.....HHHHHH.....', 5: '....AAAAAAAA....', 6: '.hHHHHHHHHHHHHh.' }, S: { 3: '......HHHH......', 4: '.....HHHHHH.....', 5: '....AAAAAAAA....', 6: 'hHHHHHHHHHHHHHh.' } }
 };
 function stamp(g, rows, pal, dx = 0, dy = 0) {
   if (!rows) return;
@@ -742,7 +747,9 @@ function humanoid(p, dir, fr) {
     if (p.beard) { const bp = { b: p.beard, d: shade(p.beard, -0.25), m: pal.m }; stamp(g, side ? { 12: '..bb............', 13: '..bmbb..........', 14: '...bbbbb........', 15: '....dbb.........' } : { 12: '...b........b...', 13: '...bbbbmmbbbb...', 14: '....bbbbbbbb....', 15: '.....dbbbbd.....', 16: '......dbbd......' }, bp, 0, bob); }
     if (p.scar && !side) stamp(g, { 9: '..........x.....', 10: '...........x....', 11: '..........x.....' }, { x: '#c9877a' }, 0, bob);
     if (p.mouth && !side) stamp(g, { 13: '.......mm.......' }, { m: p.mouth }, 0, bob);
+    if (p.mask) stamp(g, side ? { 12: '..MMMMMM........', 13: '..MMMMMMM.......', 14: '...mmmmmm.......' } : { 12: '...MMMMMMMMMM...', 13: '...MMMMMMMMMM...', 14: '....mmmmmmmm....' }, { M: p.mask, m: shade(p.mask, -0.3) }, 0, bob);
   }
+  if (p.collar) stamp(g, side ? { 15: '.....WWWWWW.....' } : { 15: '...WWWWWWWWWW...', 16: '...w........w...' }, { W: p.collar, w: shade(p.collar, -0.2) }, 0, bob);
   // 모자
   if (hat && HAT_T[hat]) {
     const hc = p.hatColor || '#5b3fa0';
@@ -751,6 +758,7 @@ function humanoid(p, dir, fr) {
     if (hat === 'flower') { tp.y = '#ffe066'; }
     const t = HAT_T[hat]; stamp(g, t[V] || t.all, tp, 0, bob);
   }
+  if (p.goggles && !up) stamp(g, side ? { 6: '..OoO...........', 7: '..ObO...........' } : { 6: '...OoO....OoO...', 7: '...ObOBBBBObO...' }, { O: '#c9963a', o: '#bfe8ff', b: '#6ab0d8', B: '#8a5a2a' }, 0, bob);
   if (p.beast) beastParts(g, p, side, up, fr, bob, hr);
   return g;
 }
@@ -792,6 +800,7 @@ function creature(kind, p, dir, fr) {
     S(4, 16, OUT); S(7, 16, OUT); S(5, 17, '#f59aa0'); S(6, 17, '#f59aa0');
     R(4, 23, 2, 2, c); R(10, 23, 2, 2, c); R(12, 15 - b, 2, 5, d); S(13, 14 - b, d);
     if (p.pattern) { S(6, 19 + b, d); S(8, 20 + b, d); S(10, 19 + b, d); }
+    if (p.scarf) { R(3, 18 + b, 6, 1, p.scarf); S(8, 19 + b, p.scarf); S(8, 20 + b, shade(p.scarf, -0.25)); }
   }
   if (kind === 'slime') {
     const c = p.cloth || '#5fd36a';
@@ -818,8 +827,8 @@ function creature(kind, p, dir, fr) {
     else { R(7, 15, 2, 3, '#e8b83a'); }
   }
   if (kind === 'pigeon') {
-    const c = '#8a8fa8', d = '#5c6078', o = fr === 1 ? 1 : 0;
-    R(5, 16 + o, 7, 6, c); R(5, 16 + o, 7, 1, shade(c, .2)); R(4, 13 + o, 4, 4, c); S(4, 14 + o, OUT); R(2, 15 + o, 2, 1, '#e8a23a'); R(6, 17 + o, 4, 2, '#5fb38a'); S(7, 18 + o, '#b26ad0');
+    const c = p.cloth || '#8a8fa8', d = shade(c, -0.3), o = fr === 1 ? 1 : 0;
+    R(5, 16 + o, 7, 6, c); R(5, 16 + o, 7, 1, shade(c, .2)); R(4, 13 + o, 4, 4, c); S(4, 14 + o, OUT); R(2, 15 + o, 2, 1, '#e8a23a'); R(6, 17 + o, 4, 2, p.scarf || '#5fb38a'); S(7, 18 + o, p.scarf ? shade(p.scarf, -0.3) : '#b26ad0'); if (p.crown) { S(5, 12 + o, '#f0c040'); S(6, 11 + o, '#f0c040'); S(7, 12 + o, '#f0c040'); }
     R(10, 18 + o, 3, 3, d); R(6, 22, 1, 3, '#e8a23a'); R(9, 22, 1, 3, '#e8a23a');
   }
   if (kind === 'rock') {

@@ -37,6 +37,9 @@ const AudioSys = (() => {
       bass: seq('E2 - - - B2 - - - | C2 - - - G2 - - - | A1 - - - E2 - - - | B1 - - - F#2 - - - | E2 - - - B2 - - - | C2 - - - G2 - - - | D2 - - - A2 - - - | E2 - - - B2 - - - | G2 - - - D3 - - - | E2 - - - B2 - - - | F2 - - - C3 - - - | A1 - - - E2 - - - | C2 - - - G2 - - - | F2 - - - C3 - - - | B1 - - - F#2 - - - | E2 - - - - - - -'), perc: '', echo: true },
     epic: { bpm: 92, wave: 'square', lead: seq('C5 . . C5 G5 - - - | F5 . E5 . D5 . C5 . | A5 - - - G5 . E5 . | G5 - - - - - - - | C5 . . C5 A5 - - - | G5 . F5 . E5 . D5 . | E5 - F5 - G5 - B5 - | C6 - - - - - - -'),
       bass: seq('C3 . C3 . C3 . C3 . | F2 . F2 . F2 . F2 . | A2 . A2 . E2 . E2 . | G2 . G2 . G2 . G2 . | C3 . C3 . A2 . A2 . | F2 . F2 . G2 . G2 . | C3 . C3 . G2 . G2 . | C3 - - - - - - -'), perc: 'k...s...k.k.s...', echo: true },
+    // ---- 편향단 테마: 빠르고 까부는 악당 행진곡 ----
+    bias: { bpm: 172, wave: 'sawtooth', lead: seq('E5 . E5 G5 . E5 D5 . | C5 . C5 D5 E5 . B4 . | E5 . E5 G5 . A5 B5 . | A5 G5 E5 D5 E5 . . . | A5 . A5 C6 . A5 G5 . | F5 . F5 G5 A5 . E5 . | D#5 E5 F#5 G5 A5 B5 C6 D#6 | E6 . B5 . E5 . . .'),
+      bass: seq('E2 E3 . E2 G2 . A2 A#2 | C2 C3 . C2 D2 . B1 . | E2 E3 . E2 G2 . A2 B2 | A1 A2 . A1 B1 . B1 . | A1 A2 . A1 C2 . A1 . | F1 F2 . F1 F2 . E2 . | B1 B2 . B1 B2 . B1 B2 | E2 . E2 . E2 . . .'), perc: 'k.hsk.hskkhs.khs' },
     // ---- 장소별 곡 ----
     town_night: { bpm: 76, wave: 'triangle', lead: seq('A4 . . C5 . . E5 . | D5 . . C5 . . A4 . | G4 . . A4 . . C5 . | B4 . . . . . . . | A4 . . C5 . . E5 . | G5 . . E5 . . D5 . | C5 . . B4 . . G4 . | A4 . . . . . . .'),
       bass: seq('A2 - - - E2 - - - | F2 - - - C3 - - - | G2 - - - E2 - - - | A2 - - - E2 - - -'), perc: '.......h........', echo: true },

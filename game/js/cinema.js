@@ -197,7 +197,8 @@ cutEnd = function () {
   const was = cutQ;
   try { _engineCutEnd(); } catch (err) { console.error('[cutEnd]', err); cutOpen = false; cutQ = null; $('#cut').classList.remove('open'); $('#hud').style.opacity = ''; }
   cutOpen = false; document.body.classList.remove('cine');
-  try { if (MAP) AudioSys.play(MAP.music, isNightMusic()); } catch (e) {}
+  if (was && was.keepMusic) window.BIAS_HOLD = Date.now() + 1500;
+  try { if (MAP && !(was && was.keepMusic)) AudioSys.play(MAP.music, isNightMusic()); } catch (e) {}
   if (was && was.onEnd) setTimeout(() => was.onEnd(), 350);
 };
 function cineCleanup() {

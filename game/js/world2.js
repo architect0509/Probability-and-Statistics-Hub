@@ -694,6 +694,8 @@ function updateEvents(dt) {
   if (e.phase === 'talk' && !dlgOpen) { removeActor(a.id); const i = ACTORS.indexOf(a); if (i >= 0) ACTORS.splice(i, 1); EVT = null; }
 }
 // 그 자리에서 벌어지는 이벤트 (달려오는 사람 없이)
+// 돌발 이벤트 결과 화면 (제목·그림·설명 + 계속하기)
+function simple(title, obj, desc) { return { title, obj, desc, choices: [{ t: '계속 간다', run: () => null }] }; }
 function popEvent(words, turnFn, fxShake) {
   clearHeld();
   const [px, py] = playerScreenPct();
@@ -1022,7 +1024,8 @@ function biasEncounter() {
   const lines = plot.intro.concat(first ? [['bia', '「거기 너! 요즘 표지판 읽고 다닌다는 모험가!」', null, { walk: ['bia', 2, 0] }]] : [['skew', '「또 만났구나! 이번엔 다르다!」', null, { walk: ['skew', 2, 0] }]])
     .concat(BIAS_MOTTO).concat(plot.scheme)
     .concat([[null, `😈 편향단의 「${plot.k}」 작전! 문제로 그들의 논리를 무너뜨리자.`]]);
-  playCut({ id: 'bias_' + S.biasN + '_' + Date.now(), map: MAP.id, lines, onEnd: () => openTurn(biasDuelTurn(plot)) });
+  window.BIAS_BGM = true;
+  playCut({ id: 'bias_' + S.biasN + '_' + Date.now(), map: MAP.id, music: 'bias', keepMusic: true, lines, onEnd: () => { window.BIAS_BGM = true; try { AudioSys.play('bias'); } catch (e) {} openTurn(biasDuelTurn(plot)); } });
   return true;
 }
 function biasDuelTurn(plot) {
