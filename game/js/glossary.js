@@ -75,7 +75,9 @@ function glossify(root) {
   const show = el => {
     const g = GLOSS_BY[el.dataset.g]; if (!g) return; cur = el;
     tip.innerHTML = `<div class="gt-t">📘 ${g.t}</div><div class="gt-d">${g.d}</div><div class="gt-e"><b>예시</b> ${g.e}</div>`;
+    if (typeof mathify === 'function') mathify(tip);
     tip.classList.add('on');
+    if (typeof diaryGloss === 'function') diaryGloss(el.dataset.g);
     const r = el.getBoundingClientRect(), tw = Math.min(320, window.innerWidth - 16);
     tip.style.width = tw + 'px';
     let x = r.left + r.width / 2 - tw / 2; x = Math.max(8, Math.min(window.innerWidth - tw - 8, x));

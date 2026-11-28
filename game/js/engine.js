@@ -218,7 +218,7 @@ function typewrite(el) {
   if (typeof symbolize === 'function') symbolize(el);
   if (typeof glossify === 'function') glossify(el);
   const html = el.innerHTML;
-  const tmp = el.cloneNode(true); tmp.querySelectorAll('br').forEach(b => b.replaceWith('\n')); tmp.querySelectorAll('div,li,ol,.l-sub,.l-tip').forEach(b => b.append('\n'));
+  const tmp = el.cloneNode(true); tmp.querySelectorAll('[data-plain]').forEach(b => { if (tmp.contains(b)) b.replaceWith(b.dataset.plain); }); tmp.querySelectorAll('br').forEach(b => b.replaceWith('\n')); tmp.querySelectorAll('div,li,ol,.l-sub,.l-tip').forEach(b => b.append('\n'));
   const text = tmp.textContent;
   if (text.length < 4) return;
   el.innerHTML = ''; let i = 0;

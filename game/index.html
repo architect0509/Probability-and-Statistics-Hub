@@ -2,11 +2,12 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<script src="../thaniya-intro.js?v=2026.11.27-33" data-text="THANIYA PROJECT" data-once="session"></script>
+<script src="../thaniya-intro.js?v=2026.11.28-34" data-text="THANIYA PROJECT" data-once="session"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <title>벨레스타 연대기 · 확통허브 모험</title>
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Gaegu:wght@400;700&display=swap">
 <meta name="theme-color" content="#1a1220">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -22,7 +23,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://architect0509.github.io/Probability-and-Statistics-Hub/game/og-image.jpg">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
-<link rel="stylesheet" href="css/game.css?v=2026.11.27-33">
+<link rel="stylesheet" href="css/game.css?v=2026.11.28-34">
 </head>
 <body>
 <div id="rotate"><div class="ph"></div><b>가로로 돌려 주세요</b><p>벨레스타 연대기는 가로 화면 전용이에요.<br>휴대폰을 옆으로 눕히면 바로 시작돼요.</p><button id="rotate-btn" type="button">⛶ 전체화면 · 가로로 고정</button></div>
@@ -63,6 +64,7 @@
       <button class="ib" data-panel="map"><i><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.1 5.55a2 2 0 0 0 1.8 0l3.66-1.83A1 1 0 0 1 21 4.62v12.76a1 1 0 0 1-.55.9l-4.56 2.27a2 2 0 0 1-1.78 0l-4.22-2.1a2 2 0 0 0-1.78 0l-3.66 1.83A1 1 0 0 1 3 19.38V6.62a1 1 0 0 1 .55-.9l4.56-2.27a2 2 0 0 1 1.78 0z"/><path d="M15 5.76v15"/><path d="M9 3.24v15"/></svg></i>지도</button>
       <button class="ib" data-panel="info"><i><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg></i>내 정보</button>
       <button class="ib" data-panel="quest"><i><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg></i>퀘스트<span id="hud-qn"></span></button>
+      <button class="ib" data-panel="diary" title="모험 일기 (J)"><i><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></svg></i>일기<span id="hud-dyn" style="display:none"></span></button>
       <button class="ib" data-panel="bag"><i><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M8 10h8"/><path d="M8 18h8"/><path d="M8 22v-6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></i>가방</button>
       <div class="goldbox"><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg><span id="hud-gold">0</span></div>
       <button class="ib" data-panel="settings"><i><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></i>설정</button>
@@ -74,7 +76,7 @@
     <button class="rb small" id="btn-q" aria-label="퀘스트"><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg></button>
     <button class="rb" id="btn-a" aria-label="상호작용"><svg class="ic " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/></svg></button>
   </div>
-  <div class="kbhint">WASD 이동 · E 대화 · Q 퀘스트 · M 지도 · 휠 줌</div>
+  <div class="kbhint">WASD 이동 · E 대화 · Q 퀘스트 · J 일기 · M 지도 · 휠 줌</div>
 </div>
 <div id="banner"></div>
 <div id="toast"></div>
@@ -111,23 +113,25 @@
   <b>모험은 계속된다</b><br>(화면을 누르면 돌아갑니다)
 </div></div>
 
-<script src="js/art.js?v=2026.11.27-33"></script>
-<script src="js/maps.js?v=2026.11.27-33"></script>
-<script src="js/content.js?v=2026.11.27-33"></script>
-<script src="js/silly.js?v=2026.11.27-33"></script>
-<script src="js/story.js?v=2026.11.27-33"></script>
-<script src="js/help.js?v=2026.11.27-33"></script>
-<script src="js/glossary.js?v=2026.11.27-33"></script>
-<script src="js/world2.js?v=2026.11.27-33"></script>
-<script src="js/haunt.js?v=2026.11.27-33"></script>
-<script src="js/cards.js?v=2026.11.27-33"></script>
-<script src="js/costume.js?v=2026.11.27-33"></script>
-<script src="js/concepts.js?v=2026.11.27-33"></script>
-<script src="js/audio.js?v=2026.11.27-33"></script>
-<script src="js/engine.js?v=2026.11.27-33"></script>
-<script src="js/cinema.js?v=2026.11.27-33"></script>
-<script src="js/looks.js?v=2026.11.27-33"></script>
-<script src="js/quizgen.js?v=2026.11.27-33"></script>
-<script src="js/boot.js?v=2026.11.27-33"></script>
+<script src="js/art.js?v=2026.11.28-34"></script>
+<script src="js/maps.js?v=2026.11.28-34"></script>
+<script src="js/content.js?v=2026.11.28-34"></script>
+<script src="js/silly.js?v=2026.11.28-34"></script>
+<script src="js/story.js?v=2026.11.28-34"></script>
+<script src="js/help.js?v=2026.11.28-34"></script>
+<script src="js/glossary.js?v=2026.11.28-34"></script>
+<script src="js/world2.js?v=2026.11.28-34"></script>
+<script src="js/mathfmt.js?v=2026.11.28-34"></script>
+<script src="js/haunt.js?v=2026.11.28-34"></script>
+<script src="js/cards.js?v=2026.11.28-34"></script>
+<script src="js/costume.js?v=2026.11.28-34"></script>
+<script src="js/concepts.js?v=2026.11.28-34"></script>
+<script src="js/audio.js?v=2026.11.28-34"></script>
+<script src="js/engine.js?v=2026.11.28-34"></script>
+<script src="js/diary.js?v=2026.11.28-34"></script>
+<script src="js/cinema.js?v=2026.11.28-34"></script>
+<script src="js/looks.js?v=2026.11.28-34"></script>
+<script src="js/quizgen.js?v=2026.11.28-34"></script>
+<script src="js/boot.js?v=2026.11.28-34"></script>
 </body>
 </html>

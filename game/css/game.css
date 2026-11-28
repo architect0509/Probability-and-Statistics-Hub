@@ -574,3 +574,94 @@
 @media (max-width: 560px) { .dz-stage .dz-port { width: 46px; height: 56px; } }
 .slot { flex: none; } .slot .sl-btns .pbtn { position: static; transform: none; }
 .dz-b { padding: 5px 10px; font-size: 12.5px; }
+
+/* =========================================================================
+ * 수식 보기 좋게 (mathfmt.js) — 분수 · 루트 · 괄호 색 · 기호 색
+ * ========================================================================= */
+.mf-frac { display: inline-flex; flex-direction: column; align-items: stretch; vertical-align: middle; text-align: center; margin: 0 .14em; font-size: .94em; line-height: 1.18; position: relative; top: -.06em; }
+.mf-frac > .mf-n { border-bottom: 1.6px solid currentColor; padding: 0 .22em .06em; white-space: nowrap; }
+.mf-frac > .mf-d { padding: .08em .22em 0; white-space: nowrap; }
+.mf-frac .mf-frac { font-size: .9em; }
+.mf-rad { display: inline-flex; align-items: stretch; vertical-align: baseline; white-space: nowrap; }
+.mf-rad > .mf-rs { padding-right: .02em; font-weight: 400; transform: scaleY(1.08); transform-origin: bottom; }
+.mf-rad > .mf-rb { border-top: 1.6px solid currentColor; padding: .04em .16em 0 .08em; margin-left: -.06em; }
+.mf-frac .mf-rad > .mf-rb { padding-top: .02em; }
+.mf-pg { border-radius: 5px; padding: 0 .04em; }
+.mf-pg > .mf-pb { font-weight: 900; }
+.mf-g0 > .mf-pb { color: #d0453a; } .mf-g0 { background: rgba(208,69,58,.07); }
+.mf-g1 > .mf-pb { color: #2a72d0; } .mf-g1 { background: rgba(42,114,208,.08); }
+.mf-g2 > .mf-pb { color: #23915a; } .mf-g2 { background: rgba(35,145,90,.08); }
+.mf-g3 > .mf-pb { color: #9a4ad0; } .mf-g3 { background: rgba(154,74,208,.08); }
+.mf-frac > .mf-n > .mf-pg:only-child, .mf-frac > .mf-d > .mf-pg:only-child { background: none; }
+.paren-aside { color: #7d6a58; font-size: .93em; font-weight: 600; }
+.mf-op { color: #8a2a40; font-weight: 900; margin: 0 .08em; }
+.mf-lbl { background: #ffe9a8; color: #5a3a10; border-radius: 6px; padding: 0 6px; margin-right: 2px; font-weight: 900; box-shadow: inset 0 0 0 1.5px #e3c070; }
+#dlg-desc .lesson, #dlg-desc .fhint, #dlg-desc .sol, #dlg-desc .quiz { line-height: 2.05; }
+#dlg-desc .txt { line-height: 1.9; }
+/* 기호 색: 모수 · 통계량 · 기준값 · 검정통계량 · 가설 · 개수 */
+.term.sym.k-par  { color: #1f5fc0; border-bottom-color: #1f5fc0; }
+.term.sym.k-stat { color: #148246; border-bottom-color: #148246; }
+.term.sym.k-crit { color: #8a3ec4; border-bottom-color: #8a3ec4; }
+.term.sym.k-test { color: #c4313a; border-bottom-color: #c4313a; }
+.term.sym.k-hyp  { color: #b4560c; border-bottom-color: #b4560c; }
+.term.sym.k-cnt  { color: #6b4a30; border-bottom-color: #6b4a30; }
+.term.sym.k-op   { color: inherit; border-bottom-color: rgba(0,0,0,.25); }
+.symleg i.k-par { color: #1f5fc0; } .symleg i.k-stat { color: #148246; } .symleg i.k-crit { color: #8a3ec4; } .symleg i.k-test { color: #c4313a; } .symleg i.k-hyp { color: #b4560c; } .symleg i.k-cnt { color: #6b4a30; }
+.kleg { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 4px; font-size: 11px; font-weight: 800; }
+.kleg span.k-par { color: #1f5fc0; } .kleg span.k-stat { color: #148246; } .kleg span.k-crit { color: #8a3ec4; } .kleg span.k-test { color: #c4313a; } .kleg span.k-hyp { color: #b4560c; } .kleg span.k-cnt { color: #6b4a30; }
+/* 어두운 말풍선·컷씬 위에서는 밝게 */
+#gtip .mf-g0 > .mf-pb, .cut-box .mf-g0 > .mf-pb { color: #ff8f84; } #gtip .mf-g1 > .mf-pb, .cut-box .mf-g1 > .mf-pb { color: #8fc0ff; }
+#gtip .mf-g2 > .mf-pb, .cut-box .mf-g2 > .mf-pb { color: #7fe0a8; } #gtip .mf-g3 > .mf-pb, .cut-box .mf-g3 > .mf-pb { color: #d4a4ff; }
+#gtip .mf-pg, .cut-box .mf-pg { background: rgba(255,255,255,.06); }
+#gtip .mf-op, .cut-box .mf-op { color: #ffd84d; } #gtip .paren-aside, .cut-box .paren-aside { color: #c9b8d8; }
+
+/* =========================================================================
+ * 📔 모험 일기 (diary.js) — 손글씨 공책
+ * ========================================================================= */
+.ib .dyn, #hud-dyn { position: absolute; top: -4px; right: -4px; min-width: 16px; height: 16px; border-radius: 8px; background: #e8455a; color: #fff; font-size: 10px; line-height: 16px; padding: 0 4px; font-weight: 900; box-shadow: 0 0 0 2px #1a1220; }
+.pbox.diary { width: min(680px, 96vw); }
+.pbox.diary #panel-body { background: #efe3c4; padding: 10px; }
+.dy-book { --hand: 'Nanum Pen Script', 'Gaegu', 'Comic Sans MS', cursive; --pen: #2b3a86; }
+.dy-cover { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; padding: 4px 6px 8px; font-family: var(--hand); }
+.dy-cover b { font-size: 27px; color: #6a2434; font-weight: 400; }
+.dy-cover span { font-size: 19px; color: #6b5a48; }
+.dy-tabs { display: flex; gap: 3px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 4px -2px; position: relative; z-index: 1; } .dy-tabs::-webkit-scrollbar { display: none; }
+.dy-tab { flex-shrink: 0; white-space: nowrap; font-family: var(--hand); font-size: 18px; line-height: 1; border: 2px solid #b9a27a; border-bottom: none; background: #e3d3ad; color: #5a4632; padding: 6px 8px 5px; border-radius: 10px 10px 0 0; }
+.dy-tab small { font-size: 15px; color: #a0522d; }
+.dy-tab.on { background: #fffdf5; color: #6a2434; border-color: #c8b38a; }
+.dy-page { position: relative; background-color: #fffdf5; background-image: linear-gradient(90deg, transparent 38px, rgba(232,90,110,.55) 38px, rgba(232,90,110,.55) 40px, transparent 40px), repeating-linear-gradient(180deg, transparent 0 33px, #cfe0f2 33px 34px); background-position: 0 6px; border: 2px solid #c8b38a; border-radius: 4px 12px 12px 12px; padding: 8px 12px 16px 50px; min-height: 260px; box-shadow: 0 2px 0 #c8b38a, 0 6px 14px rgba(60,40,20,.18); }
+.dy-page::before { content: ''; position: absolute; left: 12px; top: 18px; bottom: 18px; width: 12px; background: radial-gradient(circle, #d8c8a6 4px, transparent 5px) 0 0 / 12px 40px repeat-y; }
+.dy-day { margin-bottom: 6px; }
+.dy-date { font-family: var(--hand); font-size: 24px; line-height: 34px; color: #7a2434; padding-top: 2px; }
+.dy-w { font-size: 18px; color: #8a7660; margin-left: 6px; }
+.dy-line { display: flex; align-items: flex-start; gap: 6px; width: 100%; text-align: left; background: none; border: none; padding: 0 4px; margin: 0; color: var(--pen); font-family: var(--hand); font-size: 22px; line-height: 34px; cursor: pointer; border-radius: 6px; transition: background .15s; }
+.dy-line:hover { background: rgba(255,226,120,.35); }
+.dy-line:hover .dy-go { opacity: 1; }
+.dy-line.static { cursor: default; } .dy-line.static:hover { background: none; }
+.dy-ic { flex-shrink: 0; font-size: 16px; line-height: 34px; filter: saturate(.8); }
+.dy-tx { flex: 1; min-width: 0; }
+.dy-tm { font-style: normal; font-size: 17px; color: #9a8a78; }
+.dy-feel { display: block; font-size: 19px; color: #c0506a; margin-left: 14px; transform: rotate(-1deg); line-height: 34px; }
+.dy-go { flex-shrink: 0; font-size: 17px; color: #b08a50; opacity: .45; transition: opacity .15s; }
+.dk-q .dy-tx { color: #23604a; } .dk-c .dy-tx { color: #5a3a9a; } .dk-e .dy-tx { color: #9a4a1a; } .dk-g .dy-tx { color: #2b5a8a; } .dk-d .dy-tx { color: #7a2a3a; }
+.dy-empty { font-family: var(--hand); font-size: 23px; line-height: 34px; color: #8a7a66; text-align: center; padding-top: 40px; }
+.dy-tip { font-size: 11.5px; color: #7a6a58; margin: 8px 4px 0; }
+.dy-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 6px; }
+.dy-back, .dy-pn { font-family: var(--hand); font-size: 20px; line-height: 1; border: 2px solid #b9a27a; background: #fffdf5; color: #6a2434; padding: 6px 12px; border-radius: 999px; margin-left: 4px; }
+.dy-content { margin: 8px 0 4px; font-family: Pretendard Variable, Pretendard, sans-serif; color: #241820; }
+.dy-content .lesson { background: #fffaf0; border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; font-weight: 700; font-size: 14.5px; line-height: 2.05; overflow-x: auto; }
+.dy-content .quiz { background: #fffaf0; border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; font-weight: 800; line-height: 2; }
+.dy-content .qch { display: inline-block; background: var(--wine); color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 6px; margin-right: 4px; line-height: 1.6; }
+.dy-content .sol { margin-top: 8px; background: #eef8e8; border-radius: 12px; box-shadow: inset 0 0 0 1.5px #9cc98a; padding: 8px 10px; font-size: 13.5px; line-height: 2; }
+.dy-content .sol b { color: #2f6a2a; } .dy-content .sol ol { margin: 4px 0 0 18px; padding: 0; }
+.dy-content .big-f { font-size: 17px; }
+.dy-content .symleg { margin-top: 6px; font-size: 12px; line-height: 1.7; }
+.dy-content .symleg span { display: inline-block; margin-right: 8px; } .dy-content .symleg i { font-style: normal; font-weight: 900; }
+.dy-easy { margin-top: 8px; background: #fff6dc; border-radius: 12px; padding: 10px 12px; font-size: 14px; line-height: 1.8; box-shadow: inset 0 0 0 1.5px #e3c48a; }
+.dy-gloss { background: #1f1628; color: #f4ecff; border-radius: 12px; padding: 10px 12px; font-size: 13.5px; line-height: 1.75; }
+.dy-gloss > b { color: #ffd84d; } .dy-gloss .gt-e { margin-top: 6px; background: rgba(255,255,255,.08); border-radius: 8px; padding: 6px 8px; color: #d8ffe0; } .dy-gloss .gt-e b { color: #7dff9b; margin-right: 4px; }
+.dy-gloss .mf-g0 > .mf-pb { color: #ff8f84; } .dy-gloss .mf-g1 > .mf-pb { color: #8fc0ff; } .dy-gloss .mf-pg { background: rgba(255,255,255,.06); } .dy-gloss .mf-op { color: #ffd84d; }
+.dy-act { display: block; width: 100%; margin-top: 10px; font-family: var(--hand); font-size: 21px; border: 2px dashed #b9a27a; background: #fff7df; color: #6a2434; padding: 6px; border-radius: 10px; }
+@media (max-width: 560px), (max-height: 480px) {
+  .dy-line { font-size: 19.5px; } .dy-date { font-size: 21px; } .dy-page { padding-left: 42px; } .dy-page { background-image: linear-gradient(90deg, transparent 30px, rgba(232,90,110,.55) 30px, rgba(232,90,110,.55) 32px, transparent 32px), repeating-linear-gradient(180deg, transparent 0 33px, #cfe0f2 33px 34px); } .dy-page::before { left: 8px; }
+}
